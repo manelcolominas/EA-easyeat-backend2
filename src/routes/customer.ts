@@ -115,6 +115,35 @@ const router = express.Router();
  */
 router.post('/', ValidateJoi(Schemas.customer.create), controller.createCustomer);
 
+// ─── POST /customers/login ────────────────────────────────────────────────────
+/**
+ * @openapi
+ * /customers/login:
+ *   post:
+ *     summary: Log in a customer and receive a JWT
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Auth successful
+ *       401:
+ *         description: Invalid credentials
+ */
+router.post('/login', controller.loginCustomer);
+
 // ─── GET /customers ───────────────────────────────────────────────────────────
 /**
  * @openapi
