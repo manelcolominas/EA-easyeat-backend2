@@ -101,6 +101,7 @@ const getReviewsByCustomer = async (
     return {
         data: reviews.map((r: any) => ({
             ...r,
+            rating: r.globalRating, // Alias para el backoffice
             restaurant_id: {
                 _id: r.restaurant_id._id,
                 name: r.restaurant_id.profile?.name

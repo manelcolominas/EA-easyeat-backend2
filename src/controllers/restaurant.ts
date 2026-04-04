@@ -29,9 +29,14 @@ const createRestaurant = async (req: Request, res: Response, next: NextFunction)
 const readRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.getRestaurant(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        if (restaurant) {
+            const resObj: any = { ...restaurant };
+            if (resObj.profile) {
+                resObj.profile.rating = resObj.profile.globalRating;
+            }
+            return res.status(200).json(resObj);
+        }
+        return res.status(404).json({ message: 'Restaurant not found.' });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -40,7 +45,14 @@ const readRestaurant = async (req: Request, res: Response, next: NextFunction) =
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurants = await RestaurantService.getAllRestaurants();
-        return res.status(200).json(restaurants);
+        const resList = restaurants.map((r: any) => {
+            const resObj = { ...r };
+            if (resObj.profile) {
+                resObj.profile.rating = resObj.profile.globalRating;
+            }
+            return resObj;
+        });
+        return res.status(200).json(resList);
     } catch (error) {
         return res.status(500).json({ error });
     }

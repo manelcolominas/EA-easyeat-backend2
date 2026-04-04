@@ -11,10 +11,16 @@ import reviewRoutes from './routes/review';
 import customerRoutes from './routes/customer';
 import rewardRoutes from './routes/reward';
 import visitRoutes from './routes/visit';
+// Rutas no disponibles en esta rama:
+// import badgeRoutes from './routes/badge';
+// import dishRoutes from './routes/dish';
+// import employeeRoutes from './routes/employee';
+// import pointsWallets from './routes/pointsWallet';
+// import rewardRedemption from './routes/rewardRedemption';
+// import statistics from './routes/statistics';
+
 import authRoutes from './routes/auth';
-import { requireAdmin } from './middleware/auth';
-
-
+import { requireAdmin, verifyTokenMiddleware } from './middleware/auth';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -51,32 +57,36 @@ const StartServer = () => {
     router.use(express.urlencoded({ extended: true }));
     router.use(express.json());
 
-    /** Rules of our API */
+    /** CORS */
     router.use(cors());
 
-    /** Swagger */
+    /** Swagger (PÚBLICO para poder testear) */
     router.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
     /** Public Routes */
     router.use('/auth', authRoutes);
+    router.get('/ping', (req, res) => res.status(200).json({ hello: 'world' }));
 
-    /** Protected backoffice Routes */
+    /** 🔐 PROTECCIÓN GLOBAL (TODO lo de abajo requiere ADMIN) */
+    router.use(verifyTokenMiddleware);
     router.use(requireAdmin);
 
-    /** Routes */
+    /** Protected Routes */
     router.use('/restaurants', restaurantRoutes);
     router.use('/reviews', reviewRoutes);
     router.use('/customers', customerRoutes);
-    router.use('/rewards', rewardRoutes)
-    router.use('/visits', visitRoutes)
-
-    /** Healthcheck */
-    router.get('/ping', (req, res, next) => res.status(200).json({ hello: 'world' }));
+    router.use('/rewards', rewardRoutes);
+    router.use('/visits', visitRoutes);
+    // router.use('/badges', badgeRoutes);
+    // router.use('/dishes', dishRoutes);
+    // router.use('/employees', employeeRoutes);
+    // router.use('/pointsWallets', pointsWallets);
+    // router.use('/rewardRedemptions', rewardRedemption);
+    // router.use('/statistics', statistics);
 
     /** Error handling */
-    router.use((req, res, next) => {
+    router.use((req, res) => {
         const error = new Error('Not found');
-
         Logging.error(error);
 
         res.status(404).json({

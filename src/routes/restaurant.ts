@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/restaurant';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { verifyTokenMiddleware, verifyRole, optionalAuth } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -212,7 +213,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
+router.post('/', verifyTokenMiddleware, verifyRole(['owner', 'admin']), ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
 
 /**
  * @openapi
@@ -624,7 +625,7 @@ router.get('/:restaurantId/full', controller.getRestaurantFull);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:restaurantId', ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
+router.put('/:restaurantId', verifyTokenMiddleware, verifyRole(['owner', 'admin']), ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Lifecycle  (soft-delete / restore / hard-delete)

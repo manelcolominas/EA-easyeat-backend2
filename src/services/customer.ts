@@ -101,13 +101,20 @@ const getCustomerAllVisits = async (customerId: string): Promise<IVisit[]> => {
         }
 
         // Fetch all visits for this customer, excluding soft-deleted ones
-        return await VisitModel.find({
+        const visits = await VisitModel.find({
             customer_id: customerId,
             deletedAt: null,
         })
-            .populate('restaurant_id', 'profile.name profile.rating profile.location.city')
+            .populate('restaurant_id', 'profile.name profile.globalRating profile.location.city')
             .sort({ createdAt: -1 })  // Most recent first
             .lean();
+
+        return visits.map((v: any) => {
+            if (v.restaurant_id && v.restaurant_id.profile) {
+                v.restaurant_id.profile.rating = v.restaurant_id.profile.globalRating;
+            }
+            return v;
+        });
     } catch (error) {
         console.error(`Error fetching visits for customer ${customerId}:`, error);
         return [];
@@ -194,13 +201,21 @@ const getCustomerAllReviews = async (customerId: string): Promise<IReview[]> => 
         }
 
         // Fetch all reviews by this customer, excluding soft-deleted ones
-        return await ReviewModel.find({
+        const reviews = await ReviewModel.find({
             customer_id: customerId,
             deleted: false,
         })
-            .populate('restaurant_id', 'profile.name profile.rating')
+            .populate('restaurant_id', 'profile.name profile.globalRating')
             .sort({ createdAt: -1 })  // Most recent first
             .lean();
+
+        return reviews.map((r: any) => {
+            r.rating = r.globalRating; // Alias review rating
+            if (r.restaurant_id && r.restaurant_id.profile) {
+                r.restaurant_id.profile.rating = r.restaurant_id.profile.globalRating;
+            }
+            return r;
+        });
     } catch (error) {
         console.error(`Error fetching reviews for customer ${customerId}:`, error);
         return [];
