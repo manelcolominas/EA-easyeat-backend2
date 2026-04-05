@@ -13,7 +13,12 @@ import rewardRoutes from './routes/reward';
 import visitRoutes from './routes/visit';
 import authRoutes from './routes/auth';
 import { requireAdmin } from './middleware/auth';
-
+import adminRestaurantRoutes from './routes/admin.restaurant';
+//import adminReviewRoutes from './routes/admin.review';
+import adminCustomerRoutes from './routes/admin.customer';
+//import adminRewardRoutes from './routes/admin.reward';
+//import  from './routes/visit';
+//import authRoutes from './routes/auth';
 
 
 import swaggerUi from 'swagger-ui-express';
@@ -71,11 +76,11 @@ const StartServer = () => {
     router.use('/visits', visitRoutes);
 
     /**Rutes admin backoffice */
-    router.use('/admin/restaurants', requireAdmin, restaurantRoutes);
-    router.use('/admin/reviews', requireAdmin, reviewRoutes);
-    router.use('/admin/customers', requireAdmin, customerRoutes);
-    router.use('/admin/rewards', requireAdmin, rewardRoutes);
-    router.use('/admin/visits', requireAdmin, visitRoutes);
+    router.use('/admin/restaurants', requireAdmin, adminRestaurantRoutes);
+    router.use('/admin/reviews', requireAdmin, adminReviewRoutes);
+    router.use('/admin/customers', requireAdmin, adminCustomerRoutes);
+    router.use('/admin/rewards', requireAdmin, adminRewardRoutes);
+    router.use('/admin/visits', requireAdmin, adminVisitRoutes);
 
     /** Healthcheck */
     router.get('/ping', (req, res, next) => res.status(200).json({ hello: 'world' }));
