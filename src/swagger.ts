@@ -15,6 +15,16 @@ const options: Options = {
         url: `http://localhost:${config.server.port}`,
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Paste your admin JWT token here',
+        },
+      },
+    },
   },
 
   // IMPORTANT: read the compiled .js files in build/routes

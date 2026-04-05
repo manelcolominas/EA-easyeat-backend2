@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/reward';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-
+import { requireAdmin, requireAuth } from '../middleware/auth';
 const router = express.Router();
 
 /**
@@ -77,7 +77,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /rewards:
+ * /admin/rewards:
  *   post:
  *     summary: Creates a reward
  *     tags: [Rewards]
@@ -93,11 +93,11 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.reward.create), controller.createReward);
+router.post('/', requireAdmin, ValidateJoi(Schemas.reward.create), controller.createReward);
 
 /**
  * @openapi
- * /rewards/{rewardId}:
+ * /admin/rewards/{rewardId}:
  *   get:
  *     summary: Gets a reward by ID
  *     tags: [Rewards]
@@ -114,11 +114,11 @@ router.post('/', ValidateJoi(Schemas.reward.create), controller.createReward);
  *       404:
  *         description: Not found
  */
-router.get('/:rewardId', controller.readReward);
+router.get('/:rewardId', requireAdmin, controller.readReward);
 
 /**
  * @openapi
- * /rewards:
+ * /admin/rewards:
  *   get:
  *     summary: Lists all rewards
  *     tags: [Rewards]
@@ -126,11 +126,11 @@ router.get('/:rewardId', controller.readReward);
  *       200:
  *         description: OK
  */
-router.get('/', controller.readAll);
+router.get('/', requireAdmin, controller.readAll);
 
 /**
  * @openapi
- * /rewards/{rewardId}:
+ * /admin/rewards/{rewardId}:
  *   put:
  *     summary: Updates a reward by ID
  *     tags: [Rewards]
@@ -155,11 +155,11 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:rewardId', ValidateJoi(Schemas.reward.update), controller.updateReward);
+router.put('/:rewardId', requireAdmin, ValidateJoi(Schemas.reward.update), controller.updateReward);
 
 /**
  * @openapi
- * /rewards/{rewardId}:
+ * /admin/rewards/{rewardId}:
  *   delete:
  *     summary: Deletes a reward by ID
  *     tags: [Rewards]
@@ -176,6 +176,6 @@ router.put('/:rewardId', ValidateJoi(Schemas.reward.update), controller.updateRe
  *       404:
  *         description: Not found
  */
-router.delete('/:rewardId', controller.deleteReward);
+router.delete('/:rewardId', requireAdmin, controller.deleteReward);
 
 export default router;

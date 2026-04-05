@@ -61,14 +61,21 @@ const StartServer = () => {
     router.use('/auth', authRoutes);
 
     /** Protected backoffice Routes */
-    router.use(requireAdmin);
+    //router.use(requireAdmin);
 
-    /** Routes */
+    /** Routes publiques */
     router.use('/restaurants', restaurantRoutes);
     router.use('/reviews', reviewRoutes);
     router.use('/customers', customerRoutes);
-    router.use('/rewards', rewardRoutes)
-    router.use('/visits', visitRoutes)
+    router.use('/rewards', rewardRoutes);
+    router.use('/visits', visitRoutes);
+
+    /**Rutes admin backoffice */
+    router.use('/admin/restaurants', requireAdmin, restaurantRoutes);
+    router.use('/admin/reviews', requireAdmin, reviewRoutes);
+    router.use('/admin/customers', requireAdmin, customerRoutes);
+    router.use('/admin/rewards', requireAdmin, rewardRoutes);
+    router.use('/admin/visits', requireAdmin, visitRoutes);
 
     /** Healthcheck */
     router.get('/ping', (req, res, next) => res.status(200).json({ hello: 'world' }));

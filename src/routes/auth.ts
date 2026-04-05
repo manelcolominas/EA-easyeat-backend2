@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/auth';
 
+
 const router = express.Router();
 
 /**
@@ -63,5 +64,33 @@ router.post('/login', controller.loginAdmin);
  *         description: Admin with this email already exists
  */
 router.post('/register', controller.registerAdmin);
+
+/**
+ * @openapi
+ * /login/customer:
+ *   post:
+ *     summary: Log in as a customer
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Auth successful
+ *       401:
+ *         description: Invalid credentials
+ */
+router.post('/login/customer', controller.loginCustomer);
 
 export default router;

@@ -217,24 +217,6 @@ router.post('/', requireAdmin, ValidateJoi(Schemas.restaurant.create), controlle
 
 /**
  * @openapi
- * /restaurants:
- *   get:
- *     summary: Lists all restaurants
- *     tags: [Restaurants]
- *     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Restaurant'
- */
-router.get('/', controller.readAll);
-
-/**
- * @openapi
  * /restaurants/filter:
  *   get:
  *     summary: Gets a filtered list of restaurants

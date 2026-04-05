@@ -5,6 +5,8 @@ const SALT_ROUNDS = 10;
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
+export type UserRole = 'staff' | 'owner';
+
 export interface IEmployee {
     _id?: Types.ObjectId;
     restaurant_id: Types.ObjectId;
@@ -13,7 +15,7 @@ export interface IEmployee {
         password?: string;
         email?: string;
         phone?: string;
-        role?: string;
+        role?: UserRole;
     };
     refreshTokenHash?: string;
     isActive: boolean;
@@ -40,7 +42,7 @@ const employeeSchema = new Schema<IEmployee, EmployeeModel, IEmployeeMethods>(
             password: { type: String, select: false },
             email: { type: String },
             phone: { type: String, trim: true },
-            role: { type: String, enum: ['owner', 'staff'], default: 'staff' },
+            role:  { type: String, enum: ['staff', 'owner'], default: 'staff' },
         },
         refreshTokenHash: { type: String },
         isActive: { type: Boolean, required: true, default: true },

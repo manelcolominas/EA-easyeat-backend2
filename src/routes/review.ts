@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/review';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-
+import { requireAdmin, requireAuth } from '../middleware/auth';
 const router = express.Router();
 
 /**
@@ -83,7 +83,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /reviews:
+ * /me/reviews:
  *   post:
  *     summary: Creates a review
  *     tags: [Reviews]
@@ -99,7 +99,7 @@ const router = express.Router();
  *       422:
  *         description: Validation error
  */
-router.post('/', ValidateJoi(Schemas.review.create), controller.createReview);
+router.post('/me/reviews', requireAuth, ValidateJoi(Schemas.review.create), controller.createReview);
 
 /**
  * @openapi
@@ -133,7 +133,7 @@ router.get('/restaurant/:restaurantId', controller.readByRestaurant);
 
 /**
  * @openapi
- * /reviews/customer/{customerId}:
+ * /admin/reviews/customer/{customerId}:
  *   get:
  *     summary: Get reviews by customer
  *     tags: [Reviews]
@@ -163,7 +163,7 @@ router.get('/restaurant/:restaurantId', controller.readByRestaurant);
  *       200:
  *         description: List of reviews
  */
-router.get('/customer/:customerId', controller.readByCustomer);
+router.get('/reviews/customer/:customerId', requireAdmin, controller.readByCustomer);
 
 /**
  * @openapi
@@ -187,7 +187,7 @@ router.get('/:reviewId', controller.readReview);
 
 /**
  * @openapi
- * /reviews/{reviewId}:
+ * /me/reviews/{reviewId}:
  *   put:
  *     summary: Update review
  *     tags: [Reviews]
@@ -203,11 +203,11 @@ router.get('/:reviewId', controller.readReview);
  *       404:
  *         description: Not found
  */
-router.put('/:reviewId', ValidateJoi(Schemas.review.update), controller.updateReview);
+router.put('/reviews/me/reviews/:reviewId', requireAuth, ValidateJoi(Schemas.review.update), controller.updateReview);
 
 /**
  * @openapi
- * /reviews/{reviewId}:
+ * /me/reviews/{reviewId}:
  *   delete:
  *     summary: Delete review
  *     tags: [Reviews]
@@ -223,7 +223,7 @@ router.put('/:reviewId', ValidateJoi(Schemas.review.update), controller.updateRe
  *       404:
  *         description: Not found
  */
-router.delete('/:reviewId', controller.deleteReview);
+router.delete('/reviews/:reviewId', requireAuth, controller.deleteReview);
 
 /**
  * @openapi

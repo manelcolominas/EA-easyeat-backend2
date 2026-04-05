@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AdminModel } from '../models/admin';
 import { config } from '../config/config';
 import Logging from '../library/logging';
+import { CustomerModel } from '../models/customer';
 
 export const loginAdmin = async (req: Request, res: Response) => {
     try {
@@ -82,5 +83,44 @@ export const registerAdmin = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
+export const loginCustomer = async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body;
 
-export default { loginAdmin, registerAdmin };
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        const customer = await CustomerModel.findOne({ email, deletedAt: null }).select('+password');
+
+        if (!customer) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const isMatch = await customer.comparePassword(password);
+
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const token = jwt.sign(
+            { id: customer._id, type: 'customer' },
+            config.token.secret,
+            { expiresIn: '1d' }
+        );
+
+        return res.status(200).json({
+            message: 'Auth successful',
+            token,
+            customer: {
+                id: customer._id,
+                email: customer.email,
+                name: customer.name
+            }
+        });
+    } catch (error) {
+        Logging.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+export default { loginAdmin, registerAdmin, loginCustomer };
