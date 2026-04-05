@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import CustomerService from '../services/customer';
+import { CustomerModel } from '../models/customer';
+import { config } from '../config/config';
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -7,6 +10,41 @@ const createCustomer = async (req: Request, res: Response, next: NextFunction) =
     try {
         const savedCustomer = await CustomerService.createCustomer(req.body);
         return res.status(201).json(savedCustomer);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+// ─── Login ────────────────────────────────────────────────────────────────────
+
+const loginCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+        const customer = await CustomerModel.findOne({ email }).active().select('+password');
+        if (!customer) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        const isMatch = await customer.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        const token = jwt.sign(
+            { id: customer._id, type: 'customer' },
+            config.token.secret || 'supersecret',
+            { expiresIn: '7d' }
+        );
+        return res.status(200).json({
+            message: 'Auth successful',
+            token,
+            customer: {
+                id: customer._id,
+                email: customer.email,
+                name: customer.name
+            }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -173,6 +211,7 @@ const hardDeleteCustomer = async (req: Request, res: Response, next: NextFunctio
 
 export default {
     createCustomer,
+    loginCustomer,
     readCustomer,
     readCustomerFull,
     getCustomerAllBadges,
