@@ -1,52 +1,151 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import StatisticsService from '../services/statistics';
+import statisticsAnalytics from '../services/statistics.analytics';
 
-const createStatistics = async (req: Request, res: Response, next: NextFunction) => {
+
+
+const createStatistics = async (req: Request, res: Response) => {
     try {
         const saved = await StatisticsService.createStatistics(req.body);
         return res.status(201).json(saved);
-    } catch (error) {
-        return res.status(500).json({ error });
+    } catch {
+        return res.status(500).json({
+            message: 'Error creating statistics'
+        });
     }
 };
 
-const readStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const readStatistics = async (req: Request, res: Response) => {
     const { statisticsId } = req.params;
+
     try {
         const statistics = await StatisticsService.getStatistics(statisticsId);
-        return statistics ? res.status(200).json(statistics) : res.status(404).json({ message: 'not found' });
-    } catch (error) {
-        return res.status(500).json({ error });
+
+        if (!statistics) {
+            return res.status(404).json({ message: 'Statistics not found' });
+        }
+
+        return res.status(200).json(statistics);
+    } catch {
+        return res.status(500).json({
+            message: 'Error fetching statistics'
+        });
     }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (_req: Request, res: Response) => {
     try {
         const statistics = await StatisticsService.getAllStatistics();
         return res.status(200).json(statistics);
-    } catch (error) {
-        return res.status(500).json({ error });
+    } catch {
+        return res.status(500).json({
+            message: 'Error fetching statistics list'
+        });
     }
 };
 
-const updateStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const updateStatistics = async (req: Request, res: Response) => {
     const { statisticsId } = req.params;
+
     try {
         const updated = await StatisticsService.updateStatistics(statisticsId, req.body);
-        return updated ? res.status(201).json(updated) : res.status(404).json({ message: 'not found' });
-    } catch (error) {
-        return res.status(500).json({ error });
+
+        if (!updated) {
+            return res.status(404).json({ message: 'Statistics not found' });
+        }
+
+        return res.status(200).json(updated);
+    } catch {
+        return res.status(500).json({
+            message: 'Error updating statistics'
+        });
     }
 };
 
-const deleteStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const deleteStatistics = async (req: Request, res: Response) => {
     const { statisticsId } = req.params;
+
     try {
-        const statistics = await StatisticsService.deleteStatistics(statisticsId);
-        return statistics ? res.status(200).json(statistics) : res.status(404).json({ message: 'not found' });
-    } catch (error) {
-        return res.status(500).json({ error });
+        const deleted = await StatisticsService.deleteStatistics(statisticsId);
+
+        if (!deleted) {
+            return res.status(404).json({ message: 'Statistics not found' });
+        }
+
+        return res.status(200).json(deleted);
+    } catch {
+        return res.status(500).json({
+            message: 'Error deleting statistics'
+        });
     }
 };
 
-export default { createStatistics, readStatistics, readAll, updateStatistics, deleteStatistics };
+
+
+//  KPI cards
+const getRestaurantKpis = async (req: Request, res: Response) => {
+    const { restaurantId } = req.params;
+
+    if (!restaurantId) {
+        return res.status(400).json({
+            message: 'restaurantId is required'
+        });
+    }
+
+    try {
+        const data = await statisticsAnalytics.getRestaurantKpis(restaurantId);
+        return res.status(200).json(data);
+    } catch {
+        return res.status(500).json({
+            message: 'Error fetching restaurant KPIs'
+        });
+    }
+};
+
+
+//  Visits per hour
+const getVisitsPerHour = async (_req: Request, res: Response) => {
+    try {
+        const data = await statisticsAnalytics.getVisitsPerHour();
+        return res.status(200).json(data);
+    } catch {
+        return res.status(500).json({
+            message: 'Error fetching visits per hour'
+        });
+    }
+};
+
+
+//  Ratings 
+const getAverageRatingsByRestaurant = async (req: Request, res: Response) => {
+    const { restaurantId } = req.params;
+
+    if (!restaurantId) {
+        return res.status(400).json({
+            message: 'restaurantId is required'
+        });
+    }
+
+    try {
+        const data = await statisticsAnalytics.getAverageRatingsByRestaurant(restaurantId);
+        return res.status(200).json(data);
+    } catch {
+        return res.status(500).json({
+            message: 'Error fetching ratings'
+        });
+    }
+};
+
+
+
+export default {
+
+    createStatistics,
+    readStatistics,
+    readAll,
+    updateStatistics,
+    deleteStatistics,
+    getRestaurantKpis,
+    getVisitsPerHour,
+    getAverageRatingsByRestaurant
+};

@@ -8,7 +8,7 @@ const router = express.Router();
  * @openapi
  * tags:
  *   - name: Statistics
- *     description: CRUD endpoints for restaurant statistics
+ *     description: CRUD endpoints for restaurant statistics and analytics
  *
  * components:
  *   schemas:
@@ -73,7 +73,118 @@ const router = express.Router();
  *           minimum: 0
  *           default: 0
  *           example: 12.5
+ *
+ *     RestaurantKpis:
+ *       type: object
+ *       properties:
+ *         totalPointsGiven:
+ *           type: number
+ *           example: 11400
+ *         loyalCustomers:
+ *           type: number
+ *           example: 64
+ *         averagePointsPerVisit:
+ *           type: number
+ *           example: 98
+ *
+ *     VisitPerHour:
+ *       type: object
+ *       properties:
+ *         hour:
+ *           type: number
+ *           example: 14
+ *         total:
+ *           type: number
+ *           example: 12
+ *
+ *     RatingCategory:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: "Food Quality"
+ *         value:
+ *           type: number
+ *           example: 8.4
+ *
+ *     RatingsByRestaurant:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/RatingCategory'
  */
+
+/**
+ * @openapi
+ * /statistics/kpis/{restaurantId}:
+ *   get:
+ *     summary: Gets KPI cards for a restaurant
+ *     tags: [Statistics]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant ObjectId
+ *     responses:
+ *       200:
+ *         description: Restaurant KPI data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RestaurantKpis'
+ *       500:
+ *         description: Server error
+ */
+router.get('/kpis/:restaurantId', controller.getRestaurantKpis);
+
+/**
+ * @openapi
+ * /statistics/visits-per-hour:
+ *   get:
+ *     summary: Gets visits per hour for chart display
+ *     tags: [Statistics]
+ *     responses:
+ *       200:
+ *         description: Array of visits grouped by hour
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/VisitPerHour'
+ *       500:
+ *         description: Server error
+ */
+router.get('/visits-per-hour', controller.getVisitsPerHour);
+
+/**
+ * @openapi
+ * /statistics/ratings/{restaurantId}:
+ *   get:
+ *     summary: Gets average ratings by category for a restaurant
+ *     tags: [Statistics]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant ObjectId
+ *     responses:
+ *       200:
+ *         description: Ratings grouped by category
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RatingsByRestaurant'
+ *       500:
+ *         description: Server error
+ */
+router.get('/ratings/:restaurantId', controller.getAverageRatingsByRestaurant);
 
 /**
  * @openapi
@@ -97,6 +208,18 @@ router.post('/', ValidateJoi(Schemas.statistics.create), controller.createStatis
 
 /**
  * @openapi
+ * /statistics:
+ *   get:
+ *     summary: Lists all statistics records
+ *     tags: [Statistics]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', controller.readAll);
+
+/**
+ * @openapi
  * /statistics/{statisticsId}:
  *   get:
  *     summary: Gets a statistics record by ID
@@ -115,18 +238,6 @@ router.post('/', ValidateJoi(Schemas.statistics.create), controller.createStatis
  *         description: Not found
  */
 router.get('/:statisticsId', controller.readStatistics);
-
-/**
- * @openapi
- * /statistics:
- *   get:
- *     summary: Lists all statistics records
- *     tags: [Statistics]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/', controller.readAll);
 
 /**
  * @openapi
