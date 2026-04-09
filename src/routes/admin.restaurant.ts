@@ -164,6 +164,25 @@ const router = express.Router();
 /**
  * @openapi
  * /admin/restaurants:
+ *   get:
+ *     summary: Lists all restaurants for the backoffice
+ *     tags: [Restaurants]
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Restaurant'
+ */
+router.get('/', controller.readAll);
+
+
+/**
+ * @openapi
+ * /admin/restaurants:
  *   post:
  *     summary: Creates a restaurant
  *     tags: [Restaurants]
@@ -213,7 +232,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', requireAdmin, ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
+router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
 
 /**
  * @openapi
@@ -238,7 +257,7 @@ router.post('/', requireAdmin, ValidateJoi(Schemas.restaurant.create), controlle
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/full', requireAdmin, controller.getRestaurantFull);
+router.get('/:restaurantId/full', controller.getRestaurantFull);
 
 /**
  * @openapi
@@ -459,7 +478,7 @@ router.get('/:restaurantId/full', requireAdmin, controller.getRestaurantFull);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:restaurantId', requireAdmin, ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
+router.put('/:restaurantId', ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Lifecycle  (soft-delete / restore / hard-delete)
@@ -500,7 +519,7 @@ router.put('/:restaurantId', requireAdmin, ValidateJoi(Schemas.restaurant.update
  *       500:
  *         description: Internal server error
  */
-router.delete('/:restaurantId/soft', requireAdmin, controller.softDelete);
+router.delete('/:restaurantId/soft', controller.softDelete);
 
 /**
  * @openapi
@@ -536,7 +555,7 @@ router.delete('/:restaurantId/soft', requireAdmin, controller.softDelete);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:restaurantId/restore', requireAdmin, controller.restore);
+router.patch('/:restaurantId/restore', controller.restore);
 
 /**
  * @openapi
@@ -572,7 +591,7 @@ router.patch('/:restaurantId/restore', requireAdmin, controller.restore);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:restaurantId/hard', requireAdmin, controller.hardDelete);
+router.delete('/:restaurantId/hard', controller.hardDelete);
 
 
 export default router;

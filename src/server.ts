@@ -14,9 +14,10 @@ import visitRoutes from './routes/visit';
 import authRoutes from './routes/auth';
 import { requireAdmin } from './middleware/auth';
 import adminRestaurantRoutes from './routes/admin.restaurant';
-//import adminReviewRoutes from './routes/admin.review';
+import adminReviewRoutes from './routes/admin.review';
 import adminCustomerRoutes from './routes/admin.customer';
-//import adminRewardRoutes from './routes/admin.reward';
+import adminRewardRoutes from './routes/admin.reward';
+import adminVisitRoutes from './routes/admin.visit'
 //import  from './routes/visit';
 //import authRoutes from './routes/auth';
 
@@ -69,12 +70,12 @@ const StartServer = () => {
     //router.use(requireAdmin);
 
     /** Routes publiques */
-    router.use('/restaurants', restaurantRoutes);
+    /*router.use('/restaurants', restaurantRoutes);
     router.use('/reviews', reviewRoutes);
     router.use('/customers', customerRoutes);
     router.use('/rewards', rewardRoutes);
     router.use('/visits', visitRoutes);
-
+*/
     /**Rutes admin backoffice */
     router.use('/admin/restaurants', requireAdmin, adminRestaurantRoutes);
     router.use('/admin/reviews', requireAdmin, adminReviewRoutes);

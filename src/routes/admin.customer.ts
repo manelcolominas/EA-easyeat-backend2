@@ -114,7 +114,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.post('/', requireAdmin, ValidateJoi(Schemas.customer.create), controller.createCustomer);
+router.post('/', ValidateJoi(Schemas.customer.create), controller.createCustomer);
 
 // ─── GET /customers ───────────────────────────────────────────────────────────
 /**
@@ -144,7 +144,7 @@ router.post('/', requireAdmin, ValidateJoi(Schemas.customer.create), controller.
  *             schema:
  *               $ref: '#/components/schemas/PaginatedCustomers'
  */
-router.get('/', requireAdmin , controller.readAll);
+router.get('/', controller.readAll);
 
 // ─── GET /customers/:customerId ───────────────────────────────────────────────
 /**
@@ -165,7 +165,7 @@ router.get('/', requireAdmin , controller.readAll);
  *       404:
  *         description: Not found or soft-deleted
  */
-router.get('/:customerId', requireAdmin, controller.readCustomer);
+router.get('/:customerId', controller.readCustomer);
 
 /**
  * @openapi
@@ -189,7 +189,7 @@ router.get('/:customerId', requireAdmin, controller.readCustomer);
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/full', requireAdmin, controller.readCustomerFull);
+router.get('/:customerId/full', controller.readCustomerFull);
 
 // ─── GET /customers/:customerId/badges ─────────────────────────────────────────
 /**
@@ -210,7 +210,7 @@ router.get('/:customerId/full', requireAdmin, controller.readCustomerFull);
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/badges', requireAdmin, controller.getCustomerAllBadges);
+router.get('/:customerId/badges', controller.getCustomerAllBadges);
 
 // ─── GET /customers/:customerId/favouriteRestaurants ────────────────────────────
 /**
@@ -231,7 +231,7 @@ router.get('/:customerId/badges', requireAdmin, controller.getCustomerAllBadges)
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/favouriteRestaurants', requireAdmin, controller.getCustomerAllFavouriteRestaurants);
+router.get('/:customerId/favouriteRestaurants', controller.getCustomerAllFavouriteRestaurants);
 
 // ─── GET /customers/:customerId/pointsWallet ───────────────────────────────────
 /**
@@ -252,12 +252,12 @@ router.get('/:customerId/favouriteRestaurants', requireAdmin, controller.getCust
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/pointsWallet', requireAdmin, controller.getCustomerAllPointsWallet);
+router.get('/:customerId/pointsWallet', controller.getCustomerAllPointsWallet);
 
-// ─── GET /customers/:customerId/reviews ────────────────────────────────────────
+// ─── GET /admin/customers/{customerId}/reviews ────────────────────────────────────────
 /**
  * @openapi
- * /admin/customers/:customerId/reviews:
+ * /admin/customers/{customerId}/reviews:
  *   get:
  *     summary: Gets all reviews written by the customer
  *     tags: [Customer]
@@ -273,7 +273,7 @@ router.get('/:customerId/pointsWallet', requireAdmin, controller.getCustomerAllP
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/reviews', requireAdmin, controller.getCustomerAllReviews);
+router.get('/:customerId/reviews', controller.getCustomerAllReviews);
 
 // ─── GET /customers/:customerId/visits ─────────────────────────────────────────
 /**
@@ -294,7 +294,7 @@ router.get('/:customerId/reviews', requireAdmin, controller.getCustomerAllReview
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/visits', requireAdmin, controller.getCustomerAllVisits);
+router.get('/:customerId/visits', controller.getCustomerAllVisits);
 
 // ─── PUT /customers/:customerId ───────────────────────────────────────────────
 /**
@@ -323,7 +323,7 @@ router.get('/:customerId/visits', requireAdmin, controller.getCustomerAllVisits)
  *       422:
  *         description: Validation failed
  */
-router.put('/:customerId', requireAdmin, ValidateJoi(Schemas.customer.update), controller.updateCustomer);
+router.put('/:customerId', ValidateJoi(Schemas.customer.update), controller.updateCustomer);
 
 // ─── DELETE /customers/:customerId  (soft delete) ─────────────────────────────
 /**
@@ -346,7 +346,7 @@ router.put('/:customerId', requireAdmin, ValidateJoi(Schemas.customer.update), c
  *       404:
  *         description: Not found
  */
-router.delete('/:customerId/soft', requireAdmin, controller.softDeleteCustomer);
+router.delete('/:customerId/soft', controller.softDeleteCustomer);
 
 // ─── PATCH /customers/:customerId/restore ─────────────────────────────────────
 /**
@@ -369,7 +369,7 @@ router.delete('/:customerId/soft', requireAdmin, controller.softDeleteCustomer);
  *       404:
  *         description: Not found
  */
-router.patch('/:customerId/restore', requireAdmin, controller.restoreCustomer);
+router.patch('/:customerId/restore', controller.restoreCustomer);
 
 // ─── DELETE /customers/:customerId/hard  (hard delete — admin only) ───────────
 /**
@@ -392,6 +392,6 @@ router.patch('/:customerId/restore', requireAdmin, controller.restoreCustomer);
  *       404:
  *         description: Not found
  */
-router.delete('/:customerId/hard', requireAdmin, controller.hardDeleteCustomer);
+router.delete('/:customerId/hard', controller.hardDeleteCustomer);
 
 export default router;
