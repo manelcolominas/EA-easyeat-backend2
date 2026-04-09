@@ -67,9 +67,9 @@ router.post('/register', controller.registerAdmin);
 
 /**
  * @openapi
- * /login/customer:
+ * /login/employee:
  *   post:
- *     summary: Log in as a customer
+ *     summary: Log in as an employee
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -91,6 +91,9 @@ router.post('/register', controller.registerAdmin);
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login/customer', controller.loginCustomer);
+router.post('/customer/login', controller.loginCustomer);  
+router.post('/employee/login', controller.loginEmployee);  
+router.post('/refresh', controller.refreshToken);          
+router.post('/logout', controller.logout);               
 
 export default router;

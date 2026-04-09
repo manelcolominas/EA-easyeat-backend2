@@ -15,6 +15,7 @@ import authRoutes from './routes/auth';
 import { requireAdmin } from './middleware/auth';
 import adminRestaurantRoutes from './routes/admin.restaurant';
 import adminReviewRoutes from './routes/admin.review';
+import adminReviewRoutes from './routes/admin.review';
 import adminCustomerRoutes from './routes/admin.customer';
 import adminRewardRoutes from './routes/admin.reward';
 import adminVisitRoutes from './routes/admin.visit'
@@ -54,12 +55,16 @@ const StartServer = () => {
         next();
     });
 
-    router.use(express.urlencoded({ extended: true }));
-    router.use(express.json());
+    
 
     /** Rules of our API */
-    router.use(cors());
+    router.use(cors({
+    origin: 'http://localhost:5174',
+    credentials: true
+    }));
 
+    router.use(express.urlencoded({ extended: true }));
+    router.use(express.json());
     /** Swagger */
     router.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
