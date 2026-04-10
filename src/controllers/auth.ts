@@ -80,6 +80,45 @@ export const registerAdmin = async (req: Request, res: Response) => {
     }
 };
 
+export const registerCustomer = async (req: Request, res: Response) => {
+    try {
+        const { email, password, name } = req.body;
+
+        if (!email || !password || !name) {
+            return res.status(400).json({ message: 'Email, password, and name are required' });
+        }
+
+        const existingCustomer = await CustomerModel.findOne({ email });
+
+        if (existingCustomer) {
+            return res.status(409).json({ message: 'Customer with this email already exists' });
+        }
+
+        const customer = new CustomerModel({ email, password, name });
+        await customer.save();
+
+        const token = jwt.sign(
+            { id: customer._id, type: 'customer' },
+            config.token.secret,
+            { expiresIn: '1d' }
+        );
+
+        return res.status(201).json({
+            message: 'Customer created successfully',
+            accessToken: token,
+            user: {
+                id: customer._id,
+                email: customer.email,
+                name: customer.name,
+                role: 'customer'
+            }
+        });
+    } catch (error) {
+        Logging.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 export const loginCustomer = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
@@ -178,4 +217,4 @@ export const logout = async (req: Request, res: Response) => {
     return res.status(200).json({ message: 'Logged out' });
 };
 
-export default { loginAdmin, registerAdmin, loginCustomer, loginEmployee, refreshToken, logout };
+export default { loginAdmin, registerAdmin, registerCustomer, loginCustomer, loginEmployee, refreshToken, logout };

@@ -92,6 +92,7 @@ router.post('/register', controller.registerAdmin);
  *         description: Invalid credentials
  */
 router.post('/customer/login', controller.loginCustomer);  
+router.post('/customer/register', controller.registerCustomer);
 router.post('/employee/login', controller.loginEmployee);  
 router.post('/refresh', controller.refreshToken);          
 router.post('/logout', controller.logout);               

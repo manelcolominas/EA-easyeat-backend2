@@ -53,7 +53,7 @@ const loginCustomer = async (req: Request, res: Response, next: NextFunction) =>
 // ─── Read (single) ────────────────────────────────────────────────────────────
 
 const readCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const customer = await CustomerService.getCustomer(customerId);
         return customer
@@ -65,7 +65,7 @@ const readCustomer = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 const readCustomerFull = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const customer = await CustomerService.getCustomerFull(customerId);
         return customer
@@ -77,7 +77,7 @@ const readCustomerFull = async (req: Request, res: Response, next: NextFunction)
 };
 
 const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const badges = await CustomerService.getCustomerAllBadges(customerId);
         return res.status(200).json(badges);
@@ -87,7 +87,7 @@ const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunct
 };
 
 const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const restaurants = await CustomerService.getCustomerAllFavouriteRestaurants(customerId);
         return res.status(200).json(restaurants);
@@ -97,7 +97,7 @@ const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, n
 };
 
 const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const reviews = await CustomerService.getCustomerAllReviews(customerId);
         return res.status(200).json(reviews);
@@ -107,7 +107,7 @@ const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunc
 };
 
 const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const visits = await CustomerService.getCustomerAllVisits(customerId);
         return res.status(200).json(visits);
@@ -117,11 +117,11 @@ const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunct
 };
 
 const getCustomerAllPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const pointsWallet = await CustomerService.getCustomerAllPointsWallet(customerId);
         return res.status(200).json(pointsWallet);
-        } catch (error) {
+    } catch (error) {
         return res.status(500).json({ error });
     }
 };
@@ -130,7 +130,7 @@ const getCustomerAllPointsWallet = async (req: Request, res: Response, next: Nex
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     // Accept ?page=1&limit=20 query params
-    const page  = Math.max(1, parseInt(req.query.page  as string, 10) || 1);
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
 
     try {
@@ -144,7 +144,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 // ─── Update ───────────────────────────────────────────────────────────────────
 
 const updateCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const updatedCustomer = await CustomerService.updateCustomer(customerId, req.body);
         return updatedCustomer
@@ -162,7 +162,7 @@ const updateCustomer = async (req: Request, res: Response, next: NextFunction) =
  * Marks the customer as inactive without removing the document.
  */
 const softDeleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId || (req as any).customer?.id;
     try {
         const customer = await CustomerService.softDeleteCustomer(customerId);
         return customer

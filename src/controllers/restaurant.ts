@@ -27,8 +27,9 @@ const createRestaurant = async (req: Request, res: Response, next: NextFunction)
 };
 
 const readRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     try {
-        const restaurant = await RestaurantService.getRestaurant(req.params.restaurantId);
+        const restaurant = await RestaurantService.getRestaurant(restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -38,6 +39,7 @@ const readRestaurant = async (req: Request, res: Response, next: NextFunction) =
 };
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     try {
         const restaurants = await RestaurantService.getAllRestaurants();
         return res.status(200).json(restaurants);
@@ -47,6 +49,8 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updateRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
+
     try {
         const restaurant = await RestaurantService.updateRestaurant(
             req.params.restaurantId,
@@ -82,6 +86,8 @@ const updateRestaurant = async (req: Request, res: Response, next: NextFunction)
  * Returns 404 if already soft-deleted or not found.
  */
 const softDelete = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
+
     try {
         const restaurant = await RestaurantService.softDeleteRestaurant(req.params.restaurantId);
         return restaurant
@@ -98,6 +104,8 @@ const softDelete = async (req: Request, res: Response, next: NextFunction) => {
  * Returns 404 if the restaurant is not found or is already active.
  */
 const restore = async (req: Request, res: Response, next: NextFunction) => {
+  const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
+
     try {
         const restaurant = await RestaurantService.restoreRestaurant(req.params.restaurantId);
         return restaurant
@@ -114,6 +122,8 @@ const restore = async (req: Request, res: Response, next: NextFunction) => {
  * Use only for admin operations or GDPR erasure requests.
  */
 const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
+  const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
+
     try {
         const restaurant = await RestaurantService.hardDeleteRestaurant(req.params.restaurantId);
         return restaurant
@@ -129,6 +139,7 @@ const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const getRestaurantWithCustomers = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     try {
         const restaurant = await RestaurantService.getRestaurantWithCustomers(
             req.params.restaurantId
@@ -142,6 +153,7 @@ const getRestaurantWithCustomers = async (req: Request, res: Response, next: Nex
 };
 
 const getRestaurantFull = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     try {
         const restaurant = await RestaurantService.getRestaurantFull(req.params.restaurantId);
         return restaurant
@@ -153,6 +165,7 @@ const getRestaurantFull = async (req: Request, res: Response, next: NextFunction
 };
 
 const getNearby = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     const { lng, lat, maxDistance } = req.query;
     if (!lng || !lat)
         return res.status(400).json({ message: 'lng and lat query params are required.' });
@@ -170,6 +183,7 @@ const getNearby = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getBadges = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     try {
         const badges = await RestaurantService.getBadges(req.params.restaurantId);
         return badges
@@ -181,6 +195,7 @@ const getBadges = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getStatistics = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     try {
         const statistics = await RestaurantService.getStatistics(req.params.restaurantId);
         return statistics
@@ -192,6 +207,7 @@ const getStatistics = async (req: Request, res: Response, next: NextFunction) =>
 };
 
 const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
+    const restaurantId = req.params.restaurantId || (req as any).restaurant?.id;
     try {
         const { lng, lat, radiusMeters, categories, minglobalRating, city, openNow, openAt } = req.query;
 

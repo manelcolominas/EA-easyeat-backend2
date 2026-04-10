@@ -54,12 +54,12 @@ const StartServer = () => {
         next();
     });
 
-    
+
 
     /** Rules of our API */
     router.use(cors({
-    origin: 'http://localhost:5174',
-    credentials: true
+        origin: ['http://localhost:5173', 'http://localhost:5174'],
+        credentials: true
     }));
 
     router.use(express.urlencoded({ extended: true }));
@@ -74,12 +74,11 @@ const StartServer = () => {
     //router.use(requireAdmin);
 
     /** Routes publiques */
-    /*router.use('/restaurants', restaurantRoutes);
+    router.use('/restaurants', restaurantRoutes);
     router.use('/reviews', reviewRoutes);
     router.use('/customers', customerRoutes);
     router.use('/rewards', rewardRoutes);
     router.use('/visits', visitRoutes);
-*/
     /**Rutes admin backoffice */
     router.use('/admin/restaurants', requireAdmin, adminRestaurantRoutes);
     router.use('/admin/reviews', requireAdmin, adminReviewRoutes);
