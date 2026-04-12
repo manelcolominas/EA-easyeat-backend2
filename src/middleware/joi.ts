@@ -179,6 +179,12 @@ export const Schemas = {
                 cleanliness:  Joi.number().min(0).max(10),
                 environment:  Joi.number().min(0).max(10),
             }),
+            dishRatings: Joi.array().items(
+                Joi.object({
+                    dish_id: objectId.required(),
+                    rating: Joi.number().min(0).max(10).required(),
+                })
+            ),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0).default(0),
         }),
@@ -191,6 +197,12 @@ export const Schemas = {
                 cleanliness:  Joi.number().min(0).max(10),
                 environment:  Joi.number().min(0).max(10),
             }),
+            dishRatings: Joi.array().items(
+                Joi.object({
+                    dish_id: objectId.required(),
+                    rating: Joi.number().min(0).max(10).required(),
+                })
+            ),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0),
         }),

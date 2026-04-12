@@ -825,6 +825,26 @@ router.get('/:restaurantId/dishes',     controller.getDishes);
 
 /**
  * @openapi
+ * /restaurants/{restaurantId}/dishes/top:
+ *   get:
+ *     summary: Gets the top 1 most liked dish of a restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Top rated dish
+ *       404:
+ *         description: No rated dishes found for this restaurant
+ */
+router.get('/:restaurantId/dishes/top', controller.getTopDish);
+
+/**
+ * @openapi
  * /restaurants/{restaurantId}/rewards:
  *   get:
  *     summary: Gets the dishes of a restaurant
