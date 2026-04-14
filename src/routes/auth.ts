@@ -7,7 +7,7 @@ const router = express.Router();
  * @openapi
  * /auth/login:
  *   post:
- *     summary: Log in as an admin
+ *     summary: Log in as an admin, customer, or employee
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -21,13 +21,20 @@ const router = express.Router();
  *             properties:
  *               email:
  *                 type: string
- *                 example: admin@easyeat.com
+ *                 example: user@easyeat.com
  *               password:
  *                 type: string
- *                 example: Admin123
+ *                 example: Password1
+ *               role:
+ *                 type: string
+ *                 enum: [admin, customer, employee]
+ *                 default: admin
+ *                 description: The type of user logging in. Defaults to admin.
  *     responses:
  *       200:
  *         description: Auth successful — returns accessToken in body, refreshToken as httpOnly cookie
+ *       400:
+ *         description: Missing email or password
  *       401:
  *         description: Invalid credentials
  */
