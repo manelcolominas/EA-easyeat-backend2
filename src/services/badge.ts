@@ -10,16 +10,16 @@ const createBadge = async (data: Partial<IBadge>) => {
     return await badge.save();
 };
 
-const getBadge = async (badgeId: string) => {
-    return await BadgeModel.findById(badgeId);
+const getBadge = async (badge_id: string) => {
+    return await BadgeModel.findById(badge_id);
 };
 
 const getAllBadges = async (): Promise<IBadge[]> => {
     return await BadgeModel.find()
 };
 
-const updateBadge = async (badgeId: string, data: Partial<IBadge>) => {
-    const badge = await BadgeModel.findById(badgeId);
+const updateBadge = async (badge_id: string, data: Partial<IBadge>) => {
+    const badge = await BadgeModel.findById(badge_id);
 
     if (badge) {
         badge.set(data);
@@ -29,8 +29,8 @@ const updateBadge = async (badgeId: string, data: Partial<IBadge>) => {
     return null;
 };
 
-const deleteBadge = async (badgeId: string) => {
-    return await BadgeModel.findByIdAndDelete(badgeId);
+const deleteBadge = async (badge_id: string) => {
+    return await BadgeModel.findByIdAndDelete(badge_id);
 };
 
 export default {

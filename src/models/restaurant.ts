@@ -90,7 +90,7 @@ export interface RestaurantQueryHelpers {
 type RestaurantQuery = Query<any, IRestaurant> & RestaurantQueryHelpers;
 
 export interface RestaurantModelType extends Model<IRestaurant, RestaurantQueryHelpers> {
-    softDelete(restaurantId: string): Promise<IRestaurant | null>;
+    softDelete(restaurant_id: string): Promise<IRestaurant | null>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -261,8 +261,8 @@ restaurantSchema.pre('save', function (next) {
  * Soft-delete a restaurant (sets deletedAt to now).
  * Use this instead of findByIdAndDelete in production.
  */
-restaurantSchema.statics.softDelete = async function ( restaurantId: string ): Promise<IRestaurant | null> {
-    return this.findByIdAndUpdate( restaurantId, { deletedAt: new Date() }, { new: true } );
+restaurantSchema.statics.softDelete = async function ( restaurant_id: string ): Promise<IRestaurant | null> {
+    return this.findByIdAndUpdate( restaurant_id, { deletedAt: new Date() }, { new: true } );
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

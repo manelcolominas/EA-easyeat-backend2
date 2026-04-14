@@ -19,16 +19,16 @@ const createEmployee = async (data: Partial<IEmployee>) => {
     return savedEmployee;
 };
 
-const getEmployee = async (employeeId: string) => {
-    return await EmployeeModel.findById(employeeId);
+const getEmployee = async (employee_id: string) => {
+    return await EmployeeModel.findById(employee_id);
 };
 
 const getAllEmployees = async (): Promise<IEmployee[]> => {
     return await EmployeeModel.find();
 };
 
-const updateEmployee = async (employeeId: string, data: Partial<IEmployee>) => {
-    const employee = await EmployeeModel.findById(employeeId);
+const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => {
+    const employee = await EmployeeModel.findById(employee_id);
 
     if (employee) {
         employee.set(data);
@@ -38,8 +38,8 @@ const updateEmployee = async (employeeId: string, data: Partial<IEmployee>) => {
     return null;
 };
 
-const deleteEmployee = async (employeeId: string) => {
-    const deletedEmployee = await EmployeeModel.findByIdAndDelete(employeeId);
+const deleteEmployee = async (employee_id: string) => {
+    const deletedEmployee = await EmployeeModel.findByIdAndDelete(employee_id);
 
     if (deletedEmployee && deletedEmployee.restaurant_id) {
         await RestaurantModel.findByIdAndUpdate(deletedEmployee.restaurant_id, {

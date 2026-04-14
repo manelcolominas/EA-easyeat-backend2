@@ -143,16 +143,16 @@ router.post('/', ValidateJoi(Schemas.customer.create), controller.createCustomer
  */
 router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
-// ─── GET /customers/:customerId ───────────────────────────────────────────────
+// ─── GET /customers/:customer_id ───────────────────────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}:
+ * /customers/{customer_id}:
  *   get:
  *     summary: Gets an active customer by ID
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -162,17 +162,17 @@ router.get('/', authenticate, requireRole('admin'), controller.readAll);
  *       404:
  *         description: Not found or soft-deleted
  */
-router.get('/:customerId', authenticate, requireSelfOrAdmin('customerId'), controller.readCustomer);
+router.get('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readCustomer);
 
 /**
  * @openapi
- * /customers/{customerId}/full:
+ * /customers/{customer_id}/full:
  *   get:
  *     summary: Gets a customer with all populated relations
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -186,18 +186,18 @@ router.get('/:customerId', authenticate, requireSelfOrAdmin('customerId'), contr
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/full',  authenticate, requireSelfOrAdmin('customerId'), controller.readCustomerFull);
+router.get('/:customer_id/full',  authenticate, requireSelfOrAdmin('customer_id'), controller.readCustomerFull);
 
-// ─── GET /customers/:customerId/badges ─────────────────────────────────────────
+// ─── GET /customers/:customer_id/badges ─────────────────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}/badges:
+ * /customers/{customer_id}/badges:
  *   get:
  *     summary: Gets all badges earned by the customer
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -207,18 +207,18 @@ router.get('/:customerId/full',  authenticate, requireSelfOrAdmin('customerId'),
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/badges', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllBadges);
+router.get('/:customer_id/badges', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllBadges);
 
-// ─── GET /customers/:customerId/favouriteRestaurants ────────────────────────────
+// ─── GET /customers/:customer_id/favouriteRestaurants ────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}/favouriteRestaurants:
+ * /customers/{customer_id}/favouriteRestaurants:
  *   get:
  *     summary: Gets all favourite restaurants for the customer
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -228,18 +228,18 @@ router.get('/:customerId/badges', authenticate, requireSelfOrAdmin('customerId')
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/favouriteRestaurants', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllFavouriteRestaurants);
+router.get('/:customer_id/favouriteRestaurants', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllFavouriteRestaurants);
 
-// ─── GET /customers/:customerId/pointsWallet ───────────────────────────────────
+// ─── GET /customers/:customer_id/pointsWallet ───────────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}/pointsWallet:
+ * /customers/{customer_id}/pointsWallet:
  *   get:
  *     summary: Gets all points wallet entries for the customer
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -249,18 +249,18 @@ router.get('/:customerId/favouriteRestaurants', authenticate, requireSelfOrAdmin
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/pointsWallet', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllPointsWallet);
+router.get('/:customer_id/pointsWallet', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllPointsWallet);
 
-// ─── GET /customers/:customerId/reviews ────────────────────────────────────────
+// ─── GET /customers/:customer_id/reviews ────────────────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}/reviews:
+ * /customers/{customer_id}/reviews:
  *   get:
  *     summary: Gets all reviews written by the customer
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -270,18 +270,18 @@ router.get('/:customerId/pointsWallet', authenticate, requireSelfOrAdmin('custom
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/reviews', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllReviews);
+router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllReviews);
 
-// ─── GET /customers/:customerId/visits ─────────────────────────────────────────
+// ─── GET /customers/:customer_id/visits ─────────────────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}/visits:
+ * /customers/{customer_id}/visits:
  *   get:
  *     summary: Gets all visits for the customer
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -291,18 +291,18 @@ router.get('/:customerId/reviews', authenticate, requireSelfOrAdmin('customerId'
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/visits', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllVisits);
+router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllVisits);
 
-// ─── PUT /customers/:customerId ───────────────────────────────────────────────
+// ─── PUT /customers/:customer_id ───────────────────────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}:
+ * /customers/{customer_id}:
  *   put:
  *     summary: Updates an active customer by ID
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -320,18 +320,18 @@ router.get('/:customerId/visits', authenticate, requireSelfOrAdmin('customerId')
  *       422:
  *         description: Validation failed
  */
-router.put('/:customerId', authenticate, requireSelfOrAdmin('customerId'), ValidateJoi(Schemas.customer.update), controller.updateCustomer);
+router.put('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), ValidateJoi(Schemas.customer.update), controller.updateCustomer);
 
-// ─── DELETE /customers/:customerId  (soft delete) ─────────────────────────────
+// ─── DELETE /customers/:customer_id  (soft delete) ─────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}/soft:
+ * /customers/{customer_id}/soft:
  *   delete:
  *     summary: Soft-deletes a customer (sets isActive=false, stamps deletedAt)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -341,18 +341,18 @@ router.put('/:customerId', authenticate, requireSelfOrAdmin('customerId'), Valid
  *       404:
  *         description: Not found
  */
-router.delete('/:customerId/soft', authenticate, requireSelfOrAdmin('customerId'), controller.softDeleteCustomer);
+router.delete('/:customer_id/soft', authenticate, requireSelfOrAdmin('customer_id'), controller.softDeleteCustomer);
 
-// ─── PATCH /customers/:customerId/restore ─────────────────────────────────────
+// ─── PATCH /customers/:customer_id/restore ─────────────────────────────────────
 /**
  * @openapi
- * /customers/{customerId}/restore:
+ * /customers/{customer_id}/restore:
  *   patch:
  *     summary: Restores a soft-deleted customer
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -362,18 +362,18 @@ router.delete('/:customerId/soft', authenticate, requireSelfOrAdmin('customerId'
  *       404:
  *         description: Not found
  */
-router.patch('/:customerId/restore', authenticate, requireSelfOrAdmin('customerId'), controller.restoreCustomer);
+router.patch('/:customer_id/restore', authenticate, requireSelfOrAdmin('customer_id'), controller.restoreCustomer);
 
-// ─── DELETE /customers/:customerId/hard  (hard delete — admin only) ───────────
+// ─── DELETE /customers/:customer_id/hard  (hard delete — admin only) ───────────
 /**
  * @openapi
- * /customers/{customerId}/hard:
+ * /customers/{customer_id}/hard:
  *   delete:
  *     summary: Permanently deletes a customer (admin only)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -383,6 +383,6 @@ router.patch('/:customerId/restore', authenticate, requireSelfOrAdmin('customerI
  *       404:
  *         description: Not found
  */
-router.delete('/:customerId/hard', authenticate, requireSelfOrAdmin('customerId'), controller.hardDeleteCustomer);
+router.delete('/:customer_id/hard', authenticate, requireSelfOrAdmin('customer_id'), controller.hardDeleteCustomer);
 
 export default router;

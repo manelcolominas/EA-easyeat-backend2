@@ -11,10 +11,10 @@ const createReward = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 const readReward = async (req: Request, res: Response, next: NextFunction) => {
-    const rewardId = req.params.rewardId;
+    const reward_id = req.params.reward_id;
 
     try {
-        const reward = await RewardService.getReward(rewardId);
+        const reward = await RewardService.getReward(reward_id);
         return reward ? res.status(200).json(reward) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -34,10 +34,10 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updateReward = async (req: Request, res: Response, next: NextFunction) => {
-    const rewardId = req.params.rewardId;
+    const reward_id = req.params.reward_id;
 
     try {
-        const updatedReward = await RewardService.updateReward(rewardId, req.body);
+        const updatedReward = await RewardService.updateReward(reward_id, req.body);
         return updatedReward ? res.status(201).json(updatedReward) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -45,10 +45,10 @@ const updateReward = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 const deleteReward = async (req: Request, res: Response, next: NextFunction) => {
-    const rewardId = req.params.rewardId;
+    const reward_id = req.params.reward_id;
 
     try {
-        const reward = await RewardService.deleteReward(rewardId);
+        const reward = await RewardService.deleteReward(reward_id);
         return reward ? res.status(201).json(reward) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });

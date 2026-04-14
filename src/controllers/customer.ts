@@ -15,9 +15,9 @@ const createCustomer = async (req: Request, res: Response, next: NextFunction) =
 // ─── Read (single) ────────────────────────────────────────────────────────────
 
 const readCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const customer = await CustomerService.getCustomer(customerId);
+        const customer = await CustomerService.getCustomer(customer_id);
         return customer
             ? res.status(200).json(customer)
             : res.status(404).json({ message: 'Customer not found' });
@@ -27,9 +27,9 @@ const readCustomer = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 const readCustomerFull = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const customer = await CustomerService.getCustomerFull(customerId);
+        const customer = await CustomerService.getCustomerFull(customer_id);
         return customer
             ? res.status(200).json(customer)
             : res.status(404).json({ message: 'Customer not found' });
@@ -39,9 +39,9 @@ const readCustomerFull = async (req: Request, res: Response, next: NextFunction)
 };
 
 const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const badges = await CustomerService.getCustomerAllBadges(customerId);
+        const badges = await CustomerService.getCustomerAllBadges(customer_id);
         return res.status(200).json(badges);
     } catch (error) {
         return res.status(500).json({ error });
@@ -49,9 +49,9 @@ const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunct
 };
 
 const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const restaurants = await CustomerService.getCustomerAllFavouriteRestaurants(customerId);
+        const restaurants = await CustomerService.getCustomerAllFavouriteRestaurants(customer_id);
         return res.status(200).json(restaurants);
     } catch (error) {
         return res.status(500).json({ error });
@@ -59,9 +59,9 @@ const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, n
 };
 
 const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const reviews = await CustomerService.getCustomerAllReviews(customerId);
+        const reviews = await CustomerService.getCustomerAllReviews(customer_id);
         return res.status(200).json(reviews);
     } catch (error) {
         return res.status(500).json({ error });
@@ -69,9 +69,9 @@ const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunc
 };
 
 const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const visits = await CustomerService.getCustomerAllVisits(customerId);
+        const visits = await CustomerService.getCustomerAllVisits(customer_id);
         return res.status(200).json(visits);
     } catch (error) {
         return res.status(500).json({ error });
@@ -79,9 +79,9 @@ const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunct
 };
 
 const getCustomerAllPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const pointsWallet = await CustomerService.getCustomerAllPointsWallet(customerId);
+        const pointsWallet = await CustomerService.getCustomerAllPointsWallet(customer_id);
         return res.status(200).json(pointsWallet);
         } catch (error) {
         return res.status(500).json({ error });
@@ -106,9 +106,9 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 // ─── Update ───────────────────────────────────────────────────────────────────
 
 const updateCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const updatedCustomer = await CustomerService.updateCustomer(customerId, req.body);
+        const updatedCustomer = await CustomerService.updateCustomer(customer_id, req.body);
         return updatedCustomer
             ? res.status(200).json(updatedCustomer)
             : res.status(404).json({ message: 'Customer not found or already deleted' });
@@ -120,13 +120,13 @@ const updateCustomer = async (req: Request, res: Response, next: NextFunction) =
 // ─── Soft Delete ──────────────────────────────────────────────────────────────
 
 /**
- * DELETE /customers/:customerId
+ * DELETE /customers/:customer_id
  * Marks the customer as inactive without removing the document.
  */
 const softDeleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const customer = await CustomerService.softDeleteCustomer(customerId);
+        const customer = await CustomerService.softDeleteCustomer(customer_id);
         return customer
             ? res.status(200).json({ message: 'Customer deactivated', customer })
             : res.status(404).json({ message: 'Customer not found' });
@@ -138,13 +138,13 @@ const softDeleteCustomer = async (req: Request, res: Response, next: NextFunctio
 // ─── Restore ─────────────────────────────────────────────────────────────────
 
 /**
- * PATCH /customers/:customerId/restore
+ * PATCH /customers/:customer_id/restore
  * Reverses a soft-delete, making the customer active again.
  */
 const restoreCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const customer = await CustomerService.restoreCustomer(customerId);
+        const customer = await CustomerService.restoreCustomer(customer_id);
         return customer
             ? res.status(200).json({ message: 'Customer restored', customer })
             : res.status(404).json({ message: 'Customer not found' });
@@ -156,13 +156,13 @@ const restoreCustomer = async (req: Request, res: Response, next: NextFunction) 
 // ─── Hard Delete (admin only) ─────────────────────────────────────────────────
 
 /**
- * DELETE /customers/:customerId/hard
+ * DELETE /customers/:customer_id/hard
  * Permanently removes the document. Requires admin privileges.
  */
 const hardDeleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    const { customerId } = req.params;
+    const { customer_id } = req.params;
     try {
-        const customer = await CustomerService.hardDeleteCustomer(customerId);
+        const customer = await CustomerService.hardDeleteCustomer(customer_id);
         return customer
             ? res.status(200).json({ message: 'Customer permanently deleted' })
             : res.status(404).json({ message: 'Customer not found' });

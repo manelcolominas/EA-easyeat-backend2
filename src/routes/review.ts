@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/review';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRole, requireSelfOrAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -99,7 +100,7 @@ const router = express.Router();
  *       422:
  *         description: Validation error
  */
-router.post('/', ValidateJoi(Schemas.review.create), controller.createReview);
+router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Schemas.review.create), controller.createReview);
 
 /**
  * @openapi
@@ -111,17 +112,17 @@ router.post('/', ValidateJoi(Schemas.review.create), controller.createReview);
  *       200:
  *         description: List of reviews
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
- * /reviews/restaurant/{restaurantId}:
+ * /reviews/restaurant/{restaurant_id}:
  *   get:
  *     summary: Get reviews by restaurant
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: restaurantId
+ *         name: restaurant_id
  *         required: true
  *         schema:
  *           type: string
@@ -129,17 +130,17 @@ router.get('/', controller.readAll);
  *       200:
  *         description: List of reviews
  */
-router.get('/restaurant/:restaurantId', controller.readByRestaurant);
+router.get('/restaurant/:restaurant_id', controller.readByRestaurant);
 
 /**
  * @openapi
- * /reviews/customer/{customerId}:
+ * /reviews/customer/{customer_id}:
  *   get:
  *     summary: Get reviews by customer
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: customerId
+ *         name: customer_id
  *         required: true
  *         schema:
  *           type: string
@@ -163,17 +164,17 @@ router.get('/restaurant/:restaurantId', controller.readByRestaurant);
  *       200:
  *         description: List of reviews
  */
-router.get('/customer/:customerId', controller.readByCustomer);
+router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'),controller.readByCustomer);
 
 /**
  * @openapi
- * /reviews/{reviewId}:
+ * /reviews/{review_id}:
  *   get:
  *     summary: Get review by ID
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: reviewId
+ *         name: review_id
  *         required: true
  *         schema:
  *           type: string
@@ -183,17 +184,17 @@ router.get('/customer/:customerId', controller.readByCustomer);
  *       404:
  *         description: Not found
  */
-router.get('/:reviewId', controller.readReview);
+router.get('/:review_id', controller.readReview);
 
 /**
  * @openapi
- * /reviews/{reviewId}:
+ * /reviews/{review_id}:
  *   put:
  *     summary: Update review
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: reviewId
+ *         name: review_id
  *         required: true
  *         schema:
  *           type: string
@@ -203,17 +204,17 @@ router.get('/:reviewId', controller.readReview);
  *       404:
  *         description: Not found
  */
-router.put('/:reviewId', ValidateJoi(Schemas.review.update), controller.updateReview);
+router.put('/:review_id', authenticate, requireRole('customer', 'admin'),ValidateJoi(Schemas.review.update), controller.updateReview);
 
 /**
  * @openapi
- * /reviews/{reviewId}:
+ * /reviews/{review_id}:
  *   delete:
  *     summary: Delete review
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: reviewId
+ *         name: review_id
  *         required: true
  *         schema:
  *           type: string
@@ -223,17 +224,17 @@ router.put('/:reviewId', ValidateJoi(Schemas.review.update), controller.updateRe
  *       404:
  *         description: Not found
  */
-router.delete('/:reviewId', controller.deleteReview);
+router.delete('/:review_id', authenticate, requireRole('customer', 'admin'), controller.deleteReview);
 
 /**
  * @openapi
- * /reviews/{reviewId}/like:
+ * /reviews/{review_id}/like:
  *   post:
  *     summary: Add like to review
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: reviewId
+ *         name: review_id
  *         required: true
  *         schema:
  *           type: string
@@ -243,6 +244,6 @@ router.delete('/:reviewId', controller.deleteReview);
  *       404:
  *         description: Not found
  */
-router.post('/:reviewId/like', controller.likeReview);
+router.post('/:review_id/like', authenticate, requireRole('customer', 'admin'), controller.likeReview);
 
 export default router;

@@ -13,8 +13,8 @@ const createVisit = async (data: Partial<IVisit>) => {
 
 // ─── Read (single) ────────────────────────────────────────────────────────────
 
-const getVisit = async (visitId: string) => {
-    const visit = await VisitModel.findOne({ _id: visitId });
+const getVisit = async (visit_id: string) => {
+    const visit = await VisitModel.findOne({ _id: visit_id });
     if (!visit || visit.deletedAt) return null;
     return visit;
 };
@@ -58,8 +58,8 @@ const getAllVisits = async (
 
 // ─── Read (full, populated) ───────────────────────────────────────────────────
 
-const getVisitFull = async (visitId: string) => {
-    const visit = await VisitModel.findOne({ _id: visitId })
+const getVisitFull = async (visit_id: string) => {
+    const visit = await VisitModel.findOne({ _id: visit_id })
         .populate('customer_id')
         .populate('restaurant_id');
     if (!visit || visit.deletedAt) return null;
@@ -68,9 +68,9 @@ const getVisitFull = async (visitId: string) => {
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 
-const updateVisit = async (visitId: string, data: Partial<IVisit>) => {
+const updateVisit = async (visit_id: string, data: Partial<IVisit>) => {
     // ✅ findByIdAndUpdate para soportar deletedAt en soft delete desde el frontend
-    return await VisitModel.findByIdAndUpdate(visitId, data, { new: true });
+    return await VisitModel.findByIdAndUpdate(visit_id, data, { new: true });
 };
 
 // ─── Soft Delete ──────────────────────────────────────────────────────────────

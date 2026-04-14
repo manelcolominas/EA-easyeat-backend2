@@ -6,5 +6,5 @@ export interface IJwtPayload {
     email: string;
     role: string;
     type: 'access' | 'refresh';
-    restaurantId?: string;
+    restaurant_id?: string;
 }

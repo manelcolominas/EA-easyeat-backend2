@@ -11,9 +11,9 @@ const createDish = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const readDish = async (req: Request, res: Response, next: NextFunction) => {
-    const { dishId } = req.params;
+    const { dish_id } = req.params;
     try {
-        const dish = await DishService.getDish(dishId);
+        const dish = await DishService.getDish(dish_id);
         return dish ? res.status(200).json(dish) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -30,9 +30,9 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updateDish = async (req: Request, res: Response, next: NextFunction) => {
-    const { dishId } = req.params;
+    const { dish_id } = req.params;
     try {
-        const updatedDish = await DishService.updateDish(dishId, req.body);
+        const updatedDish = await DishService.updateDish(dish_id, req.body);
         return updatedDish ? res.status(201).json(updatedDish) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -40,9 +40,9 @@ const updateDish = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const deleteDish = async (req: Request, res: Response, next: NextFunction) => {
-    const { dishId } = req.params;
+    const { dish_id } = req.params;
     try {
-        const dish = await DishService.deleteDish(dishId);
+        const dish = await DishService.deleteDish(dish_id);
         return dish ? res.status(200).json(dish) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });

@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/employee';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRestaurantAccess, requireRole, requireSelfOrAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -101,13 +102,13 @@ router.post('/', ValidateJoi(Schemas.employee.create), controller.createEmployee
 
 /**
  * @openapi
- * /employees/{employeeId}:
+ * /employees/{employee_id}:
  *   get:
  *     summary: Gets an employee by ID
  *     tags: [Employees]
  *     parameters:
  *       - in: path
- *         name: employeeId
+ *         name: employee_id
  *         required: true
  *         schema:
  *           type: string
@@ -118,7 +119,7 @@ router.post('/', ValidateJoi(Schemas.employee.create), controller.createEmployee
  *       404:
  *         description: Not found
  */
-router.get('/:employeeId', controller.readEmployee);
+router.get('/:employee_id', authenticate, requireSelfOrAdmin('employee_id'),controller.readEmployee);
 
 /**
  * @openapi
@@ -130,17 +131,17 @@ router.get('/:employeeId', controller.readEmployee);
  *       200:
  *         description: OK
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin','owner'), requireRestaurantAccess('restaurant_id'), controller.readAll);
 
 /**
  * @openapi
- * /employees/{employeeId}:
+ * /employees/{employee_id}:
  *   put:
  *     summary: Updates an employee by ID
  *     tags: [Employees]
  *     parameters:
  *       - in: path
- *         name: employeeId
+ *         name: employee_id
  *         required: true
  *         schema:
  *           type: string
@@ -159,17 +160,17 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:employeeId', ValidateJoi(Schemas.employee.update), controller.updateEmployee);
+router.put('/:employee_id', authenticate, requireSelfOrAdmin('employee_id'), ValidateJoi(Schemas.employee.update), controller.updateEmployee);
 
 /**
  * @openapi
- * /employees/{employeeId}:
+ * /employees/{employee_id}:
  *   delete:
  *     summary: Deletes an employee by ID
  *     tags: [Employees]
  *     parameters:
  *       - in: path
- *         name: employeeId
+ *         name: employee_id
  *         required: true
  *         schema:
  *           type: string
@@ -180,6 +181,6 @@ router.put('/:employeeId', ValidateJoi(Schemas.employee.update), controller.upda
  *       404:
  *         description: Not found
  */
-router.delete('/:employeeId', controller.deleteEmployee);
+router.delete('/:employee_id', authenticate, requireSelfOrAdmin('employee_id'), controller.deleteEmployee);
 
 export default router;

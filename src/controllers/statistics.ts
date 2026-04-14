@@ -11,9 +11,9 @@ const createStatistics = async (req: Request, res: Response, next: NextFunction)
 };
 
 const readStatistics = async (req: Request, res: Response, next: NextFunction) => {
-    const { statisticsId } = req.params;
+    const { statistics_id } = req.params;
     try {
-        const statistics = await StatisticsService.getStatistics(statisticsId);
+        const statistics = await StatisticsService.getStatistics(statistics_id);
         return statistics ? res.status(200).json(statistics) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -30,9 +30,9 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updateStatistics = async (req: Request, res: Response, next: NextFunction) => {
-    const { statisticsId } = req.params;
+    const { statistics_id } = req.params;
     try {
-        const updated = await StatisticsService.updateStatistics(statisticsId, req.body);
+        const updated = await StatisticsService.updateStatistics(statistics_id, req.body);
         return updated ? res.status(201).json(updated) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -40,9 +40,9 @@ const updateStatistics = async (req: Request, res: Response, next: NextFunction)
 };
 
 const deleteStatistics = async (req: Request, res: Response, next: NextFunction) => {
-    const { statisticsId } = req.params;
+    const { statistics_id } = req.params;
     try {
-        const statistics = await StatisticsService.deleteStatistics(statisticsId);
+        const statistics = await StatisticsService.deleteStatistics(statistics_id);
         return statistics ? res.status(200).json(statistics) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });

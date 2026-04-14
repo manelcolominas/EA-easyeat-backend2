@@ -19,16 +19,16 @@ const createStatistics = async (data: Partial<IStatistics>) => {
     return savedStatistics;
 };
 
-const getStatistics = async (statisticsId: string) => {
-    return await StatisticsModel.findById(statisticsId);
+const getStatistics = async (statistics_id: string) => {
+    return await StatisticsModel.findById(statistics_id);
 };
 
 const getAllStatistics = async(): Promise<IStatistics[]> => {
     return await StatisticsModel.find();
 };
 
-const updateStatistics = async (statisticsId: string, data: Partial<IStatistics>) => {
-    const statistics = await StatisticsModel.findById(statisticsId);
+const updateStatistics = async (statistics_id: string, data: Partial<IStatistics>) => {
+    const statistics = await StatisticsModel.findById(statistics_id);
 
     if (statistics) {
         statistics.set(data);
@@ -38,8 +38,8 @@ const updateStatistics = async (statisticsId: string, data: Partial<IStatistics>
     return null;
 };
 
-const deleteStatistics = async (statisticsId: string) => {
-    const deleted = await StatisticsModel.findByIdAndDelete(statisticsId);
+const deleteStatistics = async (statistics_id: string) => {
+    const deleted = await StatisticsModel.findByIdAndDelete(statistics_id);
 
     if (deleted && deleted.restaurant_id) {
         await RestaurantModel.findByIdAndUpdate(deleted.restaurant_id, {

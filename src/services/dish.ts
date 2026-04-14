@@ -19,16 +19,16 @@ const createDish = async (data: Partial<IDish>) => {
     return savedDish;
 };
 
-const getDish = async (dishId: string) => {
-    return await DishModel.findById(dishId);
+const getDish = async (dish_id: string) => {
+    return await DishModel.findById(dish_id);
 };
 
 const getAllDishes = async (): Promise<IDish[]> => {
     return await DishModel.find();
 };
 
-const updateDish = async (dishId: string, data: Partial<IDish>) => {
-    const dish = await DishModel.findById(dishId);
+const updateDish = async (dish_id: string, data: Partial<IDish>) => {
+    const dish = await DishModel.findById(dish_id);
 
     if (dish) {
         dish.set(data);
@@ -38,8 +38,8 @@ const updateDish = async (dishId: string, data: Partial<IDish>) => {
     return null;
 };
 
-const deleteDish = async (dishId: string) => {
-    const deletedDish = await DishModel.findByIdAndDelete(dishId);
+const deleteDish = async (dish_id: string) => {
+    const deletedDish = await DishModel.findByIdAndDelete(dish_id);
 
     if (deletedDish && deletedDish.restaurant_id) {
         await RestaurantModel.findByIdAndUpdate(deletedDish.restaurant_id, {

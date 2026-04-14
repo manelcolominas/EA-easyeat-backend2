@@ -62,7 +62,7 @@ export const requireRole = (...roles: string[]) => {
 /**
  * Ownership middleware: allows access if the user is an admin OR if the
  * requested resource ID matches the authenticated user's ID.
- * Expected parameter name in req.params: 'userId' or 'customerId'
+ * Expected parameter name in req.params: 'userId' or 'customer_id'
  */
 export const requireSelfOrAdmin = (paramName: string = 'userId') => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -83,18 +83,18 @@ export const requireSelfOrAdmin = (paramName: string = 'userId') => {
 /**
  * Multi-tenant middleware: ensures the user belongs to the restaurant they are trying to access.
  * Admins ALWAYS have access.
- * Owners and Staff must match the restaurantId.
+ * Owners and Staff must match the restaurant_id.
  */
-export const requireRestaurantAccess = (paramName: string = 'restaurantId') => {
+export const requireRestaurantAccess = (paramName: string = 'restaurant_id') => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user) return res.status(401).json({ message: 'Authentication required' });
 
         // Admin bypass
         if (req.user.role === 'admin') return next();
 
-        const targetRestaurantId = req.params[paramName] || req.body[paramName] || req.query[paramName];
+        const targetrestaurant_id = req.params[paramName] || req.body[paramName] || req.query[paramName];
         
-        if (!req.user.restaurantId || req.user.restaurantId !== targetRestaurantId) {
+        if (!req.user.restaurant_id || req.user.restaurant_id !== targetrestaurant_id) {
             return res.status(403).json({ message: 'Access denied: You do not have access to this restaurant' });
         }
 

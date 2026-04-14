@@ -66,17 +66,17 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.badge.create), controller.createBadge);
+router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.badge.create), controller.createBadge);
 
 /**
  * @openapi
- * /badges/{badgeId}:
+ * /badges/{badge_id}:
  *   get:
  *     summary: Gets a badge by ID
  *     tags: [Badges]
  *     parameters:
  *       - in: path
- *         name: badgeId
+ *         name: badge_id
  *         required: true
  *         schema:
  *           type: string
@@ -87,7 +87,7 @@ router.post('/', ValidateJoi(Schemas.badge.create), controller.createBadge);
  *       404:
  *         description: Not found
  */
-router.get('/:badgeId', controller.readBadge);
+router.get('/:badge_id', controller.readBadge);
 
 /**
  * @openapi
@@ -103,13 +103,13 @@ router.get('/', controller.readAll);
 
 /**
  * @openapi
- * /badges/{badgeId}:
+ * /badges/{badge_id}:
  *   put:
  *     summary: Updates a badge by ID
  *     tags: [Badges]
  *     parameters:
  *       - in: path
- *         name: badgeId
+ *         name: badge_id
  *         required: true
  *         schema:
  *           type: string
@@ -128,17 +128,17 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:badgeId', ValidateJoi(Schemas.badge.update), controller.updateBadge);
+router.put('/:badge_id', authenticate, requireRole('admin'),ValidateJoi(Schemas.badge.update), controller.updateBadge);
 
 /**
  * @openapi
- * /badges/{badgeId}:
+ * /badges/{badge_id}:
  *   delete:
  *     summary: Deletes a badge by ID
  *     tags: [Badges]
  *     parameters:
  *       - in: path
- *         name: badgeId
+ *         name: badge_id
  *         required: true
  *         schema:
  *           type: string
@@ -149,6 +149,6 @@ router.put('/:badgeId', ValidateJoi(Schemas.badge.update), controller.updateBadg
  *       404:
  *         description: Not found
  */
-router.delete('/:badgeId', controller.deleteBadge);
+router.delete('/:badge_id', authenticate, requireRole('admin'), controller.deleteBadge);
 
 export default router;

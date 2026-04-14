@@ -20,8 +20,8 @@ const createReward = async (data: Partial<IReward>) => {
     return savedReward;
 };
 
-const getReward = async (rewardId: string) => {
-    return await RewardModel.findById(rewardId);
+const getReward = async (reward_id: string) => {
+    return await RewardModel.findById(reward_id);
 };
 
 const getAllRewards = async (page: number = 1, limit: number = 10) => {
@@ -31,8 +31,8 @@ const getAllRewards = async (page: number = 1, limit: number = 10) => {
         .limit(limit);
 };
 
-const updateReward = async (rewardId: string, data: Partial<IReward>) => {
-    const reward = await RewardModel.findById(rewardId);
+const updateReward = async (reward_id: string, data: Partial<IReward>) => {
+    const reward = await RewardModel.findById(reward_id);
 
     if (reward) {
         reward.set(data);
@@ -42,8 +42,8 @@ const updateReward = async (rewardId: string, data: Partial<IReward>) => {
     return null;
 };
 
-const deleteReward = async (rewardId: string) => {
-    const deletedReward = await RewardModel.findByIdAndDelete(rewardId);
+const deleteReward = async (reward_id: string) => {
+    const deletedReward = await RewardModel.findByIdAndDelete(reward_id);
     
     // Automatically remove the reward ID from the restaurant's rewards array
     if (deletedReward && deletedReward.restaurant_id) {

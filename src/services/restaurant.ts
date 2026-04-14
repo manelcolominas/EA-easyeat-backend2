@@ -11,9 +11,9 @@ const createRestaurant = async (data: Partial<IRestaurant>): Promise<IRestaurant
     return restaurant.save();
 };
 
-const getRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
     const restaurant = await RestaurantModel
-        .findById(restaurantId)
+        .findById(restaurant_id)
         .active()
         .select('profile rewards badges')
         .populate('rewards', 'name description pointsRequired active expiry')
@@ -37,8 +37,8 @@ const getAllRestaurants = async (): Promise<IRestaurant[]> => {
     }));
 };
 
-const updateRestaurant = async ( restaurantId: string, data: Partial<IRestaurant> ): Promise<IRestaurant | null> => {
-    const restaurant = await RestaurantModel.findById(restaurantId).active();
+const updateRestaurant = async ( restaurant_id: string, data: Partial<IRestaurant> ): Promise<IRestaurant | null> => {
+    const restaurant = await RestaurantModel.findById(restaurant_id).active();
     if (!restaurant) return null;
     restaurant.set(data);
     return restaurant.save();
@@ -52,9 +52,9 @@ const updateRestaurant = async ( restaurantId: string, data: Partial<IRestaurant
  * Soft-delete: sets deletedAt to now.
  * Returns null if the restaurant is not found OR is already soft-deleted.
  */
-const softDeleteRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
+const softDeleteRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel.findOneAndUpdate(
-        { _id: restaurantId, deletedAt: null },          // guard: only active docs
+        { _id: restaurant_id, deletedAt: null },          // guard: only active docs
         { deletedAt: new Date() },
         { new: true }
     ).lean();
@@ -64,9 +64,9 @@ const softDeleteRestaurant = async (restaurantId: string): Promise<IRestaurant |
  * Restore: clears deletedAt, making the restaurant active again.
  * Returns null if the restaurant is not found OR is already active.
  */
-const restoreRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
+const restoreRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel.findOneAndUpdate(
-        { _id: restaurantId, deletedAt: { $ne: null } }, // guard: only deleted docs
+        { _id: restaurant_id, deletedAt: { $ne: null } }, // guard: only deleted docs
         { deletedAt: null },
         { new: true }
     ).lean();
@@ -76,23 +76,23 @@ const restoreRestaurant = async (restaurantId: string): Promise<IRestaurant | nu
  * Hard-delete: permanently removes the document.
  * Use only for admin operations or GDPR erasure requests.
  */
-const hardDeleteRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel.findByIdAndDelete(restaurantId).lean();
+const hardDeleteRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
+    return RestaurantModel.findByIdAndDelete(restaurant_id).lean();
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Read variants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const getRestaurantWithCustomers = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getRestaurantWithCustomers = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId).active().populate({ path: 'visits', populate: { path: 'customer_id' } })
+        .findById(restaurant_id).active().populate({ path: 'visits', populate: { path: 'customer_id' } })
         .lean();
 };
 
-const getRestaurantFull = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getRestaurantFull = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId).active()
+        .findById(restaurant_id).active()
         .populate('employees')
         .populate('rewards')
         .populate('badges')
@@ -113,56 +113,56 @@ const getNearby = async ( lng: number, lat: number,
                 } } }).lean();
 };
 
-const getBadges = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel.findById(restaurantId)
+const getBadges = async (restaurant_id: string): Promise<IRestaurant | null> => {
+    return RestaurantModel.findById(restaurant_id)
         .active().select('badges').populate('badges').lean<IRestaurant>();
 };
 
-const getStatistics = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getStatistics = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId).active().select('statistics').populate('statistics')
+        .findById(restaurant_id).active().select('statistics').populate('statistics')
         .lean<IRestaurant>();
 };
 
-const getEmployees = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getEmployees = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId)
+        .findById(restaurant_id)
         .active()
         .select('employees')
         .populate('employees')
         .lean<IRestaurant>();
 };
 
-const getDishes = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getDishes = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId)
+        .findById(restaurant_id)
         .active()
         .select('dishes')
         .populate('dishes')
         .lean<IRestaurant>();
 };
 
-const getRewards = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId)
+        .findById(restaurant_id)
         .active()
         .select('rewards')
         .populate('rewards', 'name description pointsRequired active expiry')
         .lean<IRestaurant>();
 };
 
-const getVisits = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getVisits = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId)
+        .findById(restaurant_id)
         .active()
         .select('visits')
         .populate('visits')
         .lean<IRestaurant>();
 };
 
-const getReviews = async (restaurantId: string): Promise<IRestaurant | null> => {
+const getReviews = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
-        .findById(restaurantId)
+        .findById(restaurant_id)
         .active()
         .select('reviews')
         .populate('reviews')
@@ -173,10 +173,10 @@ const getReviews = async (restaurantId: string): Promise<IRestaurant | null> => 
 // globalRating recalculation
 // ─────────────────────────────────────────────────────────────────────────────
 
-const updateglobalRating = async ( restaurantId: string, newAverage: number
+const updateglobalRating = async ( restaurant_id: string, newAverage: number
 ): Promise<IRestaurant | null> => {
     const clamped = Math.min(10, Math.max(0, newAverage));
-    return RestaurantModel.findByIdAndUpdate( restaurantId, { 'profile.globalRating': clamped },
+    return RestaurantModel.findByIdAndUpdate( restaurant_id, { 'profile.globalRating': clamped },
             { new: true, runValidators: true } ).lean();
 };
 

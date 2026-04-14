@@ -1,6 +1,8 @@
 import express from 'express';
 import controller from '../controllers/visit';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
+
 
 const router = express.Router();
 
@@ -93,7 +95,7 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.visit.create), controller.createVisit);
+router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.visit.create), controller.createVisit);
 
 /**
  * @openapi
@@ -122,17 +124,17 @@ router.post('/', ValidateJoi(Schemas.visit.create), controller.createVisit);
  *               items:
  *                 $ref: '#/components/schemas/Visit'
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
- * /visits/{visitId}:
+ * /visits/{visit_id}:
  *   get:
  *     summary: Gets a visit by ID
  *     tags: [Visits]
  *     parameters:
  *       - in: path
- *         name: visitId
+ *         name: visit_id
  *         required: true
  *         schema:
  *           type: string
@@ -147,17 +149,17 @@ router.get('/', controller.readAll);
  *       404:
  *         description: Visit not found
  */
-router.get('/:visitId', controller.readVisit);
+router.get('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.readVisit);
 
 /**
  * @openapi
- * /visits/{visitId}/full:
+ * /visits/{visit_id}/full:
  *   get:
  *     summary: Gets a visit with all populated fields (customer, restaurant)
  *     tags: [Visits]
  *     parameters:
  *       - in: path
- *         name: visitId
+ *         name: visit_id
  *         required: true
  *         schema:
  *           type: string
@@ -172,17 +174,17 @@ router.get('/:visitId', controller.readVisit);
  *       404:
  *         description: Visit not found
  */
-router.get('/:visitId/full', controller.getVisitFull);
+router.get('/:visit_id/full', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.getVisitFull);
 
 /**
  * @openapi
- * /visits/{visitId}:
+ * /visits/{visit_id}:
  *   put:
  *     summary: Updates a visit by ID
  *     tags: [Visits]
  *     parameters:
  *       - in: path
- *         name: visitId
+ *         name: visit_id
  *         required: true
  *         schema:
  *           type: string
@@ -205,17 +207,17 @@ router.get('/:visitId/full', controller.getVisitFull);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:visitId', ValidateJoi(Schemas.visit.update), controller.updateVisit);
+router.put('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff'), ValidateJoi(Schemas.visit.update), controller.updateVisit);
 
 /**
  * @openapi
- * /visits/{visitId}:
+ * /visits/{visit_id}:
  *   delete:
  *     summary: Deletes a visit by ID
  *     tags: [Visits]
  *     parameters:
  *       - in: path
- *         name: visitId
+ *         name: visit_id
  *         required: true
  *         schema:
  *           type: string
@@ -226,6 +228,6 @@ router.put('/:visitId', ValidateJoi(Schemas.visit.update), controller.updateVisi
  *       404:
  *         description: Visit not found
  */
-router.delete('/:visitId', controller.deleteVisit);
+router.delete('/:visit_id', authenticate, requireRole('admin'), controller.deleteVisit);
 
 export default router;

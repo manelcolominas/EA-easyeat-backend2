@@ -32,15 +32,15 @@ const createCustomer = async (data: Partial<ICustomer>) => {
 
 // ─── Read (single) ────────────────────────────────────────────────────────────
 
-const getCustomer = async (customerId: string, includeDeleted = false) => {
-    const query = CustomerModel.findById(customerId);
+const getCustomer = async (customer_id: string, includeDeleted = false) => {
+    const query = CustomerModel.findById(customer_id);
     return includeDeleted ? query : query.active();
 };
 
 // src/services/customer.ts (or wherever your service layer is)
 
-const getCustomerFull = async (customerId: string, includeDeleted = false) => {
-    const query = CustomerModel.findById(customerId)
+const getCustomerFull = async (customer_id: string, includeDeleted = false) => {
+    const query = CustomerModel.findById(customer_id)
         .populate('pointsWallet')
         .populate('visitHistory')
         .populate({
@@ -61,70 +61,70 @@ const getCustomerFull = async (customerId: string, includeDeleted = false) => {
 
 // ─── Get all points wallets for a customer ────────────────────────────────────
 
-const getCustomerAllPointsWallet = async (customerId: string): Promise<IPointsWallet[]> => {
+const getCustomerAllPointsWallet = async (customer_id: string): Promise<IPointsWallet[]> => {
     // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
         return [];
     }
 
     try {
         // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customerId).active();
+        const customer = await CustomerModel.findById(customer_id).active();
         if (!customer) {
             return [];
         }
 
         // Fetch all points wallets for this customer
-        return await PointsWalletModel.find({ customer_id: customerId })
+        return await PointsWalletModel.find({ customer_id: customer_id })
             .populate('restaurant_id', 'profile.name profile.location')
             .lean();
     } 
     catch (error) {
-        console.error(`Error fetching points wallets for customer ${customerId}:`, error);
+        console.error(`Error fetching points wallets for customer ${customer_id}:`, error);
         return [];
     }
 };
 
 // ─── Get all visits for a customer ────────────────────────────────────────────
 
-const getCustomerAllVisits = async (customerId: string): Promise<IVisit[]> => {
+const getCustomerAllVisits = async (customer_id: string): Promise<IVisit[]> => {
     // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
         return [];
     }
 
     try {
         // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customerId).active();
+        const customer = await CustomerModel.findById(customer_id).active();
         if (!customer) {
             return [];
         }
 
         // Fetch all visits for this customer, excluding soft-deleted ones
         return await VisitModel.find({
-            customer_id: customerId,
+            customer_id: customer_id,
             deletedAt: null,
         })
             .populate('restaurant_id', 'profile.name profile.rating profile.location.city')
             .sort({ createdAt: -1 })  // Most recent first
             .lean();
     } catch (error) {
-        console.error(`Error fetching visits for customer ${customerId}:`, error);
+        console.error(`Error fetching visits for customer ${customer_id}:`, error);
         return [];
     }
 };
 
 // ─── Get all favourite restaurants for a customer ────────────────────────────
 
-const getCustomerAllFavouriteRestaurants = async (customerId: string) => {
+const getCustomerAllFavouriteRestaurants = async (customer_id: string) => {
     // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
         return [];
     }
 
     try {
         // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customerId)
+        const customer = await CustomerModel.findById(customer_id)
             .active()
             .populate({
             path: 'favoriteRestaurants',
@@ -144,22 +144,22 @@ const getCustomerAllFavouriteRestaurants = async (customerId: string) => {
         return customer.favoriteRestaurants;
     }
      catch (error) {
-        console.error(`Error fetching favourite restaurants for customer ${customerId}:`, error);
+        console.error(`Error fetching favourite restaurants for customer ${customer_id}:`, error);
         return [];
     }
 };
 
 // ─── Get all badges earned by a customer ──────────────────────────────────────
 
-const getCustomerAllBadges = async (customerId: string): Promise<IBadge[]> => {
+const getCustomerAllBadges = async (customer_id: string): Promise<IBadge[]> => {
     // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
         return [];
     }
 
     try {
         // Fetch customer with populated badges
-        const customer = await CustomerModel.findById(customerId)
+        const customer = await CustomerModel.findById(customer_id)
             .active()
             .populate<{ badges: IBadge[] }>({
                 path: 'badges',
@@ -173,36 +173,36 @@ const getCustomerAllBadges = async (customerId: string): Promise<IBadge[]> => {
 
         return customer.badges;
     } catch (error) {
-        console.error(`Error fetching badges for customer ${customerId}:`, error);
+        console.error(`Error fetching badges for customer ${customer_id}:`, error);
         return [];
     }
 };
 
 // ─── Get all reviews written by a customer ────────────────────────────────────
 
-const getCustomerAllReviews = async (customerId: string): Promise<IReview[]> => {
+const getCustomerAllReviews = async (customer_id: string): Promise<IReview[]> => {
     // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
         return [];
     }
 
     try {
         // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customerId).active();
+        const customer = await CustomerModel.findById(customer_id).active();
         if (!customer) {
             return [];
         }
 
         // Fetch all reviews by this customer, excluding soft-deleted ones
         return await ReviewModel.find({
-            customer_id: customerId,
+            customer_id: customer_id,
             deleted: false,
         })
             .populate('restaurant_id', 'profile.name profile.rating')
             .sort({ createdAt: -1 })  // Most recent first
             .lean();
     } catch (error) {
-        console.error(`Error fetching reviews for customer ${customerId}:`, error);
+        console.error(`Error fetching reviews for customer ${customer_id}:`, error);
         return [];
     }
 };
@@ -218,8 +218,8 @@ const getAllCustomers = async ( { page = 1, limit = 20 }: PaginationOptions = {}
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 
-const updateCustomer = async (customerId: string, data: Partial<ICustomer>) => {
-    const customer = await CustomerModel.findOne({ _id: customerId }).active();
+const updateCustomer = async (customer_id: string, data: Partial<ICustomer>) => {
+    const customer = await CustomerModel.findOne({ _id: customer_id }).active();
     if (!customer) return null;
     customer.set(data);
     return customer.save();
@@ -227,20 +227,20 @@ const updateCustomer = async (customerId: string, data: Partial<ICustomer>) => {
 
 // ─── Soft Delete ──────────────────────────────────────────────────────────────
 
-const softDeleteCustomer = async (customerId: string) => {
-    return softDeleteDocument(CustomerModel, customerId);
+const softDeleteCustomer = async (customer_id: string) => {
+    return softDeleteDocument(CustomerModel, customer_id);
 };
 
 // ─── Restore ─────────────────────────────────────────────────────────────────
 
-const restoreCustomer = async (customerId: string) => {
-    return restoreDocument(CustomerModel, customerId);
+const restoreCustomer = async (customer_id: string) => {
+    return restoreDocument(CustomerModel, customer_id);
 };
 
 // ─── Hard Delete ─────────────────────────────────────────────────────────────
 
-const hardDeleteCustomer = async (customerId: string) => {
-    return CustomerModel.findByIdAndDelete(customerId);
+const hardDeleteCustomer = async (customer_id: string) => {
+    return CustomerModel.findByIdAndDelete(customer_id);
 };
 
 export default {

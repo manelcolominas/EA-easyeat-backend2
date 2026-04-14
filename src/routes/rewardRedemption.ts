@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/rewardRedemption';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRestaurantAccess, requireRole } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -108,7 +109,8 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.rewardRedemption.create), controller.createRewardRedemption);
+router.post('/', authenticate, requireRole('admin', 'owner', 'staff'),
+    requireRestaurantAccess('restaurant_id'),ValidateJoi(Schemas.rewardRedemption.create), controller.createRewardRedemption);
 
 /**
  * @openapi
@@ -129,7 +131,8 @@ router.post('/', ValidateJoi(Schemas.rewardRedemption.create), controller.create
  *       404:
  *         description: Not found
  */
-router.get('/:redemptionId', controller.readRewardRedemption);
+router.get('/:redemptionId', authenticate,
+    requireRole('admin', 'owner', 'staff'), controller.readRewardRedemption);
 
 /**
  * @openapi
@@ -141,7 +144,7 @@ router.get('/:redemptionId', controller.readRewardRedemption);
  *       200:
  *         description: OK
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'),controller.readAll);
 
 /**
  * @openapi
@@ -170,7 +173,7 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:redemptionId', ValidateJoi(Schemas.rewardRedemption.update), controller.updateRewardRedemption);
+router.put('/:redemptionId', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.rewardRedemption.update), controller.updateRewardRedemption);
 
 /**
  * @openapi
@@ -191,6 +194,6 @@ router.put('/:redemptionId', ValidateJoi(Schemas.rewardRedemption.update), contr
  *       404:
  *         description: Not found
  */
-router.delete('/:redemptionId', controller.deleteRewardRedemption);
+router.delete('/:redemptionId', authenticate, requireRole('admin'), controller.deleteRewardRedemption);
 
 export default router;

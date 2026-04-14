@@ -1,6 +1,8 @@
 import express from 'express';
 import controller from '../controllers/pointsWallet';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRole, requireRestaurantAccess, requireSelfOrAdmin} from '../middleware/auth';
+
 
 const router = express.Router();
 
@@ -69,7 +71,7 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.pointsWallet.create), controller.createPointsWallet);
+router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'),ValidateJoi(Schemas.pointsWallet.create), controller.createPointsWallet);
 
 /**
  * @openapi
@@ -90,7 +92,7 @@ router.post('/', ValidateJoi(Schemas.pointsWallet.create), controller.createPoin
  *       404:
  *         description: Not found
  */
-router.get('/:walletId', controller.readPointsWallet);
+router.get('/:walletId', authenticate, requireRole('admin', 'owner', 'staff', 'customer'),controller.readPointsWallet);
 
 /**
  * @openapi
@@ -102,7 +104,7 @@ router.get('/:walletId', controller.readPointsWallet);
  *       200:
  *         description: OK
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'),controller.readAll);
 
 /**
  * @openapi
@@ -131,7 +133,8 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:walletId', ValidateJoi(Schemas.pointsWallet.update), controller.updatePointsWallet);
+router.put('/:walletId', authenticate, requireRole('admin', 'owner', 'staff'),
+    requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.pointsWallet.update), controller.updatePointsWallet);
 
 /**
  * @openapi
@@ -152,6 +155,6 @@ router.put('/:walletId', ValidateJoi(Schemas.pointsWallet.update), controller.up
  *       404:
  *         description: Not found
  */
-router.delete('/:walletId', controller.deletePointsWallet);
+router.delete('/:walletId', authenticate, requireRole('admin'),controller.deletePointsWallet);
 
 export default router;

@@ -73,9 +73,9 @@ export function isRestaurantOpenNow(timetable: IRestaurant['profile']['timetable
 }
 
 // MODE 1 — Full menu, all dishes, each tagged with isAvailableNow for the frontend to grey out
-export async function getFullMenu(restaurantId: string, now: Date = new Date()) {
+export async function getFullMenu(restaurant_id: string, now: Date = new Date()) {
     const activePeriods = getCurrentServicePeriods(now);
-    const dishes = await DishModel.find({ restaurant_id: restaurantId, active: true });
+    const dishes = await DishModel.find({ restaurant_id: restaurant_id, active: true });
 
     return dishes.map(dish => ({
         ...dish.toObject(),
@@ -84,19 +84,19 @@ export async function getFullMenu(restaurantId: string, now: Date = new Date()) 
 }
 
 // MODE 2 — Only dishes available right now based on current time
-export async function getCurrentMenu(restaurantId: string, now: Date = new Date()) {
+export async function getCurrentMenu(restaurant_id: string, now: Date = new Date()) {
     const activePeriods = getCurrentServicePeriods(now);
     return DishModel.find({
-        restaurant_id: restaurantId,
+        restaurant_id: restaurant_id,
         active: true,
         availableAt: { $in: activePeriods }
     });
 }
 
 // MODE 3 — admin manually picks a period to browse
-export async function getMenuByPeriod(restaurantId: string, period: ServicePeriod) {
+export async function getMenuByPeriod(restaurant_id: string, period: ServicePeriod) {
     return DishModel.find({
-        restaurant_id: restaurantId,
+        restaurant_id: restaurant_id,
         active: true,
         availableAt: period
     });

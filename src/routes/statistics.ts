@@ -1,6 +1,8 @@
 import express from 'express';
 import controller from '../controllers/statistics';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
+
 
 const router = express.Router();
 
@@ -93,17 +95,17 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.statistics.create), controller.createStatistics);
+router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.statistics.create), controller.createStatistics);
 
 /**
  * @openapi
- * /statistics/{statisticsId}:
+ * /statistics/{statistics_id}:
  *   get:
  *     summary: Gets a statistics record by ID
  *     tags: [Statistics]
  *     parameters:
  *       - in: path
- *         name: statisticsId
+ *         name: statistics_id
  *         required: true
  *         schema:
  *           type: string
@@ -114,7 +116,7 @@ router.post('/', ValidateJoi(Schemas.statistics.create), controller.createStatis
  *       404:
  *         description: Not found
  */
-router.get('/:statisticsId', controller.readStatistics);
+router.get('/:statistics_id', authenticate, requireRole('admin', 'owner'), controller.readStatistics);
 
 /**
  * @openapi
@@ -126,17 +128,17 @@ router.get('/:statisticsId', controller.readStatistics);
  *       200:
  *         description: OK
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
- * /statistics/{statisticsId}:
+ * /statistics/{statistics_id}:
  *   put:
  *     summary: Updates a statistics record by ID
  *     tags: [Statistics]
  *     parameters:
  *       - in: path
- *         name: statisticsId
+ *         name: statistics_id
  *         required: true
  *         schema:
  *           type: string
@@ -155,17 +157,17 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:statisticsId', ValidateJoi(Schemas.statistics.update), controller.updateStatistics);
+router.put('/:statistics_id', authenticate, requireRole('admin'), ValidateJoi(Schemas.statistics.update), controller.updateStatistics);
 
 /**
  * @openapi
- * /statistics/{statisticsId}:
+ * /statistics/{statistics_id}:
  *   delete:
  *     summary: Deletes a statistics record by ID
  *     tags: [Statistics]
  *     parameters:
  *       - in: path
- *         name: statisticsId
+ *         name: statistics_id
  *         required: true
  *         schema:
  *           type: string
@@ -176,6 +178,6 @@ router.put('/:statisticsId', ValidateJoi(Schemas.statistics.update), controller.
  *       404:
  *         description: Not found
  */
-router.delete('/:statisticsId', controller.deleteStatistics);
+router.delete('/:statistics_id', authenticate, requireRole('admin'),controller.deleteStatistics);
 
 export default router;

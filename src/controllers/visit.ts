@@ -11,9 +11,9 @@ const createVisit = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const readVisit = async (req: Request, res: Response, next: NextFunction) => {
-    const visitId = req.params.visitId;
+    const visit_id = req.params.visit_id;
     try {
-        const visit = await VisitService.getVisit(visitId);
+        const visit = await VisitService.getVisit(visit_id);
         // ✅ Filtro soft delete: si tiene deletedAt, devolvemos 404
         if (visit && (visit as any).deletedAt) return res.status(404).json({ message: 'not found' });
         return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
@@ -42,9 +42,9 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getVisitFull = async (req: Request, res: Response, next: NextFunction) => {
-    const visitId = req.params.visitId;
+    const visit_id = req.params.visit_id;
     try {
-        const visit = await VisitService.getVisitFull(visitId);
+        const visit = await VisitService.getVisitFull(visit_id);
         return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -52,9 +52,9 @@ const getVisitFull = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 const updateVisit = async (req: Request, res: Response, next: NextFunction) => {
-    const visitId = req.params.visitId;
+    const visit_id = req.params.visit_id;
     try {
-        const updatedVisit = await VisitService.updateVisit(visitId, req.body);
+        const updatedVisit = await VisitService.updateVisit(visit_id, req.body);
         return updatedVisit ? res.status(200).json(updatedVisit) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -62,9 +62,9 @@ const updateVisit = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const deleteVisit = async (req: Request, res: Response, next: NextFunction) => {
-    const visitId = req.params.visitId;
+    const visit_id = req.params.visit_id;
     try {
-        const visit = await VisitService.deleteVisit(visitId);
+        const visit = await VisitService.deleteVisit(visit_id);
         return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });

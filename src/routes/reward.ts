@@ -1,6 +1,8 @@
 import express from 'express';
 import controller from '../controllers/reward';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRestaurantAccess, requireRole, requireSelfOrAdmin } from '../middleware/auth';
+import rewardController from '../controllers/reward';
 
 const router = express.Router();
 
@@ -93,17 +95,20 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.reward.create), controller.createReward);
+router.post('/',authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
+    ValidateJoi(Schemas.reward.create),
+    rewardController.createReward
+);
 
 /**
  * @openapi
- * /rewards/{rewardId}:
+ * /rewards/{reward_id}:
  *   get:
  *     summary: Gets a reward by ID
  *     tags: [Rewards]
  *     parameters:
  *       - in: path
- *         name: rewardId
+ *         name: reward_id
  *         required: true
  *         schema:
  *           type: string
@@ -114,7 +119,7 @@ router.post('/', ValidateJoi(Schemas.reward.create), controller.createReward);
  *       404:
  *         description: Not found
  */
-router.get('/:rewardId', controller.readReward);
+router.get('/:reward_id', controller.readReward);
 
 /**
  * @openapi
@@ -130,13 +135,13 @@ router.get('/', controller.readAll);
 
 /**
  * @openapi
- * /rewards/{rewardId}:
+ * /rewards/{reward_id}:
  *   put:
  *     summary: Updates a reward by ID
  *     tags: [Rewards]
  *     parameters:
  *       - in: path
- *         name: rewardId
+ *         name: reward_id
  *         required: true
  *         schema:
  *           type: string
@@ -155,17 +160,17 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:rewardId', ValidateJoi(Schemas.reward.update), controller.updateReward);
+router.put('/:reward_id', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.reward.update), controller.updateReward);
 
 /**
  * @openapi
- * /rewards/{rewardId}:
+ * /rewards/{reward_id}:
  *   delete:
  *     summary: Deletes a reward by ID
  *     tags: [Rewards]
  *     parameters:
  *       - in: path
- *         name: rewardId
+ *         name: reward_id
  *         required: true
  *         schema:
  *           type: string
@@ -176,6 +181,6 @@ router.put('/:rewardId', ValidateJoi(Schemas.reward.update), controller.updateRe
  *       404:
  *         description: Not found
  */
-router.delete('/:rewardId', controller.deleteReward);
+router.delete('/:reward_id',authenticate, requireRole('admin', 'owner'), requireSelfOrAdmin('restaurant_id'), controller.deleteReward);
 
 export default router;
