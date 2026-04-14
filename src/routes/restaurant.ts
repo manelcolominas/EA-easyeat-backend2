@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/restaurant';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -212,7 +213,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
+router.post('/', authenticate, requireRole('owner'), ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
 
 /**
  * @openapi
@@ -230,7 +231,7 @@ router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestau
  *               items:
  *                 $ref: '#/components/schemas/Restaurant'
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, controller.readAll);
 
 /**
  * @openapi
@@ -311,7 +312,7 @@ router.get('/', controller.readAll);
  *       500:
  *         description: Internal server error
  */
-router.get('/filter', controller.getFiltered);
+router.get('/filter', authenticate, controller.getFiltered);
 
 
 // /**
@@ -378,7 +379,7 @@ router.get('/filter', controller.getFiltered);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId', controller.readRestaurant);
+router.get('/:restaurantId', authenticate, controller.readRestaurant);
 
 /**
  * @openapi
@@ -403,7 +404,7 @@ router.get('/:restaurantId', controller.readRestaurant);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/full', controller.getRestaurantFull);
+router.get('/:restaurantId/full', authenticate, controller.getRestaurantFull);
 
 /**
  * @openapi
@@ -624,7 +625,7 @@ router.get('/:restaurantId/full', controller.getRestaurantFull);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:restaurantId', ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
+router.put('/:restaurantId', authenticate, requireRole('owner', 'admin', 'staff'), requireRestaurantAccess('restaurantId'), ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Lifecycle  (soft-delete / restore / hard-delete)

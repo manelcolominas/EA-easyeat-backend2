@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/badge';
 import { Schemas, ValidateJoi } from '../middleware/joi';
+import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
 
 const router = express.Router();
 
