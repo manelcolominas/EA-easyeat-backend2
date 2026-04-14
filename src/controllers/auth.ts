@@ -45,9 +45,10 @@ export const loginAdmin = async (req: Request, res: Response) => {
             const name = employee.profile.name;
             const empEmail = employee.profile.email ?? email;
             const empRole = employee.profile.role ?? 'staff';
+            const restaurantId = String(employee.restaurant_id); // Get the restaurant_id
 
-            const accessToken = generateAccessToken(String(employee._id), name, empEmail, empRole);
-            const refreshToken = generateRefreshToken(String(employee._id), name, empEmail, empRole);
+            const accessToken = generateAccessToken(String(employee._id), name, empEmail, empRole, restaurantId);
+            const refreshToken = generateRefreshToken(String(employee._id), name, empEmail, empRole, restaurantId);
 
             res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 

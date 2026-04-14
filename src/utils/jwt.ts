@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import { config } from "../config/config";
 import { IJwtPayload } from "../models/JWTPayload";
 
-export const generateAccessToken = (admin_id: string, name: string, email: string, role: string) => {
-    const payload: IJwtPayload = { id: admin_id, name, email, role, type: 'access' };
+export const generateAccessToken = (admin_id: string, name: string, email: string, role: string, restaurant_id?: string) => {
+    const payload: IJwtPayload = { id: admin_id, name, email, role, type: 'access', restaurant_id };
     return jwt.sign(
         payload,
         config.jwt.accessSecret,
@@ -12,8 +12,8 @@ export const generateAccessToken = (admin_id: string, name: string, email: strin
     );
 };
 
-export const generateRefreshToken = (admin_id: string, name: string, email: string, role: string) => {
-    const payload: IJwtPayload = { id: admin_id, name, email, role, type: 'refresh' };
+export const generateRefreshToken = (admin_id: string, name: string, email: string, role: string, restaurant_id?: string) => {
+    const payload: IJwtPayload = { id: admin_id, name, email, role, type: 'refresh', restaurant_id };
     return jwt.sign(
         payload,
         config.jwt.refreshSecret,
