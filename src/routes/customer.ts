@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/customer';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-// import { requireAdmin } from '../middleware/auth'; // ← uncomment once you have auth middleware
+import { authenticate, requireRole, requireSelfOrAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -141,7 +141,7 @@ router.post('/', ValidateJoi(Schemas.customer.create), controller.createCustomer
  *             schema:
  *               $ref: '#/components/schemas/PaginatedCustomers'
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 // ─── GET /customers/:customerId ───────────────────────────────────────────────
 /**
@@ -162,7 +162,7 @@ router.get('/', controller.readAll);
  *       404:
  *         description: Not found or soft-deleted
  */
-router.get('/:customerId', controller.readCustomer);
+router.get('/:customerId', authenticate, requireSelfOrAdmin('customerId'), controller.readCustomer);
 
 /**
  * @openapi
@@ -186,31 +186,7 @@ router.get('/:customerId', controller.readCustomer);
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/full', controller.readCustomerFull);
-
-/**
- * @openapi
- * /customers/{customerId}/full:
- *   get:
- *     summary: Gets a customer with all populated relations
- *     tags: [Customer]
- *     parameters:
- *       - in: path
- *         name: customerId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Customer with all relations populated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Customer'
- *       404:
- *         description: Customer not found
- */
-router.get('/:customerId/full', controller.readCustomerFull);
+router.get('/:customerId/full',  authenticate, requireSelfOrAdmin('customerId'), controller.readCustomerFull);
 
 // ─── GET /customers/:customerId/badges ─────────────────────────────────────────
 /**
@@ -231,7 +207,7 @@ router.get('/:customerId/full', controller.readCustomerFull);
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/badges', controller.getCustomerAllBadges);
+router.get('/:customerId/badges', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllBadges);
 
 // ─── GET /customers/:customerId/favouriteRestaurants ────────────────────────────
 /**
@@ -252,7 +228,7 @@ router.get('/:customerId/badges', controller.getCustomerAllBadges);
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/favouriteRestaurants', controller.getCustomerAllFavouriteRestaurants);
+router.get('/:customerId/favouriteRestaurants', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllFavouriteRestaurants);
 
 // ─── GET /customers/:customerId/pointsWallet ───────────────────────────────────
 /**
@@ -273,7 +249,7 @@ router.get('/:customerId/favouriteRestaurants', controller.getCustomerAllFavouri
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/pointsWallet', controller.getCustomerAllPointsWallet);
+router.get('/:customerId/pointsWallet', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllPointsWallet);
 
 // ─── GET /customers/:customerId/reviews ────────────────────────────────────────
 /**
@@ -294,7 +270,7 @@ router.get('/:customerId/pointsWallet', controller.getCustomerAllPointsWallet);
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/reviews', controller.getCustomerAllReviews);
+router.get('/:customerId/reviews', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllReviews);
 
 // ─── GET /customers/:customerId/visits ─────────────────────────────────────────
 /**
@@ -315,7 +291,7 @@ router.get('/:customerId/reviews', controller.getCustomerAllReviews);
  *       404:
  *         description: Customer not found
  */
-router.get('/:customerId/visits', controller.getCustomerAllVisits);
+router.get('/:customerId/visits', authenticate, requireSelfOrAdmin('customerId'), controller.getCustomerAllVisits);
 
 // ─── PUT /customers/:customerId ───────────────────────────────────────────────
 /**
@@ -344,7 +320,7 @@ router.get('/:customerId/visits', controller.getCustomerAllVisits);
  *       422:
  *         description: Validation failed
  */
-router.put('/:customerId', ValidateJoi(Schemas.customer.update), controller.updateCustomer);
+router.put('/:customerId', authenticate, requireSelfOrAdmin('customerId'), ValidateJoi(Schemas.customer.update), controller.updateCustomer);
 
 // ─── DELETE /customers/:customerId  (soft delete) ─────────────────────────────
 /**
@@ -365,7 +341,7 @@ router.put('/:customerId', ValidateJoi(Schemas.customer.update), controller.upda
  *       404:
  *         description: Not found
  */
-router.delete('/:customerId/soft', controller.softDeleteCustomer);
+router.delete('/:customerId/soft', authenticate, requireSelfOrAdmin('customerId'), controller.softDeleteCustomer);
 
 // ─── PATCH /customers/:customerId/restore ─────────────────────────────────────
 /**
@@ -386,7 +362,7 @@ router.delete('/:customerId/soft', controller.softDeleteCustomer);
  *       404:
  *         description: Not found
  */
-router.patch('/:customerId/restore', controller.restoreCustomer);
+router.patch('/:customerId/restore', authenticate, requireSelfOrAdmin('customerId'), controller.restoreCustomer);
 
 // ─── DELETE /customers/:customerId/hard  (hard delete — admin only) ───────────
 /**
@@ -407,6 +383,6 @@ router.patch('/:customerId/restore', controller.restoreCustomer);
  *       404:
  *         description: Not found
  */
-router.delete('/:customerId/hard',controller.hardDeleteCustomer);
+router.delete('/:customerId/hard', authenticate, requireSelfOrAdmin('customerId'), controller.hardDeleteCustomer);
 
 export default router;

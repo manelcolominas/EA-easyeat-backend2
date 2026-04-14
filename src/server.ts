@@ -20,8 +20,6 @@ import rewardRedemption from './routes/rewardRedemption';
 import statistics from './routes/statistics';
 
 import authRoutes from './routes/auth';
-// requireAdmin is now an array [authenticate, requireRole('admin')]
-import { requireAdmin } from './middleware/auth';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -59,17 +57,17 @@ const StartServer = () => {
     router.get('/ping', (_req, res) => res.status(200).json({ hello: 'world' }));
 
     /** Protected Routes — requireAdmin = [authenticate, requireRole('admin')] */
-    router.use('/restaurants',      requireAdmin, restaurantRoutes);
-    router.use('/reviews',          requireAdmin, reviewRoutes);
-    router.use('/customers',        requireAdmin, customerRoutes);
-    router.use('/rewards',          requireAdmin, rewardRoutes);
-    router.use('/visits',           requireAdmin, visitRoutes);
-    router.use('/badges',           requireAdmin, badgeRoutes);
-    router.use('/dishes',           requireAdmin, dishRoutes);
-    router.use('/employees',        requireAdmin, employeeRoutes);
-    router.use('/pointsWallets',    requireAdmin, pointsWallets);
-    router.use('/rewardRedemptions',requireAdmin, rewardRedemption);
-    router.use('/statistics',       requireAdmin, statistics);
+    router.use('/restaurants',      restaurantRoutes);
+    router.use('/reviews',          reviewRoutes);
+    router.use('/customers',        customerRoutes);
+    router.use('/rewards',          rewardRoutes);
+    router.use('/visits',           visitRoutes);
+    router.use('/badges',           badgeRoutes);
+    router.use('/dishes',           dishRoutes);
+    router.use('/employees',        employeeRoutes);
+    router.use('/pointsWallets',    pointsWallets);
+    router.use('/rewardRedemptions', rewardRedemption);
+    router.use('/statistics',       statistics);
 
     /** 404 fallback */
     router.use((req, res) => {

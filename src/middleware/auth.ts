@@ -2,14 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt';
 import { IJwtPayload } from '../models/JWTPayload';
 
-// Augment Express Request so downstream handlers can read the typed admin
 export interface AuthRequest extends Request {
-    admin?: IJwtPayload;
+    user?: IJwtPayload;
 }
 
 /**
- * Verifies the Bearer access token and attaches the decoded payload to
- * `req.admin`. Any route that needs authentication should use this first.
+ * Verifies the Bearer access token and attaches the decoded payload to `req.user`.
  */
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -23,15 +21,13 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
             return res.status(401).json({ message: 'Authentication required' });
         }
 
-        // verifyAccessToken uses config.jwt.accessSecret and returns IJwtPayload
         const decoded = verifyAccessToken(token);
 
-        // Guard: only accept tokens that were issued as access tokens
         if (decoded.type !== 'access') {
             return res.status(401).json({ message: 'Invalid token type' });
         }
 
-        req.admin = decoded;
+        req.user = decoded;
         next();
     } catch {
         return res.status(401).json({ message: 'Invalid or expired token' });
@@ -39,21 +35,21 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 };
 
 /**
- * RBAC factory — call with one or more allowed roles.
- *
- * Usage:
- *   router.get('/admin-only', authenticate, requireRole('admin'), handler)
- *   router.get('/staff-area', authenticate, requireRole('admin', 'owner'), handler)
- *
- * Must be used AFTER `authenticate` so that `req.admin` is populated.
+ * RBAC middleware: check if user has one of the allowed roles.
+ * Admins ALWAYS have access (Bypass).
  */
 export const requireRole = (...roles: string[]) => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.admin) {
+        if (!req.user) {
             return res.status(401).json({ message: 'Authentication required' });
         }
 
-        if (!roles.includes(req.admin.role)) {
+        // Admin bypass
+        if (req.user.role === 'admin') {
+            return next();
+        }
+
+        if (!roles.includes(req.user.role)) {
             return res.status(403).json({
                 message: `Access denied. Required role(s): ${roles.join(', ')}`
             });
@@ -64,7 +60,50 @@ export const requireRole = (...roles: string[]) => {
 };
 
 /**
- * Convenience shorthand — keeps server.ts backwards-compatible.
- * Equivalent to: authenticate + requireRole('admin')
+ * Ownership middleware: allows access if the user is an admin OR if the
+ * requested resource ID matches the authenticated user's ID.
+ * Expected parameter name in req.params: 'userId' or 'customerId'
  */
-export const requireAdmin = [authenticate, requireRole('admin')];
+export const requireSelfOrAdmin = (paramName: string = 'userId') => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
+        if (!req.user) return res.status(401).json({ message: 'Authentication required' });
+
+        const resourceId = req.params[paramName];
+        const isOwner = req.user.id === resourceId;
+        const isAdmin = req.user.role === 'admin';
+
+        if (isAdmin || isOwner) {
+            return next();
+        }
+
+        return res.status(403).json({ message: 'Access denied: You can only access your own data' });
+    };
+};
+
+/**
+ * Multi-tenant middleware: ensures the user belongs to the restaurant they are trying to access.
+ * Admins ALWAYS have access.
+ * Owners and Staff must match the restaurantId.
+ */
+export const requireRestaurantAccess = (paramName: string = 'restaurantId') => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
+        if (!req.user) return res.status(401).json({ message: 'Authentication required' });
+
+        // Admin bypass
+        if (req.user.role === 'admin') return next();
+
+        const targetRestaurantId = req.params[paramName] || req.body[paramName] || req.query[paramName];
+        
+        if (!req.user.restaurantId || req.user.restaurantId !== targetRestaurantId) {
+            return res.status(403).json({ message: 'Access denied: You do not have access to this restaurant' });
+        }
+
+        next();
+    };
+};
+
+// Convenience shorthands
+export const isAdmin = [authenticate, requireRole('admin')];
+export const isOwner = [authenticate, requireRole('owner')];
+export const isStaff = [authenticate, requireRole('staff')];
+export const isCustomer = [authenticate, requireRole('customer')];

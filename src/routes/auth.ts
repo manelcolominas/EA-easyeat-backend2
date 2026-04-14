@@ -21,10 +21,10 @@ const router = express.Router();
  *             properties:
  *               email:
  *                 type: string
- *                 example: user@easyeat.com
+ *                 example: admin@easyeat.com
  *               password:
  *                 type: string
- *                 example: Password1
+ *                 example: Admin123
  *               role:
  *                 type: string
  *                 enum: [admin, customer, employee]
