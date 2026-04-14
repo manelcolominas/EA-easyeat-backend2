@@ -1,35 +1,78 @@
 import { Request, Response } from 'express';
 import { AdminModel } from '../models/admin';
-import { validateadminCredentials, getTokens } from '../services/auth';
+import { validateAdminCredentials, validateCustomerCredentials, validateEmployeeCredentials, getTokens } from '../services/auth';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { config } from '../config/config';
 import Logging from '../library/logging';
 
 export const loginAdmin = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role = 'admin' } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
 
-        // Delegate lookup + bcrypt verification to the service layer,
-        // exactly as employee and customer controllers do via their services.
-        // Returns null for both "not found" and "wrong password" to avoid
-        // admin-enumeration attacks.
-        const admin = await validateadminCredentials(email, password);
+        if (role === 'customer') {
+            const customer = await validateCustomerCredentials(email, password);
+            if (!customer) {
+                return res.status(401).json({ message: 'Invalid credentials' });
+            }
+
+            const accessToken = generateAccessToken(String(customer._id), customer.name, customer.email, 'customer');
+            const refreshToken = generateRefreshToken(String(customer._id), customer.name, customer.email, 'customer');
+
+            res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
+
+            return res.status(200).json({
+                message: 'Auth successful',
+                accessToken,
+                customer: {
+                    id:    customer._id,
+                    email: customer.email,
+                    name:  customer.name,
+                    role:  'customer',
+                }
+            });
+        }
+
+        if (role === 'employee') {
+            const employee = await validateEmployeeCredentials(email, password);
+            if (!employee) {
+                return res.status(401).json({ message: 'Invalid credentials' });
+            }
+
+            const name = employee.profile.name;
+            const empEmail = employee.profile.email ?? email;
+            const empRole = employee.profile.role ?? 'staff';
+
+            const accessToken = generateAccessToken(String(employee._id), name, empEmail, empRole);
+            const refreshToken = generateRefreshToken(String(employee._id), name, empEmail, empRole);
+
+            res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
+
+            return res.status(200).json({
+                message: 'Auth successful',
+                accessToken,
+                employee: {
+                    id:            employee._id,
+                    name:          employee.profile.name,
+                    email:         employee.profile.email,
+                    role:          employee.profile.role,
+                    restaurant_id: employee.restaurant_id,
+                }
+            });
+        }
+
+        // Default: admin login
+        const admin = await validateAdminCredentials(email, password);
         if (!admin) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Service returns both tokens from a single call, same as employee/customer.
         const { accessToken, refreshToken } = getTokens(admin);
 
-        // Send refresh token as an httpOnly cookie
-        res.cookie(
-            config.cookies.refreshName,
-            refreshToken,
-            config.cookies.options
-        );
+        res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 
         return res.status(200).json({
             message: 'Auth successful',

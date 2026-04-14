@@ -1,8 +1,9 @@
-import mongoose from 'mongoose';
 import { AdminModel} from '../models/admin';
+import { CustomerModel } from '../models/customer';
+import { EmployeeModel } from '../models/employee';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 
-export const validateadminCredentials = async (email: string, password: string) => {
+export const validateAdminCredentials = async (email: string, password: string) => {
     const admin = await AdminModel.findOne({ email }).select('+password');
     if (!admin) return null;
 
@@ -10,6 +11,26 @@ export const validateadminCredentials = async (email: string, password: string) 
     if (!isMatch) return null;
 
     return admin;
+};
+
+export const validateCustomerCredentials = async (email: string, password: string) => {
+    const customer = await CustomerModel.findOne({ email, deletedAt: null }).select('+password');
+    if (!customer) return null;
+
+    const isMatch = await customer.comparePassword(password);
+    if (!isMatch) return null;
+
+    return customer;
+};
+
+export const validateEmployeeCredentials = async (email: string, password: string) => {
+    const employee = await EmployeeModel.findOne({ 'profile.email': email, isActive: true }).select('+profile.password');
+    if (!employee) return null;
+
+    const isMatch = await employee.comparePassword(password);
+    if (!isMatch) return null;
+
+    return employee;
 };
 
 export const getTokens = (admin: any) => {
