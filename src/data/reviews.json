@@ -15,6 +15,16 @@
       "cleanliness": 10,
       "environment": 9
     },
+    "dishRatings": [
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789014",
+        "rating": 8
+      },
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789015",
+        "rating": 9
+      }
+    ],
     "comment": "Absolutely incredible paella! The staff were attentive and the view of the sea was breathtaking. Will definitely come back.",
     "likes": 14
   },
@@ -34,6 +44,16 @@
       "cleanliness": 9,
       "environment": 8
     },
+    "dishRatings": [
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789014",
+        "rating": 8
+      },
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789015",
+        "rating": 8
+      }
+    ],
     "comment": "Great wine selection and the sashimi was very fresh. A bit pricey but worth the occasion.",
     "likes": 6
   },
@@ -53,6 +73,16 @@
       "cleanliness": 9,
       "environment": 8
     },
+    "dishRatings": [
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789016",
+        "rating": 10
+      },
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789017",
+        "rating": 9
+      }
+    ],
     "comment": "Best tonkotsu ramen I've had outside of Japan. The egg was perfectly marinated.",
     "likes": 27
   },
@@ -71,6 +101,16 @@
       "staffService": 6,
       "cleanliness": 8
     },
+    "dishRatings": [
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789018",
+        "rating": 7
+      },
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789019",
+        "rating": 8
+      }
+    ],
     "comment": "Good food but service was a bit slow on a Saturday night. Understandable given how busy it was.",
     "likes": 3
   },
@@ -90,6 +130,16 @@
       "cleanliness": 9,
       "environment": 7
     },
+    "dishRatings": [
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789020",
+        "rating": 9
+      },
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789021",
+        "rating": 8
+      }
+    ],
     "comment": "The buddha bowl was incredibly fresh and filling. Love that everything is locally sourced. The açaí bowl is also a must!",
     "likes": 11
   },
@@ -109,6 +159,16 @@
       "cleanliness": 10,
       "environment": 10
     },
+    "dishRatings": [
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789022",
+        "rating": 10
+      },
+      {
+        "dish_id": "65f1c2a1b2c3d4e5f6789023",
+        "rating": 10
+      }
+    ],
     "comment": "Absolutely perfect. The wood-fired Margherita is a religious experience. Burrata starter was divine. This place deserves a Michelin star.",
     "likes": 41
   }
