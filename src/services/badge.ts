@@ -14,8 +14,16 @@ const getBadge = async (badge_id: string) => {
     return await BadgeModel.findById(badge_id);
 };
 
+const getDeletedBadge = async (badge_id: string) => {
+    return await BadgeModel.findOne({ _id: badge_id, deletedAt: { $ne: null } });
+};
+
 const getAllBadges = async (): Promise<IBadge[]> => {
     return await BadgeModel.find()
+};
+
+const getAllDeletedBadges = async (): Promise<IBadge[]> => {
+    return await BadgeModel.find({ deletedAt: { $ne: null } });
 };
 
 const updateBadge = async (badge_id: string, data: Partial<IBadge>) => {
@@ -29,14 +37,26 @@ const updateBadge = async (badge_id: string, data: Partial<IBadge>) => {
     return null;
 };
 
-const deleteBadge = async (badge_id: string) => {
+const softDeleteBadge = async (badge_id: string) => {
+    return await BadgeModel.findByIdAndUpdate(badge_id, { deletedAt: new Date() }, { new: true }).lean();
+};
+
+const restoreBadge = async (badge_id: string) => {
+    return await BadgeModel.findByIdAndUpdate(badge_id, { deletedAt: null }, { new: true }).lean();
+};
+
+const hardDeleteBadge = async (badge_id: string) => {
     return await BadgeModel.findByIdAndDelete(badge_id);
 };
 
 export default {
     createBadge,
     getBadge,
+    getDeletedBadge,
     getAllBadges,
+    getAllDeletedBadges,
     updateBadge,
-    deleteBadge
+    softDeleteBadge,
+    restoreBadge,
+    hardDeleteBadge,
 };

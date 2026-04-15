@@ -21,7 +21,6 @@ export interface IReview {
   comment?: string;
   likes?: number;
 
-  // 🔥 NUEVO (soft delete)
   deleted?: boolean;
 
   createdAt?: Date;
@@ -44,7 +43,6 @@ const reviewSchema = new Schema<IReview>(
     },
     comment: { type: String, trim: true },
     likes: { type: Number, default: 0 },
-    // 🔥 SOFT DELETE
     deleted: { type: Boolean, default: false }
   },
   {
@@ -53,7 +51,7 @@ const reviewSchema = new Schema<IReview>(
 );
 
 // Evitar duplicados SOLO si no está eliminado
-reviewSchema.index( { customer_id: 1, restaurant_id: 1 },
+reviewSchema.index({ customer_id: 1, restaurant_id: 1 },
   { unique: true, partialFilterExpression: { deleted: false } }
 );
 

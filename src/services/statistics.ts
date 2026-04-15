@@ -23,7 +23,7 @@ const getStatistics = async (statistics_id: string) => {
     return await StatisticsModel.findById(statistics_id);
 };
 
-const getAllStatistics = async(): Promise<IStatistics[]> => {
+const getAllStatistics = async (): Promise<IStatistics[]> => {
     return await StatisticsModel.find();
 };
 

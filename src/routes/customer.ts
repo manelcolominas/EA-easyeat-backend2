@@ -143,6 +143,33 @@ router.post('/', ValidateJoi(Schemas.customer.create), controller.createCustomer
  */
 router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
+/**
+ * @openapi
+ * /customers/deleted:
+ *   get:
+ *     summary: Lists all deleted customers (paginated)
+ *     tags: [Customer]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedCustomers'
+ */
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
 // ─── GET /customers/:customer_id ───────────────────────────────────────────────
 /**
  * @openapi
@@ -166,6 +193,26 @@ router.get('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), con
 
 /**
  * @openapi
+ * /customers/{customer_id}/deleted:
+ *   get:
+ *     summary: Gets a deleted customer by ID
+ *     tags: [Customer]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not found
+ */
+router.get('/:customer_id/deleted', authenticate, requireRole('admin'), controller.readDeletedCustomer);
+
+/**
+ * @openapi
  * /customers/{customer_id}/full:
  *   get:
  *     summary: Gets a customer with all populated relations
@@ -186,7 +233,31 @@ router.get('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), con
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/full',  authenticate, requireSelfOrAdmin('customer_id'), controller.readCustomerFull);
+router.get('/:customer_id/full', authenticate, requireSelfOrAdmin('customer_id'), controller.readCustomerFull);
+
+/**
+ * @openapi
+ * /customers/{customer_id}/full/deleted:
+ *   get:
+ *     summary: Gets a deleted customer with all populated relations
+ *     tags: [Customer]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer with all relations populated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Customer'
+ *       404:
+ *         description: Customer not found
+ */
+router.get('/:customer_id/full/deleted', authenticate, requireRole('admin'), controller.readDeletedCustomerFull);
 
 // ─── GET /customers/:customer_id/badges ─────────────────────────────────────────
 /**
@@ -292,6 +363,26 @@ router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_i
  *         description: Customer not found
  */
 router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllVisits);
+
+/**
+ * @openapi
+ * /customers/{customer_id}/visits/deleted:
+ *   get:
+ *     summary: Gets all visits for the customer
+ *     tags: [Customer]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of visits
+ *       404:
+ *         description: Customer not found
+ */
+router.get('/:customer_id/visits/deleted', authenticate, requireRole('admin'), controller.getCustomerAllDeletedVisits);
 
 // ─── PUT /customers/:customer_id ───────────────────────────────────────────────
 /**

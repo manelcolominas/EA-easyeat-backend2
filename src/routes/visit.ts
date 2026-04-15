@@ -128,6 +128,18 @@ router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
+ * /visits/deleted:
+ *   get:
+ *     summary: Lists all deleted visits
+ *     tags: [Visits]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+/**
+ * @openapi
  * /visits/{visit_id}:
  *   get:
  *     summary: Gets a visit by ID
@@ -153,6 +165,27 @@ router.get('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff', 'c
 
 /**
  * @openapi
+ * /visits/{visit_id}/deleted:
+ *   get:
+ *     summary: Gets a deleted visit by ID
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: visit_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The visit's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not found
+ */
+router.get('/:visit_id/deleted', authenticate, requireRole('admin'), controller.readDeletedVisit);
+
+/**
+ * @openapi
  * /visits/{visit_id}/full:
  *   get:
  *     summary: Gets a visit with all populated fields (customer, restaurant)
@@ -175,6 +208,31 @@ router.get('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff', 'c
  *         description: Visit not found
  */
 router.get('/:visit_id/full', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.getVisitFull);
+
+/**
+ * @openapi
+ * /visits/{visit_id}/full/deleted:
+ *   get:
+ *     summary: Gets a deleted visit with all populated fields (customer, restaurant)
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: visit_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The visit's ObjectId
+ *     responses:
+ *       200:
+ *         description: Visit with populated relations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visit'
+ *       404:
+ *         description: Visit not found
+ */
+router.get('/:visit_id/full/deleted', authenticate, requireRole('admin'), controller.getDeletedVisitFull);
 
 /**
  * @openapi
@@ -211,9 +269,9 @@ router.put('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff'), V
 
 /**
  * @openapi
- * /visits/{visit_id}:
+ * /visits/{visit_id}/soft:
  *   delete:
- *     summary: Deletes a visit by ID
+ *     summary: Soft deletes a visit by ID
  *     tags: [Visits]
  *     parameters:
  *       - in: path
@@ -228,6 +286,48 @@ router.put('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff'), V
  *       404:
  *         description: Visit not found
  */
-router.delete('/:visit_id', authenticate, requireRole('admin'), controller.deleteVisit);
+router.delete('/:visit_id/soft', authenticate, requireRole('admin'), controller.softDeleteVisit);
+
+/**
+ * @openapi
+ * /visits/{visit_id}/restore:
+ *   put:
+ *     summary: Restores a deleted visit by ID
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: visit_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The visit's ObjectId
+ *     responses:
+ *       200:
+ *         description: Successfully restored
+ *       404:
+ *         description: Visit not found
+ */
+router.put('/:visit_id/restore', authenticate, requireRole('admin'), controller.restoreVisit);
+
+/**
+ * @openapi
+ * /visits/{visit_id}/hard:
+ *   delete:
+ *     summary: Hard deletes a visit by ID
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: visit_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The visit's ObjectId
+ *     responses:
+ *       200:
+ *         description: Successfully deleted
+ *       404:
+ *         description: Visit not found
+ */
+router.delete('/:visit_id/hard', authenticate, requireRole('admin'), controller.hardDeleteVisit);
 
 export default router;

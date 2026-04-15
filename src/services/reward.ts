@@ -24,9 +24,20 @@ const getReward = async (reward_id: string) => {
     return await RewardModel.findById(reward_id);
 };
 
+const getDeletedReward = async (reward_id: string) => {
+    return await RewardModel.findOne({ _id: reward_id, active: false }).lean();
+};
+
 const getAllRewards = async (page: number = 1, limit: number = 10) => {
     const skip = (page - 1) * limit;
     return await RewardModel.find()
+        .skip(skip)
+        .limit(limit);
+};
+
+const getAllDeletedRewards = async (page: number = 1, limit: number = 10) => {
+    const skip = (page - 1) * limit;
+    return await RewardModel.find({ active: false })
         .skip(skip)
         .limit(limit);
 };
@@ -42,9 +53,17 @@ const updateReward = async (reward_id: string, data: Partial<IReward>) => {
     return null;
 };
 
-const deleteReward = async (reward_id: string) => {
+const softDeleteReward = async (reward_id: string) => {
+    return await RewardModel.findByIdAndUpdate(reward_id, { active: false }, { new: true }).lean();
+};
+
+const restoreReward = async (reward_id: string) => {
+    return await RewardModel.findByIdAndUpdate(reward_id, { active: true }, { new: true }).lean();
+};
+
+const hardDeleteReward = async (reward_id: string) => {
     const deletedReward = await RewardModel.findByIdAndDelete(reward_id);
-    
+
     // Automatically remove the reward ID from the restaurant's rewards array
     if (deletedReward && deletedReward.restaurant_id) {
         await RestaurantModel.findByIdAndUpdate(deletedReward.restaurant_id, {
@@ -58,7 +77,11 @@ const deleteReward = async (reward_id: string) => {
 export default {
     createReward,
     getReward,
+    getDeletedReward,
     getAllRewards,
+    getAllDeletedRewards,
     updateReward,
-    deleteReward
+    softDeleteReward,
+    restoreReward,
+    hardDeleteReward
 };
