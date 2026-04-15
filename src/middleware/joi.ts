@@ -208,6 +208,21 @@ export const Schemas = {
         }),
     },
 
+    dishRating: {
+        create: Joi.object({
+            customer_id: objectId,
+            customerId: objectId,
+            restaurant_id: objectId,
+            restaurantId: objectId,
+            dish_id: objectId,
+            dishId: objectId,
+            rating: Joi.number().min(1).max(5).required(),
+        })
+            .xor('customer_id', 'customerId')
+            .xor('restaurant_id', 'restaurantId')
+            .xor('dish_id', 'dishId'),
+    },
+
     reward: {
         create: Joi.object<IReward>({
             restaurant_id:  objectId.required(),

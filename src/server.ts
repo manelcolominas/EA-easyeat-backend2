@@ -17,6 +17,8 @@ import employeeRoutes from './routes/employee';
 import pointsWallets from './routes/pointsWallet';
 import rewardRedemption from './routes/rewardRedemption';
 import statistics from './routes/statistics';
+import publicStatistics from './routes/publicStatistics';
+import dishRatings from './routes/dishRatings';
 
 import authRoutes from './routes/auth';
 import { requireAdmin } from './middleware/auth';
@@ -65,6 +67,8 @@ const StartServer = () => {
     /** Public Routes */
     router.use('/auth', authRoutes);
     router.get('/ping', (req, res) => res.status(200).json({ hello: 'world' }));
+    router.use('/statistics', publicStatistics);
+    router.use('/dish-ratings', dishRatings);
 
     /** 🔐 PROTECCIÓN GLOBAL (TODO lo de abajo requiere ADMIN) */
     router.use(requireAdmin);

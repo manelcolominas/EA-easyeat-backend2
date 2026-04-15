@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import StatisticsService from '../services/statistics';
 import statisticsAnalytics from '../services/statistics.analytics';
+import DishRatingService, { DishRatingServiceError } from '../services/dishRating';
 
 
 
@@ -136,6 +137,52 @@ const getAverageRatingsByRestaurant = async (req: Request, res: Response) => {
     }
 };
 
+const getRestaurantTopDish = async (req: Request, res: Response) => {
+    const { restaurantId } = req.params;
+
+    if (!restaurantId) {
+        return res.status(400).json({
+            message: 'restaurantId is required'
+        });
+    }
+
+    try {
+        const data = await DishRatingService.getRestaurantTopDish(restaurantId);
+        return res.status(200).json(data);
+    } catch (error) {
+        if (error instanceof DishRatingServiceError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        }
+
+        return res.status(500).json({
+            message: 'Error fetching top dish'
+        });
+    }
+};
+
+const getRestaurantDishRatings = async (req: Request, res: Response) => {
+    const { restaurantId } = req.params;
+
+    if (!restaurantId) {
+        return res.status(400).json({
+            message: 'restaurantId is required'
+        });
+    }
+
+    try {
+        const data = await DishRatingService.getRestaurantDishesWithRatings(restaurantId);
+        return res.status(200).json(data);
+    } catch (error) {
+        if (error instanceof DishRatingServiceError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        }
+
+        return res.status(500).json({
+            message: 'Error fetching dish ratings'
+        });
+    }
+};
+
 
 
 export default {
@@ -147,5 +194,7 @@ export default {
     deleteStatistics,
     getRestaurantKpis,
     getVisitsPerHour,
-    getAverageRatingsByRestaurant
+    getAverageRatingsByRestaurant,
+    getRestaurantTopDish,
+    getRestaurantDishRatings
 };
