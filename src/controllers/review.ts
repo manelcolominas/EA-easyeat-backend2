@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import ReviewService from '../services/review';
+import ReviewService, { ReviewServiceError } from '../services/review';
 
 // Crear review
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
@@ -8,6 +8,9 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
         return res.status(201).json(savedReview);
 
     } catch (error) {
+        if (error instanceof ReviewServiceError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        }
         return next(error);
     }
 };
@@ -86,14 +89,15 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
 
         const limit = Number(req.query.limit) || 5;
         const skip = Number(req.query.skip) || 0;
-        const minglobalRating = req.query.minglobalRating !== undefined ? Number(req.query.minglobalRating) : undefined;
+        const minGlobalRatingRaw = req.query.minGlobalRating ?? req.query.minglobalRating;
+        const minGlobalRating = minGlobalRatingRaw !== undefined ? Number(minGlobalRatingRaw) : undefined;
         const sortByLikes = req.query.sortByLikes === 'true';
 
         const result = await ReviewService.getReviewsByCustomer(
             customer_id,
             limit,
             skip,
-            minglobalRating,
+            minGlobalRating,
             sortByLikes
         );
 
@@ -118,6 +122,34 @@ const likeReview = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+//  TOP DISH
+const getRestaurantTopDish = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await ReviewService.getRestaurantTopDish(req.params.restaurant_id);
+        return res.status(200).json(result);
+
+    } catch (error) {
+        if (error instanceof ReviewServiceError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        }
+        return next(error);
+    }
+};
+
+//  ALL DISH RATINGS
+const getRestaurantDishesWithRatings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await ReviewService.getRestaurantDishesWithRatings(req.params.restaurant_id);
+        return res.status(200).json(result);
+
+    } catch (error) {
+        if (error instanceof ReviewServiceError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        }
+        return next(error);
+    }
+};
+
 export default {
     createReview,
     readReview,
@@ -126,5 +158,7 @@ export default {
     deleteReview,
     readByRestaurant,
     readByCustomer,
-    likeReview
+    likeReview,
+    getRestaurantTopDish,
+    getRestaurantDishesWithRatings
 };

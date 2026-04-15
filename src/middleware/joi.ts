@@ -165,38 +165,31 @@ export const Schemas = {
         create: Joi.object<IReview>({
             customer_id:   objectId.required(),
             restaurant_id: objectId.required(),
-            date:          Joi.date().default(() => new Date()),
-            globalRating:        Joi.number().min(1).max(10).required(),
+            dish_id:       objectId,
+            globalRating:  Joi.number().min(0).max(10),
+            dishRating:    Joi.number().min(0).max(10),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
                 staffService: Joi.number().min(0).max(10),
                 cleanliness:  Joi.number().min(0).max(10),
                 environment:  Joi.number().min(0).max(10),
             }),
-            dishRatings: Joi.array().items(
-                Joi.object({
-                    dish_id: objectId.required(),
-                    rating: Joi.number().min(0).max(10).required(),
-                })
-            ),
+            images: Joi.array().items(Joi.string()),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0).default(0),
-        }),
+        })
+            .or('globalRating', 'dishRating')
+            .and('dish_id', 'dishRating'),
         update: Joi.object<IReview>({
-            date:   Joi.date(),
-            globalRating: Joi.number().min(1).max(10),
+            globalRating: Joi.number().min(0).max(10),
+            dishRating: Joi.number().min(0).max(10),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
                 staffService: Joi.number().min(0).max(10),
                 cleanliness:  Joi.number().min(0).max(10),
                 environment:  Joi.number().min(0).max(10),
             }),
-            dishRatings: Joi.array().items(
-                Joi.object({
-                    dish_id: objectId.required(),
-                    rating: Joi.number().min(0).max(10).required(),
-                })
-            ),
+            images: Joi.array().items(Joi.string()),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0),
         }),

@@ -80,7 +80,8 @@ export const getAverageRatingsByRestaurant = async (restaurantId: string) => {
     {
       $match: {
         restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-        deleted: false
+        deletedAt: null,
+        deleted: { $ne: true }
       }
     },
 

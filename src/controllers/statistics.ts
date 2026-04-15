@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import StatisticsService from '../services/statistics';
 import statisticsAnalytics from '../services/statistics.analytics';
-import DishRatingService, { DishRatingServiceError } from '../services/dishRating';
+import ReviewService, { ReviewServiceError } from '../services/review';
 
 
 
@@ -159,10 +159,10 @@ const getRestaurantTopDish = async (req: Request, res: Response) => {
     }
 
     try {
-        const data = await DishRatingService.getRestaurantTopDish(restaurantId);
+        const data = await ReviewService.getRestaurantTopDish(restaurantId);
         return res.status(200).json(data);
     } catch (error) {
-        if (error instanceof DishRatingServiceError) {
+        if (error instanceof ReviewServiceError) {
             return res.status(error.statusCode).json({ message: error.message });
         }
 
@@ -182,10 +182,10 @@ const getRestaurantDishRatings = async (req: Request, res: Response) => {
     }
 
     try {
-        const data = await DishRatingService.getRestaurantDishesWithRatings(restaurantId);
+        const data = await ReviewService.getRestaurantDishesWithRatings(restaurantId);
         return res.status(200).json(data);
     } catch (error) {
-        if (error instanceof DishRatingServiceError) {
+        if (error instanceof ReviewServiceError) {
             return res.status(error.statusCode).json({ message: error.message });
         }
 

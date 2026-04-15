@@ -196,7 +196,8 @@ const getCustomerAllReviews = async (customer_id: string): Promise<IReview[]> =>
         // Fetch all reviews by this customer, excluding soft-deleted ones
         return await ReviewModel.find({
             customer_id: customer_id,
-            deleted: false,
+            deletedAt: null,
+            deleted: { $ne: true },
         })
             .populate('restaurant_id', 'profile.name profile.rating')
             .sort({ createdAt: -1 })  // Most recent first

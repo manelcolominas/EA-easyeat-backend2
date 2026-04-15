@@ -1,223 +1,523 @@
 import mongoose from 'mongoose';
 import { ReviewModel, IReview } from '../models/review';
 import { DishModel } from '../models/dish';
+import { RestaurantModel } from '../models/restaurant';
+import { CustomerModel } from '../models/customer';
 
-type AggregatedDishRating = {
-    _id: mongoose.Types.ObjectId;
-    avgRating: number;
-    ratingsCount: number;
+// ─────────────────────────────────────────────────────────────────────────────
+// Constants / Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MAX_DISH_RATINGS_PER_CUSTOMER = 2;
+const ACTIVE_REVIEW_FILTER = { deletedAt: null, deleted: { $ne: true } };
+
+type NormalizedDishRating = {
+  dish_id: mongoose.Types.ObjectId;
+  rating: number;
 };
 
-const normalizeDishRatings = (dishRatings: IReview['dishRatings']) => {
-    if (!dishRatings) return undefined;
+type DishRatingStats = {
+  averageRating: number;
+  totalRatings: number;
+  firstRatingAt: Date;
+};
 
-    return dishRatings.map((dishRating) => ({
-        dish_id: new mongoose.Types.ObjectId(dishRating.dish_id),
-        rating: dishRating.rating,
+export interface IRestaurantTopDishResponse {
+  restaurant: {
+    _id: string;
+    name?: string;
+  };
+  topDish: {
+    dishId: string;
+    name: string;
+    images: string[];
+    averageRating: number;
+    totalRatings: number;
+    firstRatingAt: Date;
+  } | null;
+  tieBreakPolicy: string;
+  message?: string;
+}
+
+export interface IRestaurantDishRatingsResponse {
+  restaurant: {
+    _id: string;
+    name?: string;
+  };
+  dishes: Array<{
+    dishId: string;
+    name: string;
+    images: string[];
+    averageRating: number;
+    totalRatings: number;
+  }>;
+}
+
+export interface ICustomerReviewListResponse {
+  data: IReview[];
+  total: number;
+}
+
+const normalizeDishRatings = (review: Partial<IReview>): NormalizedDishRating[] => {
+  if (Array.isArray(review.dishRatings) && review.dishRatings.length > 0) {
+    return review.dishRatings.map((dishRating) => ({
+      dish_id: new mongoose.Types.ObjectId(dishRating.dish_id),
+      rating: dishRating.rating
     }));
+  }
+
+  if (review.dish_id && review.dishRating !== undefined && review.dishRating !== null) {
+    return [{
+      dish_id: new mongoose.Types.ObjectId(review.dish_id),
+      rating: review.dishRating
+    }];
+  }
+
+  return [];
 };
 
-const recalculateDishRatingsByRestaurant = async (restaurantId: mongoose.Types.ObjectId): Promise<void> => {
-    const aggregated = await ReviewModel.aggregate<AggregatedDishRating>([
-        {
-            $match: {
-                restaurant_id: restaurantId,
-                deleted: false,
-                dishRatings: { $exists: true, $ne: [] },
-            },
-        },
-        { $unwind: '$dishRatings' },
-        {
-            $group: {
-                _id: '$dishRatings.dish_id',
-                avgRating: { $avg: '$dishRatings.rating' },
-                ratingsCount: { $sum: 1 },
-            },
-        },
-    ]);
+const getRestaurantDishRatings = async (restaurantId: mongoose.Types.ObjectId): Promise<Array<{ dishId: string; rating: number; createdAt: Date }>> => {
+  const reviews = await ReviewModel.find({
+    restaurant_id: restaurantId,
+    ...ACTIVE_REVIEW_FILTER
+  })
+    .select('dishRatings dish_id dishRating createdAt')
+    .lean<Partial<IReview>[]>();
 
-    await DishModel.updateMany(
-        { restaurant_id: restaurantId },
-        { $set: { userRatingAvg: 0, userRatingCount: 0 } }
-    );
+  return reviews.flatMap((review) => {
+    const createdAt = review.createdAt ?? new Date(0);
 
-    if (!aggregated.length) return;
-
-    await DishModel.bulkWrite(
-        aggregated.map((dish) => ({
-            updateOne: {
-                filter: { _id: dish._id, restaurant_id: restaurantId },
-                update: {
-                    $set: {
-                        userRatingAvg: Number(dish.avgRating.toFixed(2)),
-                        userRatingCount: dish.ratingsCount,
-                    },
-                },
-            },
-        }))
-    );
+    return normalizeDishRatings(review).map((dishRating) => ({
+      dishId: String(dishRating.dish_id),
+      rating: dishRating.rating,
+      createdAt
+    }));
+  });
 };
+
+const buildStatsByDish = (ratings: Array<{ dishId: string; rating: number; createdAt: Date }>): Map<string, DishRatingStats> => {
+  const stats = new Map<string, DishRatingStats>();
+
+  for (const rating of ratings) {
+    const current = stats.get(rating.dishId);
+
+    if (!current) {
+      stats.set(rating.dishId, {
+        averageRating: rating.rating,
+        totalRatings: 1,
+        firstRatingAt: rating.createdAt
+      });
+      continue;
+    }
+
+    const nextTotalRatings = current.totalRatings + 1;
+    const nextAverage = ((current.averageRating * current.totalRatings) + rating.rating) / nextTotalRatings;
+
+    stats.set(rating.dishId, {
+      averageRating: nextAverage,
+      totalRatings: nextTotalRatings,
+      firstRatingAt: current.firstRatingAt < rating.createdAt ? current.firstRatingAt : rating.createdAt
+    });
+  }
+
+  return stats;
+};
+
+const getActiveRestaurantById = async (restaurantId: mongoose.Types.ObjectId) => {
+  return RestaurantModel.findById(restaurantId).active().lean();
+};
+
+export class ReviewServiceError extends Error {
+  statusCode: number;
+
+  constructor(statusCode: number, message: string) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
+
+// ========================
+// RECALCULATE DISH RATINGS
+// ========================
+const recalculateDishRatingsByRestaurant = async (
+  restaurantId: mongoose.Types.ObjectId
+): Promise<void> => {
+  const ratings = await getRestaurantDishRatings(restaurantId);
+  const stats = buildStatsByDish(ratings);
+
+  await DishModel.updateMany(
+    { restaurant_id: restaurantId },
+    { $set: { userRatingAvg: 0, userRatingCount: 0 } }
+  );
+
+  if (!stats.size) return;
+
+  await DishModel.bulkWrite(
+    [...stats.entries()].map(([dishId, stat]) => ({
+      updateOne: {
+        filter: { _id: new mongoose.Types.ObjectId(dishId), restaurant_id: restaurantId },
+        update: {
+          $set: {
+            userRatingAvg: Number(stat.averageRating.toFixed(2)),
+            userRatingCount: stat.totalRatings
+          }
+        }
+      }
+    }))
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CRUD
+// ─────────────────────────────────────────────────────────────────────────────
 
 // ========================
 // CREATE
 // ========================
 const createReview = async (data: Partial<IReview>): Promise<IReview> => {
-    const restaurantId = new mongoose.Types.ObjectId(data.restaurant_id);
-    const review = new ReviewModel({
-        ...data,
-        customer_id: new mongoose.Types.ObjectId(data.customer_id),
-        restaurant_id: restaurantId,
-        dishRatings: normalizeDishRatings(data.dishRatings),
-    });
+  if (!data.customer_id || !data.restaurant_id) {
+    throw new ReviewServiceError(400, 'customer_id and restaurant_id are required');
+  }
 
-    const savedReview = await review.save();
-    await recalculateDishRatingsByRestaurant(restaurantId);
-    return savedReview;
+  const normalizedRatings = normalizeDishRatings(data);
+
+  if (!normalizedRatings.length) {
+    throw new ReviewServiceError(400, 'At least one dish rating is required');
+  }
+
+  if (normalizedRatings.length > MAX_DISH_RATINGS_PER_CUSTOMER) {
+    throw new ReviewServiceError(409, `Each customer can rate up to ${MAX_DISH_RATINGS_PER_CUSTOMER} dishes`);
+  }
+
+  const customerId = new mongoose.Types.ObjectId(data.customer_id);
+  const restaurantId = new mongoose.Types.ObjectId(data.restaurant_id);
+
+  const [customer, restaurant] = await Promise.all([
+    CustomerModel.findById(customerId).active(),
+    getActiveRestaurantById(restaurantId)
+  ]);
+
+  if (!customer) throw new ReviewServiceError(404, 'Customer not found');
+  if (!restaurant) throw new ReviewServiceError(404, 'Restaurant not found');
+
+  const customerReviews = await ReviewModel.find({
+    customer_id: customerId,
+    ...ACTIVE_REVIEW_FILTER
+  })
+    .select('dishRatings dish_id dishRating')
+    .lean<Partial<IReview>[]>();
+
+  const alreadyRatedDishIds = new Set(
+    customerReviews.flatMap((review) => normalizeDishRatings(review).map((rating) => String(rating.dish_id)))
+  );
+
+  for (const rating of normalizedRatings) {
+    if (alreadyRatedDishIds.has(String(rating.dish_id))) {
+      throw new ReviewServiceError(409, 'This customer has already rated one of these dishes');
+    }
+  }
+
+  const totalRatingsAfterSave = alreadyRatedDishIds.size + normalizedRatings.length;
+  if (totalRatingsAfterSave > MAX_DISH_RATINGS_PER_CUSTOMER) {
+    throw new ReviewServiceError(409, `Each customer can rate up to ${MAX_DISH_RATINGS_PER_CUSTOMER} dishes`);
+  }
+
+  const dishIds = normalizedRatings.map((rating) => rating.dish_id);
+  const dishes = await DishModel.find({
+    _id: { $in: dishIds },
+    restaurant_id: restaurantId
+  })
+    .select('_id')
+    .lean();
+
+  if (dishes.length !== dishIds.length) {
+    throw new ReviewServiceError(404, 'One or more dishes were not found for this restaurant');
+  }
+
+  if (!data.globalRating) {
+    data.globalRating = normalizedRatings[0].rating;
+  }
+
+  const review = new ReviewModel({
+    ...data,
+    customer_id: customerId,
+    restaurant_id: restaurantId,
+    dishRatings: normalizedRatings,
+    dish_id: normalizedRatings[0].dish_id,
+    dishRating: normalizedRatings[0].rating
+  });
+
+  const savedReview = await review.save();
+
+  await recalculateDishRatingsByRestaurant(restaurantId);
+
+  return savedReview;
 };
 
 // ========================
 // GET ONE
 // ========================
 const getReview = async (review_id: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
-    return await ReviewModel.findOne({ _id: review_id, deleted: false }).populate('customer_id', 'name profilePictures')
-        .populate('restaurant_id', 'name').lean();
+  if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
+
+  return ReviewModel.findOne({ _id: review_id, ...ACTIVE_REVIEW_FILTER })
+    .populate('customer_id', 'name profilePictures')
+    .populate('restaurant_id', 'name')
+    .lean();
 };
 
 // ========================
 // GET ALL
 // ========================
 const getAllReviews = async (): Promise<IReview[]> => {
-    return await ReviewModel.find({ deleted: false }).populate('customer_id', 'name')
-        .populate('restaurant_id', 'name')
-        .lean();
+  return ReviewModel.find({ ...ACTIVE_REVIEW_FILTER })
+    .populate('customer_id', 'name')
+    .populate('restaurant_id', 'name')
+    .lean();
 };
 
 // ========================
 // UPDATE
 // ========================
-const updateReview = async ( review_id: string, data: Partial<IReview> ):
-    Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
-    delete data._id;
-    delete data.customer_id;
-    delete data.restaurant_id;
+const updateReview = async (review_id: string, data: Partial<IReview>): Promise<IReview | null> => {
+  if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
 
-    const updatePayload: Partial<IReview> = { ...data };
-    if (data.dishRatings !== undefined) {
-        updatePayload.dishRatings = normalizeDishRatings(data.dishRatings);
-    }
+  delete data._id;
+  delete data.customer_id;
+  delete data.restaurant_id;
+  delete data.dish_id;
+  delete data.dishRating;
+  delete data.dishRatings;
 
-    const updatedReview = await ReviewModel.findOneAndUpdate(
-        { _id: review_id, deleted: false },
-        updatePayload,
-        { new: true, runValidators: true }
-    ).lean();
+  const updated = await ReviewModel.findOneAndUpdate(
+    { _id: review_id, ...ACTIVE_REVIEW_FILTER },
+    data,
+    { new: true }
+  ).lean();
 
-    if (updatedReview && data.dishRatings !== undefined) {
-        await recalculateDishRatingsByRestaurant(new mongoose.Types.ObjectId(updatedReview.restaurant_id));
-    }
+  if (updated) {
+    await recalculateDishRatingsByRestaurant(
+      new mongoose.Types.ObjectId(updated.restaurant_id)
+    );
+  }
 
-    return updatedReview;
+  return updated;
 };
 
 // ========================
-// DELETE (SOFT)
+// DELETE
 // ========================
 const deleteReview = async (review_id: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
-    const deletedReview = await ReviewModel.findOneAndUpdate(
-        { _id: review_id, deleted: false },
-        { deleted: true },
-        { new: true }
-    ).lean();
+  if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
 
-    if (deletedReview) {
-        await recalculateDishRatingsByRestaurant(new mongoose.Types.ObjectId(deletedReview.restaurant_id));
-    }
+  const deleted = await ReviewModel.findOneAndUpdate(
+    { _id: review_id, ...ACTIVE_REVIEW_FILTER },
+    { deletedAt: new Date(), deleted: true },
+    { new: true }
+  ).lean();
 
-    return deletedReview;
+  if (deleted) {
+    await recalculateDishRatingsByRestaurant(
+      new mongoose.Types.ObjectId(deleted.restaurant_id)
+    );
+  }
+
+  return deleted;
 };
 
 // ========================
 // BY RESTAURANT
 // ========================
 const getReviewsByRestaurant = async (restaurant_id: string): Promise<IReview[]> => {
-    return await ReviewModel.find({
-        restaurant_id: new mongoose.Types.ObjectId(restaurant_id), // 🔥 FIX
-        deleted: false
-    })
-        .populate('customer_id', 'name profilePictures')
-        .lean();
+  return ReviewModel.find({
+    restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
+    ...ACTIVE_REVIEW_FILTER
+  })
+    .populate('customer_id', 'name profilePictures')
+    .lean();
 };
 
 // ========================
-// BY CUSTOMER 🔥 FIXED
+// BY CUSTOMER
 // ========================
 const getReviewsByCustomer = async (
-    customer_id: string,
-    limit = 5,
-    skip = 0,
-    minglobalRating?: number,
-    sortByLikes?: boolean
-) => {
+  customer_id: string,
+  limit = 5,
+  skip = 0,
+  minGlobalRating?: number,
+  sortByLikes?: boolean
+): Promise<ICustomerReviewListResponse> => {
+  if (!mongoose.Types.ObjectId.isValid(customer_id)) {
+    return { data: [], total: 0 };
+  }
 
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return { data: [], total: 0 };
-    }
+  const filter: Record<string, unknown> = {
+    customer_id: new mongoose.Types.ObjectId(customer_id),
+    ...ACTIVE_REVIEW_FILTER
+  };
 
-    const filter: any = {
-        customer_id: new mongoose.Types.ObjectId(customer_id), // 🔥 FIX CLAVE
-        deleted: false
-    };
+  if (minGlobalRating !== undefined) {
+    filter.globalRating = { $gte: minGlobalRating };
+  }
 
-    if (minglobalRating !== undefined) {
-        filter.globalRating = { $gte: minglobalRating };
-    }
+  const sort: Record<string, 1 | -1> = sortByLikes ? { likes: -1 } : { createdAt: -1 };
 
-    const sort: any = sortByLikes ? { likes: -1 } : { date: -1 };
+  const [reviews, total] = await Promise.all([
+    ReviewModel.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: 'restaurant_id',
+        select: 'profile'
+      })
+      .lean(),
+    ReviewModel.countDocuments(filter)
+  ]);
 
-    const [reviews, total] = await Promise.all([
-        ReviewModel.find(filter).sort(sort).skip(skip).limit(limit)
-            .populate({
-                path: 'restaurant_id',
-                select: 'profile'
-            }).lean(),
-        ReviewModel.countDocuments(filter)
-    ]);
-
-    return {
-        data: reviews.map((r: any) => ({
-            ...r,
-            restaurant_id: {
-                _id: r.restaurant_id._id,
-                name: r.restaurant_id.profile?.name
-            }
-        })),
-        total
-    };
+  return {
+    data: reviews.map((review: any) => ({
+      ...review,
+      restaurant_id: {
+        _id: review.restaurant_id._id,
+        name: review.restaurant_id.profile?.name
+      }
+    })),
+    total
+  };
 };
 
 // ========================
 // LIKE
 // ========================
 const likeReview = async (review_id: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
+  if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
 
-    return await ReviewModel.findOneAndUpdate(
-        { _id: review_id, deleted: false },
-        { $inc: { likes: 1 } },
-        { new: true }
-    ).lean();
+  return ReviewModel.findOneAndUpdate(
+    { _id: review_id, ...ACTIVE_REVIEW_FILTER },
+    { $inc: { likes: 1 } },
+    { new: true }
+  ).lean();
+};
+
+// ========================
+// TOP DISH
+// ========================
+const getRestaurantTopDish = async (restaurantId: string): Promise<IRestaurantTopDishResponse> => {
+  const restaurantObjectId = new mongoose.Types.ObjectId(restaurantId);
+
+  const restaurant = await getActiveRestaurantById(restaurantObjectId);
+  if (!restaurant) throw new ReviewServiceError(404, 'Restaurant not found');
+
+  const ratings = await getRestaurantDishRatings(restaurantObjectId);
+  const stats = buildStatsByDish(ratings);
+
+  if (!stats.size) {
+    return {
+      restaurant: {
+        _id: String(restaurant._id),
+        name: restaurant.profile?.name
+      },
+      topDish: null,
+      tieBreakPolicy: 'averageRating desc, totalRatings desc, firstRatingAt asc',
+      message: 'No dish ratings found for this restaurant'
+    };
+  }
+
+  const dishes = await DishModel.find({ restaurant_id: restaurantObjectId })
+    .select('_id name images')
+    .lean();
+
+  const rankedDishes = dishes
+    .map((dish) => {
+      const stat = stats.get(String(dish._id));
+
+      if (!stat) return null;
+
+      return {
+        dish,
+        averageRating: stat.averageRating,
+        totalRatings: stat.totalRatings,
+        firstRatingAt: stat.firstRatingAt
+      };
+    })
+    .filter(Boolean) as Array<{
+      dish: { _id: mongoose.Types.ObjectId; name: string; images?: string[] };
+      averageRating: number;
+      totalRatings: number;
+      firstRatingAt: Date;
+    }>;
+
+  rankedDishes.sort((left, right) => {
+    if (right.averageRating !== left.averageRating) return right.averageRating - left.averageRating;
+    if (right.totalRatings !== left.totalRatings) return right.totalRatings - left.totalRatings;
+    return left.firstRatingAt.getTime() - right.firstRatingAt.getTime();
+  });
+
+  return {
+    restaurant: {
+      _id: String(restaurant._id),
+      name: restaurant.profile?.name
+    },
+    topDish: rankedDishes[0]
+      ? {
+          dishId: String(rankedDishes[0].dish._id),
+          name: rankedDishes[0].dish.name,
+          images: rankedDishes[0].dish.images ?? [],
+          averageRating: Number(rankedDishes[0].averageRating.toFixed(2)),
+          totalRatings: rankedDishes[0].totalRatings,
+          firstRatingAt: rankedDishes[0].firstRatingAt
+        }
+      : null,
+    tieBreakPolicy: 'averageRating desc, totalRatings desc, firstRatingAt asc'
+  };
+};
+
+// ========================
+// DISHES WITH RATINGS
+// ========================
+const getRestaurantDishesWithRatings = async (restaurantId: string): Promise<IRestaurantDishRatingsResponse> => {
+  const restaurantObjectId = new mongoose.Types.ObjectId(restaurantId);
+
+  const restaurant = await getActiveRestaurantById(restaurantObjectId);
+  if (!restaurant) throw new ReviewServiceError(404, 'Restaurant not found');
+
+  const dishes = await DishModel.find({ restaurant_id: restaurantObjectId }).lean();
+
+  const ratings = await getRestaurantDishRatings(restaurantObjectId);
+  const stats = buildStatsByDish(ratings);
+
+  return {
+    restaurant: {
+      _id: String(restaurant._id),
+      name: restaurant.profile?.name
+    },
+    dishes: dishes.map(d => {
+    const stat = stats.get(String(d._id));
+    return {
+      dishId: String(d._id),
+      name: d.name,
+      images: d.images ?? [],
+      averageRating: stat ? Number(stat.averageRating.toFixed(2)) : 0,
+      totalRatings: stat?.totalRatings || 0
+    };
+  }).sort((left, right) => {
+    if (right.averageRating !== left.averageRating) return right.averageRating - left.averageRating;
+    if (right.totalRatings !== left.totalRatings) return right.totalRatings - left.totalRatings;
+    return left.name.localeCompare(right.name);
+  })
+  };
 };
 
 export default {
-    createReview,
-    getReview,
-    getAllReviews,
-    updateReview,
-    deleteReview,
-    getReviewsByRestaurant,
-    getReviewsByCustomer,
-    likeReview
+  createReview,
+  getReview,
+  getAllReviews,
+  updateReview,
+  deleteReview,
+  getReviewsByRestaurant,
+  getReviewsByCustomer,
+  likeReview,
+  getRestaurantTopDish,
+  getRestaurantDishesWithRatings
 };
