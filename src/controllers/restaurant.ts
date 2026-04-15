@@ -37,9 +37,29 @@ const readRestaurant = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+const readDeletedRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurant(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurants = await RestaurantService.getAllRestaurants();
+        return res.status(200).json(restaurants);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurants = await RestaurantService.getAllDeletedRestaurants();
         return res.status(200).json(restaurants);
     } catch (error) {
         return res.status(500).json({ error });
@@ -141,12 +161,36 @@ const getRestaurantWithCustomers = async (req: Request, res: Response, next: Nex
     }
 };
 
+const getDeletedRestaurantWithCustomers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantWithCustomers(
+            req.params.restaurantId
+        );
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const getRestaurantFull = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.getRestaurantFull(req.params.restaurant_id);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const getDeletedRestaurantFull = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantFull(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -180,12 +224,34 @@ const getBadges = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const getDeletedRestaurantBadges = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantBadges(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const getStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const statistics = await RestaurantService.getStatistics(req.params.restaurant_id);
         return statistics
             ? res.status(200).json(statistics)
             : res.status(404).json({ message: 'Restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const getDeletedRestaurantStatistics = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantStatistics(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -223,12 +289,34 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
+const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const getDishes = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.getDishes(req.params.restaurant_id);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const getDeletedRestaurantDishes = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantDishes(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -245,6 +333,18 @@ const getRewards = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const getDeletedRestaurantRewards = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantRewards(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+
 const getVisits = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.getVisits(req.params.restaurant_id);
@@ -255,6 +355,18 @@ const getVisits = async (req: Request, res: Response, next: NextFunction) => {
         return res.status(500).json({ error });
     }
 };
+
+const getDeletedRestaurantVisits = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantVisits(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 
 const getReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -267,6 +379,17 @@ const getReviews = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const getDeletedRestaurantReviews = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getDeletedRestaurantReviews(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
@@ -274,20 +397,31 @@ const getReviews = async (req: Request, res: Response, next: NextFunction) => {
 export default {
     createRestaurant,
     readRestaurant,
+    readDeletedRestaurant,
     readAll,
+    readAllDeleted,
     updateRestaurant,
     softDelete,
     restore,
     hardDelete,
     getRestaurantWithCustomers,
+    getDeletedRestaurantWithCustomers,
     getRestaurantFull,
+    getDeletedRestaurantFull,
     getNearby,
     getBadges,
+    getDeletedRestaurantBadges,
     getStatistics,
+    getDeletedRestaurantStatistics,
     getFiltered,
     getEmployees,
+    getDeletedRestaurantEmployees,
     getDishes,
+    getDeletedRestaurantDishes,
     getRewards,
+    getDeletedRestaurantRewards,
     getVisits,
+    getDeletedRestaurantVisits,
     getReviews,
+    getDeletedRestaurantReviews,
 };
