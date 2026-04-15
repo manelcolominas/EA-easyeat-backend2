@@ -17,6 +17,10 @@ export interface IReview {
     cleanliness?: number;
     environment?: number;
   };
+  dishRatings?: {
+    dish_id: Types.ObjectId;
+    rating: number;
+  }[];
 
   comment?: string;
   likes?: number;
@@ -42,6 +46,10 @@ const reviewSchema = new Schema<IReview>(
       cleanliness: { type: Number, min: 0, max: 10 },
       environment: { type: Number, min: 0, max: 10 }
     },
+    dishRatings: [{
+      dish_id: { type: Schema.Types.ObjectId, ref: 'Dish', required: true },
+      rating: { type: Number, required: true, min: 0, max: 10 }
+    }],
     comment: { type: String, trim: true },
     likes: { type: Number, default: 0 },
     // 🔥 SOFT DELETE

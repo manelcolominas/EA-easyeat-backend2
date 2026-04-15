@@ -1,14 +1,78 @@
 import mongoose from 'mongoose';
 import { ReviewModel, IReview } from '../models/review';
+import { DishModel } from '../models/dish';
+
+type AggregatedDishRating = {
+    _id: mongoose.Types.ObjectId;
+    avgRating: number;
+    ratingsCount: number;
+};
+
+const normalizeDishRatings = (dishRatings: IReview['dishRatings']) => {
+    if (!dishRatings) return undefined;
+
+    return dishRatings.map((dishRating) => ({
+        dish_id: new mongoose.Types.ObjectId(dishRating.dish_id),
+        rating: dishRating.rating,
+    }));
+};
+
+const recalculateDishRatingsByRestaurant = async (restaurantId: mongoose.Types.ObjectId): Promise<void> => {
+    const aggregated = await ReviewModel.aggregate<AggregatedDishRating>([
+        {
+            $match: {
+                restaurant_id: restaurantId,
+                deleted: false,
+                dishRatings: { $exists: true, $ne: [] },
+            },
+        },
+        { $unwind: '$dishRatings' },
+        {
+            $group: {
+                _id: '$dishRatings.dish_id',
+                avgRating: { $avg: '$dishRatings.rating' },
+                ratingsCount: { $sum: 1 },
+            },
+        },
+    ]);
+
+    await DishModel.updateMany(
+        { restaurant_id: restaurantId },
+        { $set: { userRatingAvg: 0, userRatingCount: 0 } }
+    );
+
+    if (!aggregated.length) return;
+
+    await DishModel.bulkWrite(
+        aggregated.map((dish) => ({
+            updateOne: {
+                filter: { _id: dish._id, restaurant_id: restaurantId },
+                update: {
+                    $set: {
+                        userRatingAvg: Number(dish.avgRating.toFixed(2)),
+                        userRatingCount: dish.ratingsCount,
+                    },
+                },
+            },
+        }))
+    );
+};
 
 // ========================
 // CREATE
 // ========================
 const createReview = async (data: Partial<IReview>): Promise<IReview> => {
-    const review = new ReviewModel({...data, customer_id: new mongoose.Types.ObjectId(data.customer_id),
-        restaurant_id: new mongoose.Types.ObjectId(data.restaurant_id)
+    const restaurantId = new mongoose.Types.ObjectId(data.restaurant_id);
+    const review = new ReviewModel({
+        ...data,
+        customer_id: new mongoose.Types.ObjectId(data.customer_id),
+        restaurant_id: restaurantId,
+        dishRatings: normalizeDishRatings(data.dishRatings),
     });
-    return await review.save();
+
+    const savedReview = await review.save();
+    await recalculateDishRatingsByRestaurant(restaurantId);
+    return savedReview;
 };
 
 // ========================
@@ -38,8 +102,23 @@ const updateReview = async ( review_id: string, data: Partial<IReview> ):
     delete data._id;
     delete data.customer_id;
     delete data.restaurant_id;
-    return await ReviewModel.findOneAndUpdate( { _id: review_id, deleted: false },
-        data, { new: true, runValidators: true } ).lean();
+
+    const updatePayload: Partial<IReview> = { ...data };
+    if (data.dishRatings !== undefined) {
+        updatePayload.dishRatings = normalizeDishRatings(data.dishRatings);
+    }
+
+    const updatedReview = await ReviewModel.findOneAndUpdate(
+        { _id: review_id, deleted: false },
+        updatePayload,
+        { new: true, runValidators: true }
+    ).lean();
+
+    if (updatedReview && data.dishRatings !== undefined) {
+        await recalculateDishRatingsByRestaurant(new mongoose.Types.ObjectId(updatedReview.restaurant_id));
+    }
+
+    return updatedReview;
 };
 
 // ========================
@@ -47,8 +126,17 @@ const updateReview = async ( review_id: string, data: Partial<IReview> ):
 // ========================
 const deleteReview = async (review_id: string): Promise<IReview | null> => {
     if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
-    return await ReviewModel.findOneAndUpdate( { _id: review_id, deleted: false },
-        { deleted: true }, { new: true } ).lean();
+    const deletedReview = await ReviewModel.findOneAndUpdate(
+        { _id: review_id, deleted: false },
+        { deleted: true },
+        { new: true }
+    ).lean();
+
+    if (deletedReview) {
+        await recalculateDishRatingsByRestaurant(new mongoose.Types.ObjectId(deletedReview.restaurant_id));
+    }
+
+    return deletedReview;
 };
 
 // ========================

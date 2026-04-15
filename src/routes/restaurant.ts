@@ -845,6 +845,26 @@ router.get('/:restaurant_id/dishes', controller.getDishes);
  *       404:
  *         description: Restaurant not found
  */
+router.get('/:restaurant_id/dishes/top', controller.getTopDish);
+
+/**
+ * @openapi
+ * /restaurants/{restaurant_id}/rewards:
+ *   get:
+ *     summary: Gets the dishes of a restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Restaurant rewards
+ *       404:
+ *         description: Restaurant not found
+ */
 router.get('/:restaurant_id/rewards', controller.getRewards);
 
 /**

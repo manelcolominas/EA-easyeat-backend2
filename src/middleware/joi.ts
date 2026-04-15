@@ -173,6 +173,12 @@ export const Schemas = {
                 cleanliness:  Joi.number().min(0).max(10),
                 environment:  Joi.number().min(0).max(10),
             }),
+            dishRatings: Joi.array().items(
+                Joi.object({
+                    dish_id: objectId.required(),
+                    rating: Joi.number().min(0).max(10).required(),
+                })
+            ),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0).default(0),
         }),
@@ -185,9 +191,30 @@ export const Schemas = {
                 cleanliness:  Joi.number().min(0).max(10),
                 environment:  Joi.number().min(0).max(10),
             }),
+            dishRatings: Joi.array().items(
+                Joi.object({
+                    dish_id: objectId.required(),
+                    rating: Joi.number().min(0).max(10).required(),
+                })
+            ),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0),
         }),
+    },
+
+    dishRating: {
+        create: Joi.object({
+            customer_id: objectId,
+            customerId: objectId,
+            restaurant_id: objectId,
+            restaurantId: objectId,
+            dish_id: objectId,
+            dishId: objectId,
+            rating: Joi.number().min(1).max(5).required(),
+        })
+            .xor('customer_id', 'customerId')
+            .xor('restaurant_id', 'restaurantId')
+            .xor('dish_id', 'dishId'),
     },
 
     reward: {
