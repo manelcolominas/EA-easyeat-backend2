@@ -14,11 +14,14 @@ import { IDish } from '../models/dish';
 
 import Logging from '../library/logging';
 
-export const ValidateJoi = (schema: ObjectSchema) => {
+export const ValidateJoi = (
+    schema: ObjectSchema,
+    property: 'body' | 'query' | 'params' = 'body'
+) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            console.log('Request body:', JSON.stringify(req.body));
-            await schema.validateAsync(req.body);
+            const source = req[property];
+            await schema.validateAsync(source, { abortEarly: false });
             next();
         } catch (error) {
             Logging.error(error);
@@ -142,24 +145,49 @@ export const Schemas = {
     },
 
     rewardRedemption: {
-        create: Joi.object<IRewardRedemption>({
-            customer_id:   objectId.required(),
-            restaurant_id: objectId.required(),
-            reward_id:     objectId.required(),
-            employee_id:   objectId,
-            pointsUsed:    Joi.number().min(0).required(),
-            status:        Joi.string().valid('pending', 'approved', 'redeemed', 'cancelled', 'expired').default('pending'),
-            redeemedAt:    Joi.date().default(() => new Date()),
-            notes:         Joi.string().trim(),
-        }),
-        update: Joi.object<IRewardRedemption>({
-            employee_id: objectId,
-            pointsUsed:  Joi.number().min(0),
-            status:      Joi.string().valid('pending', 'approved', 'redeemed', 'cancelled', 'expired'),
-            redeemedAt:  Joi.date(),
-            notes:       Joi.string().trim(),
-        }),
-    },
+    create: Joi.object<IRewardRedemption>({
+        customer_id:   objectId.required(),
+        restaurant_id: objectId.required(),
+        reward_id:     objectId.required(),
+        employee_id:   objectId.allow(null),
+        pointsUsed:    Joi.number().min(0).required(),
+        status:        Joi.string().valid('pending', 'approved', 'redeemed', 'cancelled', 'expired').default('pending'),
+        redeemedAt:    Joi.date().allow(null),
+        notes:         Joi.string().trim().allow('')
+    }),
+
+    update: Joi.object<IRewardRedemption>({
+        employee_id: objectId.allow(null),
+        pointsUsed:  Joi.number().min(0),
+        status:      Joi.string().valid('pending', 'approved', 'redeemed', 'cancelled', 'expired'),
+        redeemedAt:  Joi.date().allow(null),
+        notes:       Joi.string().trim().allow('')
+    }),
+
+    redeem: Joi.object({
+        customer_id: Joi.string().hex().length(24).required(),
+        reward_id: Joi.string().hex().length(24).required(),
+        employee_id: Joi.string().hex().length(24).required(),
+        notes: Joi.string().trim().optional().allow('')
+    }),
+
+    updateStatus: Joi.object({
+        status: Joi.string()
+            .valid('pending', 'approved', 'redeemed', 'cancelled', 'expired')
+            .required(),
+        employee_id: Joi.string().hex().length(24).optional().allow(null, ''),
+        notes: Joi.string().trim().optional().allow('')
+    }),
+
+    listQuery: Joi.object({
+        status: Joi.string()
+            .valid('pending', 'approved', 'redeemed', 'cancelled', 'expired')
+            .optional(),
+        restaurant_id: Joi.string().hex().length(24).optional(),
+        customer_id: Joi.string().hex().length(24).optional(),
+        reward_id: Joi.string().hex().length(24).optional()
+    })
+},
 
     review: {
         create: Joi.object<IReview>({
