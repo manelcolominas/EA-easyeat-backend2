@@ -28,7 +28,7 @@ const createRestaurant = async (req: Request, res: Response, next: NextFunction)
 
 const readRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getRestaurant(req.params.restaurant_id);
+        const restaurant = await RestaurantService.getRestaurant(req.params.restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -69,7 +69,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
 const updateRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.updateRestaurant(
-            req.params.restaurant_id,
+            req.params.restaurantId,
             req.body
         );
         return restaurant
@@ -103,7 +103,7 @@ const updateRestaurant = async (req: Request, res: Response, next: NextFunction)
  */
 const softDelete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.softDeleteRestaurant(req.params.restaurant_id);
+        const restaurant = await RestaurantService.softDeleteRestaurant(req.params.restaurantId);
         return restaurant
             ? res.status(200).json({ message: 'Restaurant deactivated.', restaurant })
             : res.status(404).json({ message: 'Restaurant not found or already deactivated.' });
@@ -119,7 +119,7 @@ const softDelete = async (req: Request, res: Response, next: NextFunction) => {
  */
 const restore = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.restoreRestaurant(req.params.restaurant_id);
+        const restaurant = await RestaurantService.restoreRestaurant(req.params.restaurantId);
         return restaurant
             ? res.status(200).json({ message: 'Restaurant restored.', restaurant })
             : res.status(404).json({ message: 'Restaurant not found or already active.' });
@@ -135,7 +135,7 @@ const restore = async (req: Request, res: Response, next: NextFunction) => {
  */
 const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.hardDeleteRestaurant(req.params.restaurant_id);
+        const restaurant = await RestaurantService.hardDeleteRestaurant(req.params.restaurantId);
         return restaurant
             ? res.status(200).json({ message: 'Restaurant permanently deleted.', restaurant })
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -151,7 +151,7 @@ const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
 const getRestaurantWithCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.getRestaurantWithCustomers(
-            req.params.restaurant_id
+            req.params.restaurantId
         );
         return restaurant
             ? res.status(200).json(restaurant)
@@ -176,7 +176,7 @@ const getDeletedRestaurantWithCustomers = async (req: Request, res: Response, ne
 
 const getRestaurantFull = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getRestaurantFull(req.params.restaurant_id);
+        const restaurant = await RestaurantService.getRestaurantFull(req.params.restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -215,7 +215,7 @@ const getNearby = async (req: Request, res: Response, next: NextFunction) => {
 
 const getBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const badges = await RestaurantService.getBadges(req.params.restaurant_id);
+        const badges = await RestaurantService.getBadges(req.params.restaurantId);
         return badges
             ? res.status(200).json(badges)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -237,7 +237,7 @@ const getDeletedRestaurantBadges = async (req: Request, res: Response, next: Nex
 
 const getStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const statistics = await RestaurantService.getStatistics(req.params.restaurant_id);
+        const statistics = await RestaurantService.getStatistics(req.params.restaurantId);
         return statistics
             ? res.status(200).json(statistics)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -259,7 +259,7 @@ const getDeletedRestaurantStatistics = async (req: Request, res: Response, next:
 
 const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurantId = req.params.restaurant_id || req.params.restaurantId;
+        const restaurantId = req.params.restaurantId;
         const topDish = await RestaurantService.getTopDishByRestaurant(restaurantId);
         return topDish
             ? res.status(200).json(topDish)
@@ -271,17 +271,17 @@ const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
 
 const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { lng, lat, radiusMeters, categories, minglobalRating, city, openNow, openAt } = req.query;
+        const { lng, lat, radiusMeters, categories, minGlobalRating, city, openNow, openAt } = req.query;
 
         const results = await RestaurantService.getFilteredRestaurants({
-            lng:          lng          ? parseFloat(lng          as string) : undefined,
-            lat:          lat          ? parseFloat(lat          as string) : undefined,
-            radiusMeters: radiusMeters ? parseFloat(radiusMeters as string) : undefined,
-            categories:   categories   ? (categories as string).split(',')  : undefined,
-            minglobalRating:    minglobalRating    ? parseFloat(minglobalRating    as string) : undefined,
-            city:         city         ? (city as string)                   : undefined,
-            openNow:      openNow === 'true',
-            openAt:       openAt       ? (openAt as string)                 : undefined,
+            lng:            lng            ? parseFloat(lng            as string) : undefined,
+            lat:            lat            ? parseFloat(lat            as string) : undefined,
+            radiusMeters:   radiusMeters   ? parseFloat(radiusMeters   as string) : undefined,
+            categories:     categories     ? (categories as string).split(',')    : undefined,
+            minGlobalRating: minGlobalRating ? parseFloat(minGlobalRating as string) : undefined,
+            city:           city           ? (city as string)                     : undefined,
+            openNow:        openNow === 'true',
+            openAt:         openAt         ? (openAt as string)                   : undefined,
         });
 
         return res.status(200).json(results);
@@ -292,7 +292,7 @@ const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
 
 const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getEmployees(req.params.restaurant_id);
+        const restaurant = await RestaurantService.getEmployees(req.params.restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -314,7 +314,7 @@ const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: 
 
 const getDishes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDishes(req.params.restaurant_id);
+        const restaurant = await RestaurantService.getDishes(req.params.restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -336,7 +336,7 @@ const getDeletedRestaurantDishes = async (req: Request, res: Response, next: Nex
 
 const getRewards = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getRewards(req.params.restaurant_id);
+        const restaurant = await RestaurantService.getRewards(req.params.restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -359,7 +359,7 @@ const getDeletedRestaurantRewards = async (req: Request, res: Response, next: Ne
 
 const getVisits = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getVisits(req.params.restaurant_id);
+        const restaurant = await RestaurantService.getVisits(req.params.restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
@@ -382,7 +382,7 @@ const getDeletedRestaurantVisits = async (req: Request, res: Response, next: Nex
 
 const getReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getReviews(req.params.restaurant_id);
+        const restaurant = await RestaurantService.getReviews(req.params.restaurantId);
         return restaurant
             ? res.status(200).json(restaurant)
             : res.status(404).json({ message: 'Restaurant not found.' });
