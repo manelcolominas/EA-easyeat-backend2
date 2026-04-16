@@ -60,9 +60,9 @@ export interface ICustomerReviewListResponse {
 
 const normalizeDishRatings = (review: Partial<IReview>): NormalizedDishRating[] => {
   if (Array.isArray(review.dishRatings) && review.dishRatings.length > 0) {
-    return review.dishRatings.map((dishRating) => ({
-      dish_id: new mongoose.Types.ObjectId(dishRating.dish_id),
-      rating: dishRating.rating
+    return review.dishRatings.map((item) => ({
+      dish_id: new mongoose.Types.ObjectId(item.dish_id),
+      rating: item.rating
     }));
   }
 
@@ -80,9 +80,9 @@ const getRestaurantDishRatings = async (restaurantId: mongoose.Types.ObjectId): 
   return reviews.flatMap((review) => {
     const createdAt = review.createdAt ?? new Date(0);
 
-    return normalizeDishRatings(review).map((dishRating) => ({
-      dishId: String(dishRating.dish_id),
-      rating: dishRating.rating,
+    return normalizeDishRatings(review).map((item) => ({
+      dishId: String(item.dish_id),
+      rating: item.rating,
       createdAt
     }));
   });
