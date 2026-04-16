@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import StatisticsService from '../services/statistics';
-import statisticsAnalytics from '../services/statistics.analytics';
 import ReviewService, { ReviewServiceError } from '../services/review';
 
 
@@ -92,63 +91,6 @@ const deleteStatistics = async (req: Request, res: Response) => {
         });
     }
 };
-
-
-
-//  KPI cards
-const getRestaurantKpis = async (req: Request, res: Response) => {
-    const { restaurantId } = req.params;
-
-    if (!restaurantId) {
-        return res.status(400).json({
-            message: 'restaurantId is required'
-        });
-    }
-
-    try {
-        const data = await statisticsAnalytics.getRestaurantKpis(restaurantId);
-        return res.status(200).json(data);
-    } catch {
-        return res.status(500).json({
-            message: 'Error fetching restaurant KPIs'
-        });
-    }
-};
-
-
-//  Visits per hour
-const getVisitsPerHour = async (_req: Request, res: Response) => {
-    try {
-        const data = await statisticsAnalytics.getVisitsPerHour();
-        return res.status(200).json(data);
-    } catch {
-        return res.status(500).json({
-            message: 'Error fetching visits per hour'
-        });
-    }
-};
-
-
-//  Ratings 
-const getAverageRatingsByRestaurant = async (req: Request, res: Response) => {
-    const { restaurantId } = req.params;
-
-    if (!restaurantId) {
-        return res.status(400).json({
-            message: 'restaurantId is required'
-        });
-    }
-
-    try {
-        const data = await statisticsAnalytics.getAverageRatingsByRestaurant(restaurantId);
-        return res.status(200).json(data);
-    } catch {
-        return res.status(500).json({
-            message: 'Error fetching ratings'
-        });
-    }
-};
-
 const getRestaurantTopDish = async (req: Request, res: Response) => {
     const { restaurantId } = req.params;
 
@@ -204,9 +146,6 @@ export default {
     readAll,
     updateStatistics,
     deleteStatistics,
-    getRestaurantKpis,
-    getVisitsPerHour,
-    getAverageRatingsByRestaurant,
     getRestaurantTopDish,
     getRestaurantDishRatings
 };

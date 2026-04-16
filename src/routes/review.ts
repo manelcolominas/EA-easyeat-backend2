@@ -38,15 +38,18 @@ const router = express.Router();
  *           type: string
  *         restaurant_id:
  *           type: string
- *         dish_id:
- *           type: string
- *           description: Optional dish being rated
  *         globalRating:
  *           type: number
  *           example: 9
- *         dishRating:
- *           type: number
- *           example: 8
+ *         dishRatings:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               dish_id:
+ *                 type: string
+ *               rating:
+ *                 type: number
  *         ratings:
  *           $ref: '#/components/schemas/ratings'
  *         comment:
@@ -63,23 +66,25 @@ const router = express.Router();
  *       required:
  *         - customer_id
  *         - restaurant_id
- *       description: At least one of globalRating or dishRating is required.
- *         If dish_id is sent, dishRating is also required.
+ *       description: At least one of globalRating or dishRatings is required.
  *       properties:
  *         customer_id:
  *           type: string
  *         restaurant_id:
  *           type: string
- *         dish_id:
- *           type: string
  *         globalRating:
  *           type: number
  *           minimum: 0
  *           maximum: 10
- *         dishRating:
- *           type: number
- *           minimum: 0
- *           maximum: 10
+ *         dishRatings:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               dish_id:
+ *                 type: string
+ *               rating:
+ *                 type: number
  *         ratings:
  *           $ref: '#/components/schemas/ratings'
  *         comment:

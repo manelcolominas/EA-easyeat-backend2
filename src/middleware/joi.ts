@@ -193,9 +193,7 @@ export const Schemas = {
         create: Joi.object<IReview>({
             customer_id:   objectId,
             restaurant_id: objectId.required(),
-            dish_id:       objectId,
             globalRating:  Joi.number().min(0).max(10),
-            dishRating:    Joi.number().min(0).max(10),
             dishRatings: Joi.array().items(
                 Joi.object({
                     dish_id: objectId.required(),
@@ -215,20 +213,11 @@ export const Schemas = {
             .unknown(true)
             .custom((value, helpers) => {
                 const hasDishRatingsArray = Array.isArray(value.dishRatings) && value.dishRatings.length > 0;
-                const hasDishId = !!value.dish_id;
-                const hasDishRating = value.dishRating !== undefined && value.dishRating !== null;
-                const hasLegacyPair = hasDishId && hasDishRating;
                 const hasGlobalRating = value.globalRating !== undefined && value.globalRating !== null;
 
-                if (!hasGlobalRating && !hasDishRatingsArray && !hasLegacyPair) {
+                if (!hasGlobalRating && !hasDishRatingsArray) {
                     return helpers.error('any.custom', {
-                        message: 'Provide globalRating, dishRatings, or dish_id + dishRating'
-                    });
-                }
-
-                if (hasDishId !== hasDishRating) {
-                    return helpers.error('any.custom', {
-                        message: 'dish_id and dishRating must be provided together'
+                        message: 'Provide globalRating or dishRatings'
                     });
                 }
 
@@ -239,7 +228,6 @@ export const Schemas = {
             }),
         update: Joi.object<IReview>({
             globalRating: Joi.number().min(0).max(10),
-            dishRating: Joi.number().min(0).max(10),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
                 staffService: Joi.number().min(0).max(10),
@@ -251,23 +239,6 @@ export const Schemas = {
             likes:   Joi.number().min(0),
         })
             .unknown(true),
-    },
-
-    dishRating: {
-        create: Joi.object({
-            customer_id: objectId,
-            customerId: objectId,
-            restaurant_id: objectId,
-            restaurantId: objectId,
-            dish_id: objectId,
-            dishId: objectId,
-            rating: Joi.number().min(1).max(5).required(),
-        })
-            .xor('customer_id', 'customerId')
-            .xor('restaurant_id', 'restaurantId')
-            .xor('dish_id', 'dishId'),
-
-     
     },
 
     reward: {
