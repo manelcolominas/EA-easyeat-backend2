@@ -15,7 +15,7 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
 // Obtain a review by ID
 const readReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const review = await ReviewService.getReview(req.params.reviewId);
+        const review = await ReviewService.getReview(req.params.review_id);
 
         return review
             ? res.status(200).json(review)
@@ -64,7 +64,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
 const updateReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const updatedReview = await ReviewService.updateReview(
-            req.params.reviewId,
+            req.params.review_id,
             req.body
         );
 
@@ -120,7 +120,7 @@ const hardDeleteReview = async (req: Request, res: Response, next: NextFunction)
 // Obtain reviews by restaurant
 const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getReviewsByRestaurant(req.params.restaurantId);
+        const reviews = await ReviewService.getReviewsByRestaurant(req.params.restaurant_id);
         return res.status(200).json(reviews);
 
     } catch (error) {
@@ -141,20 +141,16 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
 // Obtain reviews by customer
 const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { customerId } = req.params;
+        const { customer_id } = req.params;
 
-        const limit = Number(req.query.limit) || 5;
-        const skip = Number(req.query.skip) || 0;
-        const minglobalRating = req.query.minglobalRating !== undefined ? Number(req.query.minglobalRating) : undefined;
-        const sortByLikes = req.query.sortByLikes === 'true';
-
-        const result = await ReviewService.getReviewsByCustomer(
-            customerId,
-            limit,
-            skip,
-            minglobalRating,
-            sortByLikes
-        );
+        const result = await ReviewService.getReviewsByCustomer(customer_id, {
+            limit:           Number(req.query.limit)           || 5,
+            skip:            Number(req.query.skip)            || 0,
+            minGlobalRating: req.query.minGlobalRating !== undefined
+                ? Number(req.query.minGlobalRating)
+                : undefined,
+            sortByLikes: req.query.sortByLikes === 'true',
+        });
 
         return res.status(200).json(result);
 
@@ -167,18 +163,14 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
     try {
         const { customer_id } = req.params;
 
-        const limit = Number(req.query.limit) || 5;
-        const skip = Number(req.query.skip) || 0;
-        const minGlobalRating = req.query.minglobalRating !== undefined ? Number(req.query.minglobalRating) : undefined;
-        const sortByLikes = req.query.sortByLikes === 'true';
-
-        const result = await ReviewService.getDeletedReviewsByCustomer(
-            customer_id,
-            limit,
-            skip,
-            minGlobalRating,
-            sortByLikes
-        );
+        const result = await ReviewService.getDeletedReviewsByCustomer(customer_id, {
+            limit:           Number(req.query.limit)           || 5,
+            skip:            Number(req.query.skip)            || 0,
+            minGlobalRating: req.query.minGlobalRating !== undefined
+                ? Number(req.query.minGlobalRating)
+                : undefined,
+            sortByLikes: req.query.sortByLikes === 'true',
+        });
 
         return res.status(200).json(result);
 
@@ -190,7 +182,7 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
 
 const likeReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const review = await ReviewService.likeReview(req.params.reviewId);
+        const review = await ReviewService.likeReview(req.params.review_id);
 
         return review
             ? res.status(200).json(review)

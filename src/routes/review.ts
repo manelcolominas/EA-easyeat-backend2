@@ -427,20 +427,4 @@ router.delete(
   controller.hardDeleteReview
 );
 
-// ========================
-// TOP DISH !!!FALTA EL SWAGGER
-// ========================
-router.get(
-  '/restaurant/:restaurant_id/top-dish',
-  controller.getRestaurantTopDish
-);
-
-// ========================
-// ALL DISH RATINGS  !!! FALTA EL SWAGGER
-// ========================
-router.get(
-  '/restaurant/:restaurant_id/dishes',
-  controller.getRestaurantDishesWithRatings
-);
-
 export default router;

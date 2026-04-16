@@ -1,6 +1,7 @@
-import { profile } from 'console';
+import mongoose, { PipelineStage } from 'mongoose';
 import { RestaurantModel, IRestaurant } from '../models/restaurant';
-import { PipelineStage }               from 'mongoose';
+import { DishRatingModel }              from '../models/dishRating';
+import { IDish }                        from '../models/dish';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
@@ -200,6 +201,39 @@ const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestau
 };
 
 const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | null> => {
+    if (!mongoose.Types.ObjectId.isValid(restaurantId)) return null;
+
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                restaurant_id: new mongoose.Types.ObjectId(restaurantId),
+                deletedAt:     null,
+            },
+        },
+        {
+            $group: {
+                _id:         '$dish_id',
+                avgRating:   { $avg: '$rating' },
+                ratingCount: { $sum: 1 },
+            },
+        },
+        { $sort: { avgRating: -1, ratingCount: -1 } },
+        { $limit: 1 },
+        {
+            $lookup: {
+                from:         'dishes',
+                localField:   '_id',
+                foreignField: '_id',
+                as:           'dish',
+            },
+        },
+        { $unwind: '$dish' },
+        { $match: { 'dish.active': true } },
+        { $replaceRoot: { newRoot: '$dish' } },
+    ];
+
+    const [topDish] = await DishRatingModel.aggregate<IDish>(pipeline);
+    return topDish ?? null;
 };
 
 const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {
@@ -257,7 +291,7 @@ const getDeletedRestaurantReviews = async (restaurantId: string): Promise<IResta
 // globalRating recalculation
 // ─────────────────────────────────────────────────────────────────────────────
 
-const updateglobalRating = async ( restaurant_id: string, newAverage: number
+const updateGlobalRating = async ( restaurant_id: string, newAverage: number
 ): Promise<IRestaurant | null> => {
     const clamped = Math.min(10, Math.max(0, newAverage));
     return RestaurantModel.findByIdAndUpdate( restaurant_id, { 'profile.globalRating': clamped },
@@ -273,7 +307,7 @@ export interface RestaurantFilterParams {
     lat?: number;
     radiusMeters?: number;
     categories?: string[];
-    minglobalRating?: number;
+    minGlobalRating?: number;
     city?: string;
     openNow?: boolean;
     openAt?: string;
@@ -336,7 +370,7 @@ function buildOpenAtStages(date: Date): PipelineStage[] {
 const getFilteredRestaurants = async (
     params: RestaurantFilterParams
 ): Promise<RestaurantWithDistance[]> => {
-    const { lng, lat, radiusMeters = 5_000, categories, minglobalRating, city, openNow, openAt } = params;
+    const { lng, lat, radiusMeters = 5_000, categories, minGlobalRating, city, openNow, openAt } = params;
 
     const hasGeo = lng !== undefined && lat !== undefined && isFinite(lng) && isFinite(lat);
     const pipeline: PipelineStage[] = [];
@@ -344,7 +378,7 @@ const getFilteredRestaurants = async (
 
     if (hasGeo) {
         if (city)               baseFilter['profile.location.city'] = { $regex: city, $options: 'i' };
-        if (minglobalRating)          baseFilter['profile.globalRating']        = { $gte: minglobalRating };
+        if (minGlobalRating)    baseFilter['profile.globalRating']  = { $gte: minGlobalRating };
         if (categories?.length) baseFilter['profile.category']      = { $in: categories };
 
         pipeline.push({
@@ -359,7 +393,7 @@ const getFilteredRestaurants = async (
     }
     else {
         if (city)               baseFilter['profile.location.city'] = { $regex: city, $options: 'i' };
-        if (minglobalRating)          baseFilter['profile.globalRating']        = { $gte: minglobalRating };
+        if (minGlobalRating)    baseFilter['profile.globalRating']  = { $gte: minGlobalRating };
         if (categories?.length) baseFilter['profile.category']      = { $in: categories };
 
         pipeline.push({ $match: baseFilter });
@@ -411,6 +445,6 @@ export default {
     getDeletedRestaurantVisits,
     getReviews,
     getDeletedRestaurantReviews,
-    updateglobalRating,
+    updateGlobalRating,
     getFilteredRestaurants,
 };
