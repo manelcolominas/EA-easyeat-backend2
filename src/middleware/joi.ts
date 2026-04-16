@@ -240,7 +240,6 @@ export const Schemas = {
         })
             .unknown(true),
     },
-
     reward: {
         create: Joi.object<IReward>({
             restaurant_id:  objectId.required(),

@@ -117,7 +117,6 @@ const router = express.Router();
  *           items:
  *             $ref: '#/components/schemas/RatingCategory'
  */
-
 /**
  * @openapi
  * /statistics:
