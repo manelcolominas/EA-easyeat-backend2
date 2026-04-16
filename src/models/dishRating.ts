@@ -8,7 +8,6 @@ export interface IDishRating {
     dish_id:       Types.ObjectId;
     restaurant_id: Types.ObjectId;
     rating:        number;
-    comment?:      string;
     deletedAt?:    Date | null;
     createdAt?:    Date;
     updatedAt?:    Date;
@@ -27,7 +26,6 @@ const dishRatingSchema = new Schema<IDishRating>(
             min: [0,  'Rating cannot be below 0'],
             max: [10, 'Rating cannot exceed 10'],
         },
-        comment:   { type: String, trim: true },
         deletedAt: { type: Date, default: null, index: true },
     },
     { timestamps: true }

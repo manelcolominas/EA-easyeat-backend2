@@ -372,11 +372,9 @@ export const Schemas = {
             customer_id: objectId.required(),
             dish_id:     objectId.required(),
             rating:      Joi.number().min(0).max(10).required(),
-            comment:     Joi.string().trim().allow(''),
         }),
         update: Joi.object<IDishRating>({
             rating:  Joi.number().min(0).max(10),
-            comment: Joi.string().trim().allow(''),
         }),
     },
 

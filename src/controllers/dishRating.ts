@@ -10,7 +10,7 @@ import { AuthRequest } from '../middleware/auth';
  * Admins may submit on behalf of any customer.
  */
 const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const { customer_id, dish_id, rating, comment } = req.body;
+    const { customer_id, dish_id, rating } = req.body;
 
     // Enforce ownership: customer can only rate as themselves
     if (req.user?.role !== 'admin' && req.user?.id !== customer_id) {
@@ -18,7 +18,7 @@ const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunct
     }
 
     try {
-        const result = await DishRatingService.rateOrUpdateDish(customer_id, dish_id, rating, comment);
+        const result = await DishRatingService.rateOrUpdateDish(customer_id, dish_id, rating);
 
         if (!result) {
             return res.status(404).json({ message: 'Dish not found or not active' });
@@ -37,12 +37,10 @@ const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunct
 
 const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { dish_id } = req.params;
-    const page  = Math.max(1,   parseInt(req.query.page  as string, 10) || 1);
-    const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
 
     try {
-        const result = await DishRatingService.getRatingsByDish(dish_id, { page, limit });
-        return res.status(200).json(result);
+        const ratings = await DishRatingService.getRatingsByDish(dish_id);
+        return res.status(200).json(ratings);
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -52,12 +50,10 @@ const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) =
 
 const readByCustomer = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
-    const page  = Math.max(1,   parseInt(req.query.page  as string, 10) || 1);
-    const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
 
     try {
-        const result = await DishRatingService.getRatingsByCustomer(customer_id, { page, limit });
-        return res.status(200).json(result);
+        const ratings = await DishRatingService.getRatingsByCustomer(customer_id);
+        return res.status(200).json(ratings);
     } catch (error) {
         return res.status(500).json({ error });
     }
