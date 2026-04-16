@@ -10,7 +10,7 @@ import { ReviewModel, IReview } from '../models/review';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface PaginationOptions {
-    page?:  number;   // 1-based, default 1
+    page?: number;   // 1-based, default 1
     limit?: number;   // default 20
 }
 
@@ -32,15 +32,16 @@ const createCustomer = async (data: Partial<ICustomer>) => {
 
 // ─── Read (single) ────────────────────────────────────────────────────────────
 
-const getCustomer = async (customer_id: string, includeDeleted = false) => {
-    const query = CustomerModel.findById(customer_id);
-    return includeDeleted ? query : query.active();
+const getCustomer = async (customer_id: string) => {
+    return CustomerModel.findById(customer_id);
 };
 
-// src/services/customer.ts (or wherever your service layer is)
+const getDeletedCustomer = async (customer_id: string) => {
+    return CustomerModel.findOne({ _id: customer_id, deletedAt: { $ne: null } });
+};
 
-const getCustomerFull = async (customer_id: string, includeDeleted = false) => {
-    const query = CustomerModel.findById(customer_id)
+const getCustomerFull = async (customer_id: string) => {
+    return CustomerModel.findById(customer_id)
         .populate('pointsWallet')
         .populate('visitHistory')
         .populate({
@@ -55,8 +56,24 @@ const getCustomerFull = async (customer_id: string, includeDeleted = false) => {
         })
         .populate('badges')
         .populate('reviews');
+};
 
-    return includeDeleted ? query : query.active();
+const getDeletedCustomerFull = async (customer_id: string) => {
+    return CustomerModel.findOne({ _id: customer_id, deletedAt: { $ne: null } })
+        .populate('pointsWallet')
+        .populate('visitHistory')
+        .populate({
+            path: 'favoriteRestaurants',
+            select: 'profile.name profile.description profile.globalRating profile.category profile.image profile.location.city',
+            transform: (doc) => {
+                if (doc && doc.profile && doc.profile.image && Array.isArray(doc.profile.image)) {
+                    doc.profile.image = doc.profile.image.slice(0, 3);
+                }
+                return doc;
+            }
+        })
+        .populate('badges')
+        .populate('reviews');
 };
 
 // ─── Get all points wallets for a customer ────────────────────────────────────
@@ -78,7 +95,7 @@ const getCustomerAllPointsWallet = async (customer_id: string): Promise<IPointsW
         return await PointsWalletModel.find({ customer_id: customer_id })
             .populate('restaurant_id', 'profile.name profile.location')
             .lean();
-    } 
+    }
     catch (error) {
         console.error(`Error fetching points wallets for customer ${customer_id}:`, error);
         return [];
@@ -114,6 +131,29 @@ const getCustomerAllVisits = async (customer_id: string): Promise<IVisit[]> => {
     }
 };
 
+const getCustomerAllDeletedVisits = async (customer_id: string): Promise<IVisit[]> => {
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
+        return [];
+    }
+
+    try {
+        const customer = await CustomerModel.findOne({ _id: customer_id, deletedAt: { $ne: null } });
+        if (!customer) {
+            return [];
+        }
+
+        // Fetch all visits for this customer
+        return await VisitModel.findById(customer_id)
+            .populate('restaurant_id', 'profile.name profile.rating profile.location.city')
+            .sort({ createdAt: -1 })  // Most recent first
+            .lean();
+    } catch (error) {
+        console.error(`Error fetching visits for customer ${customer_id}:`, error);
+        return [];
+    }
+};
+
 // ─── Get all favourite restaurants for a customer ────────────────────────────
 
 const getCustomerAllFavouriteRestaurants = async (customer_id: string) => {
@@ -127,15 +167,15 @@ const getCustomerAllFavouriteRestaurants = async (customer_id: string) => {
         const customer = await CustomerModel.findById(customer_id)
             .active()
             .populate({
-            path: 'favoriteRestaurants',
-            select: 'profile.name profile.description profile.globalRating profile.category profile.image profile.location.city',
-            transform: (doc) => {
-                if (doc && doc.profile && doc.profile.image && Array.isArray(doc.profile.image)) {
-                    doc.profile.image = doc.profile.image.slice(0, 3);
+                path: 'favoriteRestaurants',
+                select: 'profile.name profile.description profile.globalRating profile.category profile.image profile.location.city',
+                transform: (doc) => {
+                    if (doc && doc.profile && doc.profile.image && Array.isArray(doc.profile.image)) {
+                        doc.profile.image = doc.profile.image.slice(0, 3);
+                    }
+                    return doc;
                 }
-                return doc;
-            }
-        });
+            });
 
         if (!customer || !customer.favoriteRestaurants) {
             return [];
@@ -143,7 +183,7 @@ const getCustomerAllFavouriteRestaurants = async (customer_id: string) => {
 
         return customer.favoriteRestaurants;
     }
-     catch (error) {
+    catch (error) {
         console.error(`Error fetching favourite restaurants for customer ${customer_id}:`, error);
         return [];
     }
@@ -210,10 +250,17 @@ const getCustomerAllReviews = async (customer_id: string): Promise<IReview[]> =>
 
 // ─── Read (paginated list — active only) ──────────────────────────────────────
 
-const getAllCustomers = async ( { page = 1, limit = 20 }: PaginationOptions = {} ): Promise<PaginatedResult<ICustomer>> => {
-    const skip   = (page - 1) * limit;
+const getAllCustomers = async ({ page = 1, limit = 20 }: PaginationOptions = {}): Promise<PaginatedResult<ICustomer>> => {
+    const skip = (page - 1) * limit;
     const filter = { deletedAt: null };
-    const [data, total] = await Promise.all([ CustomerModel.find(filter).skip(skip).limit(limit).lean(), CustomerModel.countDocuments(filter) ]);
+    const [data, total] = await Promise.all([CustomerModel.find(filter).skip(skip).limit(limit).lean(), CustomerModel.countDocuments(filter)]);
+    return { data, total, page, totalPages: Math.ceil(total / limit) };
+};
+
+const getAllDeletedCustomers = async ({ page = 1, limit = 20 }: PaginationOptions = {}): Promise<PaginatedResult<ICustomer>> => {
+    const skip = (page - 1) * limit;
+    const filter = { deletedAt: { $ne: null } };
+    const [data, total] = await Promise.all([CustomerModel.find(filter).skip(skip).limit(limit).lean(), CustomerModel.countDocuments(filter)]);
     return { data, total, page, totalPages: Math.ceil(total / limit) };
 };
 
@@ -247,13 +294,17 @@ const hardDeleteCustomer = async (customer_id: string) => {
 export default {
     createCustomer,
     getCustomer,
+    getDeletedCustomer,
     getCustomerFull,
+    getDeletedCustomerFull,
     getAllCustomers,
+    getAllDeletedCustomers,
     getCustomerAllBadges,
     getCustomerAllFavouriteRestaurants,
     getCustomerAllPointsWallet,
     getCustomerAllReviews,
     getCustomerAllVisits,
+    getCustomerAllDeletedVisits,
     updateCustomer,
     softDeleteCustomer,
     restoreCustomer,

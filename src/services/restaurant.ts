@@ -25,6 +25,10 @@ const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null>
         
 };
 
+const getDeletedRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } }).lean();
+};
+
 const getAllRestaurants = async (): Promise<IRestaurant[]> => {
     const restaurants = await RestaurantModel
         .find()
@@ -37,6 +41,10 @@ const getAllRestaurants = async (): Promise<IRestaurant[]> => {
         ...r,
         profile: { ...r.profile, image: r.profile.image?.slice(0, 3) }
     }));
+};
+
+const getAllDeletedRestaurants = async (): Promise<IRestaurant[]> => {
+    return RestaurantModel.find({ deletedAt: { $ne: null } }).lean();
 };
 
 const updateRestaurant = async ( restaurant_id: string, data: Partial<IRestaurant> ): Promise<IRestaurant | null> => {
@@ -92,9 +100,29 @@ const getRestaurantWithCustomers = async (restaurant_id: string): Promise<IResta
         .lean();
 };
 
+const getDeletedRestaurantWithCustomers = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
+        .populate({ path: 'visits', populate: { path: 'customer_id' } })
+        .lean();
+};
+
 const getRestaurantFull = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findById(restaurant_id).active()
+        .populate('employees')
+        .populate('rewards')
+        .populate('badges')
+        .populate('statistics')
+        .populate('dishes')
+        .populate('visits')
+        .populate('reviews')
+        .lean<IRestaurant>();
+};
+
+const getDeletedRestaurantFull = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
         .populate('employees')
         .populate('rewards')
         .populate('badges')
@@ -120,9 +148,22 @@ const getBadges = async (restaurant_id: string): Promise<IRestaurant | null> => 
         .active().select('badges').populate('badges').lean<IRestaurant>();
 };
 
+const getDeletedRestaurantBadges = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } })
+        .select('badges').populate('badges').lean<IRestaurant>();
+};
+
 const getStatistics = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findById(restaurant_id).active().select('statistics').populate('statistics')
+        .lean<IRestaurant>();
+};
+
+const getDeletedRestaurantStatistics = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
+        .select('statistics')
+        .populate('statistics')
         .lean<IRestaurant>();
 };
 
@@ -135,10 +176,26 @@ const getEmployees = async (restaurant_id: string): Promise<IRestaurant | null> 
         .lean<IRestaurant>();
 };
 
+const getDeletedRestaurantEmployees = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
+        .select('employees')
+        .populate('employees')
+        .lean<IRestaurant>();
+};
+
 const getDishes = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findById(restaurant_id)
         .active()
+        .select('dishes')
+        .populate('dishes')
+        .lean<IRestaurant>();
+};
+
+const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
         .select('dishes')
         .populate('dishes')
         .lean<IRestaurant>();
@@ -166,6 +223,14 @@ const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> =>
         .lean<IRestaurant>();
 };
 
+const getDeletedRestaurantRewards = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
+        .select('rewards')
+        .populate('rewards', 'name description pointsRequired active expiry')
+        .lean<IRestaurant>();
+};
+
 const getVisits = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findById(restaurant_id)
@@ -175,10 +240,26 @@ const getVisits = async (restaurant_id: string): Promise<IRestaurant | null> => 
         .lean<IRestaurant>();
 };
 
+const getDeletedRestaurantVisits = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
+        .select('visits')
+        .populate('visits')
+        .lean<IRestaurant>();
+};
+
 const getReviews = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findById(restaurant_id)
         .active()
+        .select('reviews')
+        .populate('reviews')
+        .lean<IRestaurant>();
+};
+
+const getDeletedRestaurantReviews = async (restaurantId: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
         .select('reviews')
         .populate('reviews')
         .lean<IRestaurant>();
@@ -315,22 +396,33 @@ const getFilteredRestaurants = async (
 export default {
     createRestaurant,
     getRestaurant,
+    getDeletedRestaurant,
     getAllRestaurants,
+    getAllDeletedRestaurants,
     updateRestaurant,
     softDeleteRestaurant,
     restoreRestaurant,
     hardDeleteRestaurant,
     getRestaurantWithCustomers,
+    getDeletedRestaurantWithCustomers,
     getRestaurantFull,
+    getDeletedRestaurantFull,
     getNearby,
     getBadges,
+    getDeletedRestaurantBadges,
     getStatistics,
+    getDeletedRestaurantStatistics,
     getEmployees,
+    getDeletedRestaurantEmployees,
     getDishes,
+    getDeletedRestaurantDishes,
     getTopDishByRestaurant,
     getRewards,
+    getDeletedRestaurantRewards,
     getVisits,
+    getDeletedRestaurantVisits,
     getReviews,
+    getDeletedRestaurantReviews,
     updateglobalRating,
     getFilteredRestaurants,
 };

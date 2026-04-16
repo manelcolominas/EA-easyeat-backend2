@@ -23,9 +23,29 @@ const readBadge = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const readDeletedBadge = async (req: Request, res: Response, next: NextFunction) => {
+    const badge_id = req.params.badge_id;
+
+    try {
+        const badge = await BadgeService.getDeletedBadge(badge_id);
+        return badge ? res.status(200).json(badge) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const badges = await BadgeService.getAllBadges();
+        return res.status(200).json(badges);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const badges = await BadgeService.getAllDeletedBadges();
         return res.status(200).json(badges);
     } catch (error) {
         return res.status(500).json({ error });
@@ -43,11 +63,33 @@ const updateBadge = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-const deleteBadge = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteBadge = async (req: Request, res: Response, next: NextFunction) => {
     const badge_id = req.params.badge_id;
 
     try {
-        const badge = await BadgeService.deleteBadge(badge_id);
+        const badge = await BadgeService.softDeleteBadge(badge_id);
+        return badge ? res.status(200).json(badge) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const restoreBadge = async (req: Request, res: Response, next: NextFunction) => {
+    const badge_id = req.params.badge_id;
+
+    try {
+        const badge = await BadgeService.restoreBadge(badge_id);
+        return badge ? res.status(200).json(badge) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const hardDeleteBadge = async (req: Request, res: Response, next: NextFunction) => {
+    const badge_id = req.params.badge_id;
+
+    try {
+        const badge = await BadgeService.hardDeleteBadge(badge_id);
         return badge ? res.status(200).json(badge) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -79,8 +121,12 @@ const getBadgesByCustomer = async (req: Request, res: Response, next: NextFuncti
 export default {
     createBadge,
     readBadge,
+    readDeletedBadge,
     readAll,
+    readAllDeleted,
     updateBadge,
-    deleteBadge,
+    softDeleteBadge,
+    restoreBadge,
+    hardDeleteBadge,
     getBadgesByCustomer
 };

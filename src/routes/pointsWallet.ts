@@ -75,6 +75,18 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
 
 /**
  * @openapi
+ * /pointsWallets:
+ *   get:
+ *     summary: Lists all points wallets
+ *     tags: [PointsWallets]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', authenticate, requireRole('admin'),controller.readAll);
+
+/**
+ * @openapi
  * /pointsWallets/{walletId}:
  *   get:
  *     summary: Gets a points wallet by ID
@@ -93,18 +105,6 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  *         description: Not found
  */
 router.get('/:walletId', authenticate, requireRole('admin', 'owner', 'staff', 'customer'),controller.readPointsWallet);
-
-/**
- * @openapi
- * /pointsWallets:
- *   get:
- *     summary: Lists all points wallets
- *     tags: [PointsWallets]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/', authenticate, requireRole('admin'),controller.readAll);
 
 /**
  * @openapi

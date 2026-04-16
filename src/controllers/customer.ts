@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import CustomerService from '../services/customer';
+import Logging from '../library/logging';
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,18 @@ const readCustomer = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
+const readDeletedCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    const { customer_id } = req.params;
+    try {
+        const customer = await CustomerService.getDeletedCustomer(customer_id);
+        return customer
+            ? res.status(200).json(customer)
+            : res.status(404).json({ message: 'Customer not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const readCustomerFull = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
@@ -38,11 +51,25 @@ const readCustomerFull = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedCustomerFull = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
+        const customer = await CustomerService.getDeletedCustomerFull(customer_id);
+        return customer
+            ? res.status(200).json(customer)
+            : res.status(404).json({ message: 'Customer not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
+    const customer_id = req.params.customer_id;
+    try {
         const badges = await CustomerService.getCustomerAllBadges(customer_id);
-        return res.status(200).json(badges);
+        return badges
+            ? res.status(200).json(badges)
+            : res.status(404).json({ message: 'Customer not found' });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -78,12 +105,22 @@ const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunct
     }
 };
 
+const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: NextFunction) => {
+    const { customer_id } = req.params;
+    try {
+        const visits = await CustomerService.getCustomerAllDeletedVisits(customer_id);
+        return res.status(200).json(visits);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const getCustomerAllPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
         const pointsWallet = await CustomerService.getCustomerAllPointsWallet(customer_id);
         return res.status(200).json(pointsWallet);
-        } catch (error) {
+    } catch (error) {
         return res.status(500).json({ error });
     }
 };
@@ -92,11 +129,24 @@ const getCustomerAllPointsWallet = async (req: Request, res: Response, next: Nex
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     // Accept ?page=1&limit=20 query params
-    const page  = Math.max(1, parseInt(req.query.page  as string, 10) || 1);
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
 
     try {
         const result = await CustomerService.getAllCustomers({ page, limit });
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+    // Accept ?page=1&limit=20 query params
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
+
+    try {
+        const result = await CustomerService.getAllDeletedCustomers({ page, limit });
         return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ error });
@@ -174,13 +224,17 @@ const hardDeleteCustomer = async (req: Request, res: Response, next: NextFunctio
 export default {
     createCustomer,
     readCustomer,
+    readDeletedCustomer,
     readCustomerFull,
+    readDeletedCustomerFull,
     getCustomerAllBadges,
     getCustomerAllFavouriteRestaurants,
     getCustomerAllPointsWallet,
     getCustomerAllReviews,
     getCustomerAllVisits,
+    getCustomerAllDeletedVisits,
     readAll,
+    readAllDeleted,
     updateCustomer,
     softDeleteCustomer,
     restoreCustomer,

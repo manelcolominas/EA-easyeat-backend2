@@ -20,9 +20,28 @@ const readDish = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const readDeletedDish = async (req: Request, res: Response, next: NextFunction) => {
+    const { dish_id } = req.params;
+    try {
+        const dish = await DishService.getDeletedDish(dish_id);
+        return dish ? res.status(200).json(dish) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const dishes = await DishService.getAllDishes();
+        return res.status(200).json(dishes);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const dishes = await DishService.getAllDeletedDishes();
         return res.status(200).json(dishes);
     } catch (error) {
         return res.status(500).json({ error });
@@ -39,15 +58,44 @@ const updateDish = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-const deleteDish = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteDish = async (req: Request, res: Response, next: NextFunction) => {
     const { dish_id } = req.params;
     try {
-        const dish = await DishService.deleteDish(dish_id);
+        const dish = await DishService.softDeleteDish(dish_id);
         return dish ? res.status(200).json(dish) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
+const restoreDish = async (req: Request, res: Response, next: NextFunction) => {
+    const { dish_id } = req.params;
+    try {
+        const dish = await DishService.restoreDish(dish_id);
+        return dish ? res.status(200).json(dish) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
 
-export default { createDish, readDish, readAll, updateDish, deleteDish };
+const hardDeleteDish = async (req: Request, res: Response, next: NextFunction) => {
+    const { dish_id } = req.params;
+    try {
+        const dish = await DishService.hardDeleteDish(dish_id);
+        return dish ? res.status(200).json(dish) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+export default {
+    createDish,
+    readDish,
+    readDeletedDish,
+    readAll,
+    readAllDeleted,
+    updateDish,
+    softDeleteDish,
+    restoreDish,
+    hardDeleteDish
+};

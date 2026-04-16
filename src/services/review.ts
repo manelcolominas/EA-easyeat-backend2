@@ -10,6 +10,7 @@ import { CustomerModel } from '../models/customer';
 
 const MAX_DISH_RATINGS_PER_CUSTOMER = 2;
 const ACTIVE_REVIEW_FILTER = { deletedAt: null, deleted: { $ne: true } };
+const INCTIVE_REVIEW_FILTER = { deletedAt: { $ne: null }, deleted: { $ne: false } };
 
 type NormalizedDishRating = {
   dish_id: mongoose.Types.ObjectId;
@@ -288,11 +289,27 @@ const getReview = async (review_id: string): Promise<IReview | null> => {
     .lean();
 };
 
+const getDeletedReview = async (review_id: string): Promise<IReview | null> => {
+  if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
+
+  return ReviewModel.findOne({ _id: review_id, ...INCTIVE_REVIEW_FILTER })
+    .populate('customer_id', 'name profilePictures')
+    .populate('restaurant_id', 'name')
+    .lean();
+};
+
 // ========================
 // GET ALL
 // ========================
 const getAllReviews = async (): Promise<IReview[]> => {
   return ReviewModel.find({ ...ACTIVE_REVIEW_FILTER })
+    .populate('customer_id', 'name')
+    .populate('restaurant_id', 'name')
+    .lean();
+};
+
+const getAllDeletedReviews = async (): Promise<IReview[]> => {
+  return ReviewModel.find({ ...INCTIVE_REVIEW_FILTER })
     .populate('customer_id', 'name')
     .populate('restaurant_id', 'name')
     .lean();
@@ -329,8 +346,8 @@ const updateReview = async (review_id: string, data: Partial<IReview>): Promise<
 // ========================
 // DELETE
 // ========================
-const deleteReview = async (review_id: string): Promise<IReview | null> => {
-  if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
+const softDeleteReview = async (review_id: string): Promise<IReview | null> => {
+    if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
 
   const deleted = await ReviewModel.findOneAndUpdate(
     { _id: review_id, ...ACTIVE_REVIEW_FILTER },
@@ -347,6 +364,38 @@ const deleteReview = async (review_id: string): Promise<IReview | null> => {
   return deleted;
 };
 
+const restoreReview = async (review_id: string): Promise<IReview | null> => {
+    if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
+
+    const deleted = await ReviewModel.findOneAndUpdate(
+    { _id: review_id, ...INCTIVE_REVIEW_FILTER },
+    { deletedAt: null, deleted: false },
+    { new: true }
+  ).lean();
+
+  if (deleted) {
+    await recalculateDishRatingsByRestaurant(
+      new mongoose.Types.ObjectId(deleted.restaurant_id)
+    );
+  }
+
+  return deleted;
+};
+
+const hardDeleteReview = async (review_id: string): Promise<IReview | null> => {
+    if (!mongoose.Types.ObjectId.isValid(review_id)) return null;
+    
+    const deleted = await ReviewModel.findOneAndDelete({ _id: review_id }).lean();
+
+    if (deleted) {
+    await recalculateDishRatingsByRestaurant(
+      new mongoose.Types.ObjectId(deleted.restaurant_id)
+    );
+  }
+
+  return deleted;
+};
+
 // ========================
 // BY RESTAURANT
 // ========================
@@ -354,6 +403,15 @@ const getReviewsByRestaurant = async (restaurant_id: string): Promise<IReview[]>
   return ReviewModel.find({
     restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
     ...ACTIVE_REVIEW_FILTER
+  })
+    .populate('customer_id', 'name profilePictures')
+    .lean();
+};
+
+const getDeletedReviewsByRestaurant = async (restaurant_id: string): Promise<IReview[]> => {
+  return ReviewModel.find({
+    restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
+    ...INCTIVE_REVIEW_FILTER
   })
     .populate('customer_id', 'name profilePictures')
     .lean();
@@ -376,6 +434,53 @@ const getReviewsByCustomer = async (
   const filter: Record<string, unknown> = {
     customer_id: new mongoose.Types.ObjectId(customer_id),
     ...ACTIVE_REVIEW_FILTER
+  };
+
+  if (minGlobalRating !== undefined) {
+    filter.globalRating = { $gte: minGlobalRating };
+  }
+
+  const sort: Record<string, 1 | -1> = sortByLikes ? { likes: -1 } : { createdAt: -1 };
+
+  const [reviews, total] = await Promise.all([
+    ReviewModel.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: 'restaurant_id',
+        select: 'profile'
+      })
+      .lean(),
+    ReviewModel.countDocuments(filter)
+  ]);
+
+  return {
+    data: reviews.map((review: any) => ({
+      ...review,
+      restaurant_id: {
+        _id: review.restaurant_id._id,
+        name: review.restaurant_id.profile?.name
+      }
+    })),
+    total
+  };
+};
+
+const getDeletedReviewsByCustomer = async (
+  customer_id: string,
+  limit = 5,
+  skip = 0,
+  minGlobalRating?: number,
+  sortByLikes?: boolean
+): Promise<ICustomerReviewListResponse> => {
+  if (!mongoose.Types.ObjectId.isValid(customer_id)) {
+    return { data: [], total: 0 };
+  }
+
+  const filter: Record<string, unknown> = {
+    customer_id: new mongoose.Types.ObjectId(customer_id),
+    ...INCTIVE_REVIEW_FILTER
   };
 
   if (minGlobalRating !== undefined) {
@@ -534,11 +639,17 @@ const getRestaurantDishesWithRatings = async (restaurantId: string): Promise<IRe
 export default {
   createReview,
   getReview,
+  getDeletedReview,
   getAllReviews,
+  getAllDeletedReviews,
   updateReview,
-  deleteReview,
+  softDeleteReview,
+  restoreReview,
+  hardDeleteReview,
   getReviewsByRestaurant,
+  getDeletedReviewsByRestaurant,
   getReviewsByCustomer,
+  getDeletedReviewsByCustomer,
   likeReview,
   getRestaurantTopDish,
   getRestaurantDishesWithRatings

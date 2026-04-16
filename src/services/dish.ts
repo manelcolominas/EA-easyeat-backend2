@@ -23,8 +23,16 @@ const getDish = async (dish_id: string) => {
     return await DishModel.findById(dish_id);
 };
 
+const getDeletedDish = async (dish_id: string) => {
+    return await DishModel.findOne({ _id: dish_id, active: false }).lean();
+};
+
 const getAllDishes = async (): Promise<IDish[]> => {
     return await DishModel.find();
+};
+
+const getAllDeletedDishes = async (): Promise<IDish[]> => {
+    return await DishModel.find({ active: false }).lean();
 };
 
 const updateDish = async (dish_id: string, data: Partial<IDish>) => {
@@ -38,7 +46,15 @@ const updateDish = async (dish_id: string, data: Partial<IDish>) => {
     return null;
 };
 
-const deleteDish = async (dish_id: string) => {
+const softDeleteDish = async (dish_id: string) => {
+    return await DishModel.findByIdAndUpdate(dish_id, { active: false }, { new: true }).lean();
+};
+
+const restoreDish = async (dish_id: string) => {
+    return await DishModel.findByIdAndUpdate(dish_id, { active: true }, { new: true }).lean();
+};
+
+const hardDeleteDish = async (dish_id: string) => {
     const deletedDish = await DishModel.findByIdAndDelete(dish_id);
 
     if (deletedDish && deletedDish.restaurant_id) {
@@ -50,4 +66,14 @@ const deleteDish = async (dish_id: string) => {
     return deletedDish;
 };
 
-export default { createDish, getDish, getAllDishes, updateDish, deleteDish };
+export default {
+    createDish,
+    getDish,
+    getDeletedDish,
+    getAllDishes,
+    getAllDeletedDishes,
+    updateDish,
+    softDeleteDish,
+    restoreDish,
+    hardDeleteDish,
+};

@@ -21,12 +21,35 @@ const readReward = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const readDeletedReward = async (req: Request, res: Response, next: NextFunction) => {
+    const reward_id = req.params.reward_id;
+
+    try {
+        const reward = await RewardService.getDeletedReward(reward_id);
+        return reward ? res.status(200).json(reward) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
-        
+
         const rewards = await RewardService.getAllRewards(page, limit);
+        return res.status(200).json(rewards);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const rewards = await RewardService.getAllDeletedRewards(page, limit);
         return res.status(200).json(rewards);
     } catch (error) {
         return res.status(500).json({ error });
@@ -44,11 +67,33 @@ const updateReward = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
-const deleteReward = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteReward = async (req: Request, res: Response, next: NextFunction) => {
     const reward_id = req.params.reward_id;
 
     try {
-        const reward = await RewardService.deleteReward(reward_id);
+        const reward = await RewardService.softDeleteReward(reward_id);
+        return reward ? res.status(201).json(reward) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const restoreReward = async (req: Request, res: Response, next: NextFunction) => {
+    const reward_id = req.params.reward_id;
+
+    try {
+        const reward = await RewardService.restoreReward(reward_id);
+        return reward ? res.status(201).json(reward) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const hardDeleteReward = async (req: Request, res: Response, next: NextFunction) => {
+    const reward_id = req.params.reward_id;
+
+    try {
+        const reward = await RewardService.hardDeleteReward(reward_id);
         return reward ? res.status(201).json(reward) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -58,7 +103,11 @@ const deleteReward = async (req: Request, res: Response, next: NextFunction) => 
 export default {
     createReward,
     readReward,
+    readDeletedReward,
     readAll,
+    readAllDeleted,
     updateReward,
-    deleteReward
+    softDeleteReward,
+    restoreReward,
+    hardDeleteReward
 };

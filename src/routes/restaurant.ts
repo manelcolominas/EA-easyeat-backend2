@@ -235,6 +235,24 @@ router.get('/', controller.readAll);
 
 /**
  * @openapi
+ * /restaurants/deleted:
+ *   get:
+ *     summary: Lists all deleted restaurants
+ *     tags: [Restaurants]
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Restaurant'
+ */
+router.get('/deleted', authenticate, requireRole('admin'),controller.readAllDeleted);
+
+/**
+ * @openapi
  * /restaurants/filter:
  *   get:
  *     summary: Gets a filtered list of restaurants
@@ -383,6 +401,31 @@ router.get('/:restaurant_id', controller.readRestaurant);
 
 /**
  * @openapi
+ * /restaurants/{restaurantId}/deleted:
+ *   get:
+ *     summary: Gets a deleted restaurant by ID
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Restaurant'
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/deleted', authenticate, requireRole('admin'),controller.readDeletedRestaurant);
+
+/**
+ * @openapi
  * /restaurants/{restaurant_id}/full:
  *   get:
  *     summary: Gets a restaurant with all populated fields thought for the backoffice
@@ -405,6 +448,31 @@ router.get('/:restaurant_id', controller.readRestaurant);
  *         description: Restaurant not found
  */
 router.get('/:restaurant_id/full', authenticate, requireRole('owner', 'admin', 'staff'), requireRestaurantAccess('restaurant_id'), controller.getRestaurantFull);
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/full/deleted:
+ *   get:
+ *     summary: Gets a deleted restaurant with all populated fields
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant's ObjectId
+ *     responses:
+ *       200:
+ *         description: Restaurant with populated relations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Restaurant'
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/full/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantFull);
 
 /**
  * @openapi
@@ -766,6 +834,26 @@ router.get('/:restaurant_id/badges', controller.getBadges);
 
 /**
  * @openapi
+ * /restaurants/{restaurantId}/badges/deleted:
+ *   get:
+ *     summary: Gets all badges of a deleted restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of badges
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/badges/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantBadges);
+
+/**
+ * @openapi
  * /restaurants/{restaurant_id}/statistics:
  *   get:
  *     summary: Gets the statistics of a restaurant
@@ -782,8 +870,30 @@ router.get('/:restaurant_id/badges', controller.getBadges);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/statistics', authenticate, requireRole('admin', 'owner'),
-    requireRestaurantAccess('restaurant_id'), controller.getStatistics);
+router.get(
+    '/:restaurant_id/statistics', authenticate, requireRole('admin', 'owner'),
+    requireRestaurantAccess('restaurant_id'), controller.getStatistics
+);
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/statistics/deleted:
+ *   get:
+ *     summary: Gets the statistics of a deleted restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted restaurant statistics
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/statistics/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantStatistics);
 
 /**
  * @openapi
@@ -807,6 +917,27 @@ router.get('/:restaurant_id/employees', authenticate, requireRole('admin', 'owne
     requireRestaurantAccess('restaurant_id'),
     controller.getEmployees
 );
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/employees/deleted:
+ *   get:
+ *     summary: Gets the employees of a deleted restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted restaurant employees
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/employees/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantEmployees);
+
 /**
  * @openapi
  * /restaurants/{restaurant_id}/dishes:
@@ -826,6 +957,26 @@ router.get('/:restaurant_id/employees', authenticate, requireRole('admin', 'owne
  *         description: Restaurant not found
  */
 router.get('/:restaurant_id/dishes', controller.getDishes);
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/dishes/deleted:
+ *   get:
+ *     summary: Gets the dishes of a deleted restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted restaurant dishes
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/dishes/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantDishes);
 
 /**
  * @openapi
@@ -869,6 +1020,26 @@ router.get('/:restaurant_id/rewards', controller.getRewards);
 
 /**
  * @openapi
+ * /restaurants/{restaurantId}/rewards/deleted:
+ *   get:
+ *     summary: Gets the rewards of a deleted restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted restaurant rewards
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/rewards/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantRewards);
+
+/**
+ * @openapi
  * /restaurants/{restaurant_id}/visits:
  *   get:
  *     summary: Gets the dishes of a restaurant
@@ -892,6 +1063,26 @@ router.get('/:restaurant_id/visits', authenticate, requireRole('admin', 'owner',
 
 /**
  * @openapi
+ * /restaurants/{restaurantId}/visits/deleted:
+ *   get:
+ *     summary: Gets the visits of a deleted restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted restaurant visits
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/visits/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantVisits);
+
+/**
+ * @openapi
  * /restaurants/{restaurant_id}/reviews:
  *   get:
  *     summary: Gets the dishes of a restaurant
@@ -908,6 +1099,26 @@ router.get('/:restaurant_id/visits', authenticate, requireRole('admin', 'owner',
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/reviews',    controller.getReviews);
+router.get('/:restaurant_id/reviews', controller.getReviews);
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/reviews/deleted:
+ *   get:
+ *     summary: Gets the reviews of a deleted restaurant
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted restaurant reviews
+ *       404:
+ *         description: Deleted restaurant not found
+ */
+router.get('/:restaurantId/reviews/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantReviews);
 
 export default router;
