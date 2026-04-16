@@ -11,6 +11,7 @@ import { IRewardRedemption } from '../models/rewardRedemption';
 import { IStatistics } from '../models/statistics';
 import { IVisit } from '../models/visit';
 import { IDish } from '../models/dish';
+import { IDishRating } from '../models/dishRating';
 
 import Logging from '../library/logging';
 
@@ -365,5 +366,18 @@ export const Schemas = {
         })
     },
 
-    
+
+    dishRating: {
+        create: Joi.object<IDishRating>({
+            customer_id: objectId.required(),
+            dish_id:     objectId.required(),
+            rating:      Joi.number().min(0).max(10).required(),
+            comment:     Joi.string().trim().allow(''),
+        }),
+        update: Joi.object<IDishRating>({
+            rating:  Joi.number().min(0).max(10),
+            comment: Joi.string().trim().allow(''),
+        }),
+    },
+
 }
