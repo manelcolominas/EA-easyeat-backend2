@@ -60,17 +60,10 @@ export interface ICustomerReviewListResponse {
 
 const normalizeDishRatings = (review: Partial<IReview>): NormalizedDishRating[] => {
   if (Array.isArray(review.dishRatings) && review.dishRatings.length > 0) {
-    return review.dishRatings.map((dishRating) => ({
-      dish_id: new mongoose.Types.ObjectId(dishRating.dish_id),
-      rating: dishRating.rating
+    return review.dishRatings.map((item) => ({
+      dish_id: new mongoose.Types.ObjectId(item.dish_id),
+      rating: item.rating
     }));
-  }
-
-  if (review.dish_id && review.dishRating !== undefined && review.dishRating !== null) {
-    return [{
-      dish_id: new mongoose.Types.ObjectId(review.dish_id),
-      rating: review.dishRating
-    }];
   }
 
   return [];
@@ -81,15 +74,15 @@ const getRestaurantDishRatings = async (restaurantId: mongoose.Types.ObjectId): 
     restaurant_id: restaurantId,
     ...ACTIVE_REVIEW_FILTER
   })
-    .select('dishRatings dish_id dishRating createdAt')
+    .select('dishRatings createdAt')
     .lean<Partial<IReview>[]>();
 
   return reviews.flatMap((review) => {
     const createdAt = review.createdAt ?? new Date(0);
 
-    return normalizeDishRatings(review).map((dishRating) => ({
-      dishId: String(dishRating.dish_id),
-      rating: dishRating.rating,
+    return normalizeDishRatings(review).map((item) => ({
+      dishId: String(item.dish_id),
+      rating: item.rating,
       createdAt
     }));
   });
@@ -214,7 +207,7 @@ const createReview = async (data: Partial<IReview>): Promise<IReview> => {
       customer_id: customerId,
       ...ACTIVE_REVIEW_FILTER
     })
-      .select('dishRatings dish_id dishRating')
+      .select('dishRatings')
       .lean<Partial<IReview>[]>();
 
     const alreadyRatedDishIds = new Set(
@@ -261,8 +254,6 @@ const createReview = async (data: Partial<IReview>): Promise<IReview> => {
 
   if (hasDishRatings) {
     reviewPayload.dishRatings = normalizedRatings;
-    reviewPayload.dish_id = normalizedRatings[0].dish_id;
-    reviewPayload.dishRating = normalizedRatings[0].rating;
   }
 
   const review = new ReviewModel(reviewPayload);
@@ -307,8 +298,6 @@ const updateReview = async (review_id: string, data: Partial<IReview>): Promise<
   delete data._id;
   delete data.customer_id;
   delete data.restaurant_id;
-  delete data.dish_id;
-  delete data.dishRating;
   delete data.dishRatings;
 
   const updated = await ReviewModel.findOneAndUpdate(
