@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import ReviewService from '../services/review';
 
-// Crear review
+// Create review
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const savedReview = await ReviewService.createReview(req.body);
@@ -12,7 +12,7 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
-// Obtener una review por ID
+// Obtain a review by ID
 const readReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.getReview(req.params.reviewId);
@@ -26,7 +26,20 @@ const readReview = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-// Obtener todas las reviews
+const readDeletedReview = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const review = await ReviewService.getDeletedReview(req.params.review_id);
+
+        return review
+            ? res.status(200).json(review)
+            : res.status(404).json({ message: 'Review not found' });
+
+    } catch (error) {
+        return next(error);
+    }
+};
+
+// Obtain all reviews
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const reviews = await ReviewService.getAllReviews();
@@ -37,7 +50,17 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-// Actualizar review
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const reviews = await ReviewService.getAllDeletedReviews();
+        return res.status(200).json(reviews);
+
+    } catch (error) {
+        return next(error);
+    }
+};
+
+// Update review
 const updateReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const updatedReview = await ReviewService.updateReview(
@@ -54,10 +77,10 @@ const updateReview = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
-// Eliminar review
-const deleteReview = async (req: Request, res: Response, next: NextFunction) => {
+// Delete review
+const softDeleteReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const deleted = await ReviewService.deleteReview(req.params.reviewId);
+        const deleted = await ReviewService.softDeleteReview(req.params.review_id);
 
         return deleted
             ? res.status(200).json({ message: 'Review deleted' })
@@ -68,7 +91,37 @@ const deleteReview = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
-// Obtener reviews por restaurante
+const restoreReview = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restored = await ReviewService.restoreReview(req.params.review_id);
+
+        return restored
+            ? res.status(200).json({ message: 'Review restored' })
+            : res.status(404).json({ message: 'Review not found' });
+
+    } catch (error) {
+        return next(error);
+    }
+};
+
+const hardDeleteReview = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+<<<<<<< dishRating
+        const deleted = await ReviewService.deleteReview(req.params.reviewId);
+=======
+        const deleted = await ReviewService.hardDeleteReview(req.params.review_id);
+>>>>>>> develop2
+
+        return deleted
+            ? res.status(200).json({ message: 'Review deleted' })
+            : res.status(404).json({ message: 'Review not found' });
+
+    } catch (error) {
+        return next(error);
+    }
+};
+
+// Obtain reviews by restaurant
 const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const reviews = await ReviewService.getReviewsByRestaurant(req.params.restaurantId);
@@ -79,7 +132,17 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-// Obtener reviews por cliente
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const reviews = await ReviewService.getDeletedReviewsByRestaurant(req.params.restaurant_id);
+        return res.status(200).json(reviews);
+
+    } catch (error) {
+        return next(error);
+    }
+};
+
+// Obtain reviews by customer
 const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { customerId } = req.params;
@@ -104,7 +167,31 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-// Dar like a una review
+const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customer_id } = req.params;
+
+        const limit = Number(req.query.limit) || 5;
+        const skip = Number(req.query.skip) || 0;
+        const minGlobalRating = req.query.minglobalRating !== undefined ? Number(req.query.minglobalRating) : undefined;
+        const sortByLikes = req.query.sortByLikes === 'true';
+
+        const result = await ReviewService.getDeletedReviewsByCustomer(
+            customer_id,
+            limit,
+            skip,
+            minGlobalRating,
+            sortByLikes
+        );
+
+        return res.status(200).json(result);
+
+    } catch (error) {
+        return next(error);
+    }
+};
+
+
 const likeReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.likeReview(req.params.reviewId);
@@ -121,10 +208,23 @@ const likeReview = async (req: Request, res: Response, next: NextFunction) => {
 export default {
     createReview,
     readReview,
+    readDeletedReview,
     readAll,
+    readAllDeleted,
     updateReview,
-    deleteReview,
+    softDeleteReview,
+    restoreReview,
+    hardDeleteReview,
     readByRestaurant,
+    readDeletedByRestaurant,
     readByCustomer,
+<<<<<<< dishRating
     likeReview
 };
+=======
+    readDeletedByCustomer,
+    likeReview,
+    getRestaurantTopDish,
+    getRestaurantDishesWithRatings
+};
+>>>>>>> develop2

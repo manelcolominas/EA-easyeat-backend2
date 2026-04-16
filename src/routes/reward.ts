@@ -95,10 +95,34 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/',authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
+router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
     ValidateJoi(Schemas.reward.create),
     rewardController.createReward
 );
+
+/**
+ * @openapi
+ * /rewards:
+ *   get:
+ *     summary: Lists all rewards
+ *     tags: [Rewards]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', controller.readAll);
+
+/**
+ * @openapi
+ * /rewards/deleted:
+ *   get:
+ *     summary: Lists all deleted rewards
+ *     tags: [Rewards]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
 /**
  * @openapi
@@ -123,15 +147,24 @@ router.get('/:reward_id', controller.readReward);
 
 /**
  * @openapi
- * /rewards:
+ * /rewards/{reward_id}/deleted:
  *   get:
- *     summary: Lists all rewards
+ *     summary: Gets a deleted reward by ID
  *     tags: [Rewards]
+ *     parameters:
+ *       - in: path
+ *         name: reward_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The reward's ObjectId
  *     responses:
  *       200:
  *         description: OK
+ *       404:
+ *         description: Not found
  */
-router.get('/', controller.readAll);
+router.get('/:reward_id/deleted', authenticate, requireRole('admin'), controller.readDeletedReward);
 
 /**
  * @openapi
@@ -164,9 +197,9 @@ router.put('/:reward_id', authenticate, requireRole('admin', 'owner'), requireRe
 
 /**
  * @openapi
- * /rewards/{reward_id}:
+ * /rewards/{reward_id}/soft:
  *   delete:
- *     summary: Deletes a reward by ID
+ *     summary: Soft deletes a reward by ID
  *     tags: [Rewards]
  *     parameters:
  *       - in: path
@@ -181,6 +214,48 @@ router.put('/:reward_id', authenticate, requireRole('admin', 'owner'), requireRe
  *       404:
  *         description: Not found
  */
-router.delete('/:reward_id',authenticate, requireRole('admin', 'owner'), requireSelfOrAdmin('restaurant_id'), controller.deleteReward);
+router.delete('/:reward_id/soft', authenticate, requireRole('admin', 'owner'), requireSelfOrAdmin('restaurant_id'), controller.softDeleteReward);
+
+/**
+ * @openapi
+ * /rewards/{reward_id}/restore:
+ *   patch:
+ *     summary: Restores a deleted reward by ID
+ *     tags: [Rewards]
+ *     parameters:
+ *       - in: path
+ *         name: reward_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The reward's ObjectId
+ *     responses:
+ *       201:
+ *         description: Restored
+ *       404:
+ *         description: Not found
+ */
+router.patch('/:reward_id/restore', authenticate, requireRole('admin'), controller.restoreReward);
+
+/**
+ * @openapi
+ * /rewards/{reward_id}/hard:
+ *   delete:
+ *     summary: Hard deletes a reward by ID
+ *     tags: [Rewards]
+ *     parameters:
+ *       - in: path
+ *         name: reward_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The reward's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not found
+ */
+router.delete('/:reward_id/hard', authenticate, requireRole('admin'), controller.hardDeleteReward);
 
 export default router;

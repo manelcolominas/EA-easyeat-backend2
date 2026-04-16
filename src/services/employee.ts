@@ -23,8 +23,16 @@ const getEmployee = async (employee_id: string) => {
     return await EmployeeModel.findById(employee_id);
 };
 
+const getDeletedEmployee = async (employee_id: string) => {
+    return await EmployeeModel.findOne({ _id: employee_id, isActive: false }).lean();
+};
+
 const getAllEmployees = async (): Promise<IEmployee[]> => {
     return await EmployeeModel.find();
+};
+
+const getAllDeletedEmployees = async (): Promise<IEmployee[]> => {
+    return await EmployeeModel.find({ isActive: false }).lean();
 };
 
 const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => {
@@ -38,7 +46,15 @@ const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => 
     return null;
 };
 
-const deleteEmployee = async (employee_id: string) => {
+const softDeleteEmployee = async (employee_id: string) => {
+    return await EmployeeModel.findByIdAndUpdate(employee_id, { isActive: false }, { new: true }).lean();
+};
+
+const restoreEmployee = async (employee_id: string) => {
+    return await EmployeeModel.findByIdAndUpdate(employee_id, { isActive: true }, { new: true }).lean();
+};
+
+const hardDeleteEmployee = async (employee_id: string) => {
     const deletedEmployee = await EmployeeModel.findByIdAndDelete(employee_id);
 
     if (deletedEmployee && deletedEmployee.restaurant_id) {
@@ -50,4 +66,14 @@ const deleteEmployee = async (employee_id: string) => {
     return deletedEmployee;
 };
 
-export default { createEmployee, getEmployee, getAllEmployees, updateEmployee, deleteEmployee };
+export default {
+    createEmployee,
+    getEmployee,
+    getDeletedEmployee,
+    getAllEmployees,
+    getAllDeletedEmployees,
+    updateEmployee,
+    softDeleteEmployee,
+    restoreEmployee,
+    hardDeleteEmployee,
+};

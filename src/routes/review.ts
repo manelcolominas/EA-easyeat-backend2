@@ -112,8 +112,34 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  *       200:
  *         description: List of reviews
  */
-router.get('/', authenticate, requireRole('admin'), controller.readAll);
+router.get(
+  '/',
+  authenticate,
+  requireRole('admin'),
+  controller.readAll
+);
 
+/**
+ * @openapi
+ * /reviews/deleted:
+ *   get:
+ *     summary: Lists all deleted reviews
+ *     tags: [Reviews]
+ *     responses:
+ *       200:
+ *         description: List of deleted reviews
+ */
+router.get(
+  '/deleted',
+  authenticate,
+  requireRole('admin'),
+  controller.readAllDeleted
+);
+
+
+// ========================
+// GET BY RESTAURANT
+// ========================
 /**
  * @openapi
  * /reviews/restaurant/{restaurant_id}:
@@ -130,7 +156,38 @@ router.get('/', authenticate, requireRole('admin'), controller.readAll);
  *       200:
  *         description: List of reviews
  */
-router.get('/restaurant/:restaurant_id', controller.readByRestaurant);
+router.get(
+  '/restaurant/:restaurant_id',
+  controller.readByRestaurant
+);
+
+
+/**
+ * @openapi
+ * /reviews/restaurant/{restaurant_id}/deleted:
+ *   get:
+ *     summary: Get deleted reviews by restaurant
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of deleted reviews
+ */
+router.get(
+  '/restaurant/:restaurant_id/deleted',
+  authenticate,
+  requireRole('admin'),
+  controller.readDeletedByRestaurant
+);
+
+// ========================
+// GET BY CUSTOMER
+// ========================
 
 /**
  * @openapi
@@ -164,8 +221,55 @@ router.get('/restaurant/:restaurant_id', controller.readByRestaurant);
  *       200:
  *         description: List of reviews
  */
-router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'),controller.readByCustomer);
+router.get(
+  '/customer/:customer_id',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  controller.readByCustomer
+);
 
+/**
+ * @openapi
+ * /reviews/customer/{customer_id}/deleted:
+ *   get:
+ *     summary: Get deleted reviews by customer
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: minglobalRating
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: sortByLikes
+ *         schema:
+ *           type: boolean
+ *     responses:
+ *       200:
+ *         description: List of deleted reviews
+ */
+router.get(
+  '/customer/:customer_id/deleted',
+  authenticate,
+  requireRole('admin'),
+  controller.readDeletedByCustomer
+);
+
+// ========================
+// GET ONE
+// ========================
 /**
  * @openapi
  * /reviews/{review_id}:
@@ -184,7 +288,39 @@ router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_
  *       404:
  *         description: Not found
  */
-router.get('/:review_id', controller.readReview);
+router.get(
+  '/:review_id',
+  controller.readReview
+);
+
+/**
+ * @openapi
+ * /reviews/{review_id}/deleted:
+ *   get:
+ *     summary: Get deleted review by ID
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: review_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review found
+ *       404:
+ *         description: Not found
+ */
+router.get(
+  '/:review_id/deleted',
+  authenticate,
+  requireRole('admin'),
+  controller.readDeletedReview
+);
+
+// ========================
+// UPDATE
+// ========================
 
 /**
  * @openapi
@@ -204,11 +340,21 @@ router.get('/:review_id', controller.readReview);
  *       404:
  *         description: Not found
  */
-router.put('/:review_id', authenticate, requireRole('customer', 'admin'),ValidateJoi(Schemas.review.update), controller.updateReview);
+router.put(
+  '/:review_id',
+  authenticate,
+  requireRole('customer', 'admin'),
+  ValidateJoi(Schemas.review.update),
+  controller.updateReview
+);
+
+// ========================
+// DELETE
+// ========================
 
 /**
  * @openapi
- * /reviews/{review_id}:
+ * /reviews/{review_id}/soft:
  *   delete:
  *     summary: Delete review
  *     tags: [Reviews]
@@ -224,13 +370,18 @@ router.put('/:review_id', authenticate, requireRole('customer', 'admin'),Validat
  *       404:
  *         description: Not found
  */
-router.delete('/:review_id', authenticate, requireRole('customer', 'admin'), controller.deleteReview);
+router.delete(
+  '/:review_id/soft',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  controller.softDeleteReview
+);
 
 /**
  * @openapi
- * /reviews/{review_id}/like:
- *   post:
- *     summary: Add like to review
+ * /reviews/{review_id}/restore:
+ *   patch:
+ *     summary: Restore review
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
@@ -240,10 +391,56 @@ router.delete('/:review_id', authenticate, requireRole('customer', 'admin'), con
  *           type: string
  *     responses:
  *       200:
- *         description: Like added
+ *         description: Restored
  *       404:
  *         description: Not found
  */
-router.post('/:review_id/like', authenticate, requireRole('customer', 'admin'), controller.likeReview);
+router.patch(
+  '/:review_id/restore',
+  authenticate,
+  requireRole('admin'),
+  controller.restoreReview
+);
+
+/**
+ * @openapi
+ * /reviews/{review_id}/hard:
+ *   delete:
+ *     summary: Hard delete review
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: review_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted
+ *       404:
+ *         description: Not found
+ */
+router.delete(
+  '/:review_id/hard',
+  authenticate,
+  requireRole('admin'),
+  controller.hardDeleteReview
+);
+
+// ========================
+// TOP DISH !!!FALTA EL SWAGGER
+// ========================
+router.get(
+  '/restaurant/:restaurant_id/top-dish',
+  controller.getRestaurantTopDish
+);
+
+// ========================
+// ALL DISH RATINGS  !!! FALTA EL SWAGGER
+// ========================
+router.get(
+  '/restaurant/:restaurant_id/dishes',
+  controller.getRestaurantDishesWithRatings
+);
 
 export default router;

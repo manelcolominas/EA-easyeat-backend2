@@ -70,6 +70,30 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.badge.c
 
 /**
  * @openapi
+ * /badges:
+ *   get:
+ *     summary: Lists all badges
+ *     tags: [Badges]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', controller.readAll);
+
+/**
+ * @openapi
+ * /badges/deleted:
+ *   get:
+ *     summary: Lists all deleted badges
+ *     tags: [Badges]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+/**
+ * @openapi
  * /badges/{badge_id}:
  *   get:
  *     summary: Gets a badge by ID
@@ -91,15 +115,24 @@ router.get('/:badge_id', controller.readBadge);
 
 /**
  * @openapi
- * /badges:
+ * /badges/{badge_id}/deleted:
  *   get:
- *     summary: Lists all badges
+ *     summary: Gets a deleted badge by ID
  *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: badge_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The badge's ObjectId
  *     responses:
  *       200:
  *         description: OK
+ *       404:
+ *         description: Not found
  */
-router.get('/', controller.readAll);
+router.get('/:badge_id/deleted', authenticate, requireRole('admin'), controller.readDeletedBadge);
 
 /**
  * @openapi
@@ -128,13 +161,13 @@ router.get('/', controller.readAll);
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:badge_id', authenticate, requireRole('admin'),ValidateJoi(Schemas.badge.update), controller.updateBadge);
+router.put('/:badge_id', authenticate, requireRole('admin'), ValidateJoi(Schemas.badge.update), controller.updateBadge);
 
 /**
  * @openapi
- * /badges/{badge_id}:
+ * /badges/{badge_id}/soft:
  *   delete:
- *     summary: Deletes a badge by ID
+ *     summary: Soft deletes a badge by ID
  *     tags: [Badges]
  *     parameters:
  *       - in: path
@@ -149,7 +182,49 @@ router.put('/:badge_id', authenticate, requireRole('admin'),ValidateJoi(Schemas.
  *       404:
  *         description: Not found
  */
-router.delete('/:badge_id', authenticate, requireRole('admin'), controller.deleteBadge);
+router.delete('/:badge_id/soft', authenticate, requireRole('admin'), controller.softDeleteBadge);
+
+/**
+ * @openapi
+ * /badges/{badge_id}/restore:
+ *   patch:
+ *     summary: Restores a badge by ID
+ *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: badge_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The badge's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not found
+ */
+router.patch('/:badge_id/restore', authenticate, requireRole('admin'), controller.restoreBadge);
+
+/**
+ * @openapi
+ * /badges/{badge_id}/hard:
+ *   delete:
+ *     summary: Permanently deletes a badge by ID
+ *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: badge_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The badge's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not found
+ */
+router.delete('/:badge_id/hard', authenticate, requireRole('admin'), controller.hardDeleteBadge);
 
 /**
  * @openapi

@@ -99,6 +99,18 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.statist
 
 /**
  * @openapi
+ * /statistics:
+ *   get:
+ *     summary: Lists all statistics records
+ *     tags: [Statistics]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
+
+/**
+ * @openapi
  * /statistics/{statistics_id}:
  *   get:
  *     summary: Gets a statistics record by ID
@@ -117,18 +129,6 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.statist
  *         description: Not found
  */
 router.get('/:statistics_id', authenticate, requireRole('admin', 'owner'), controller.readStatistics);
-
-/**
- * @openapi
- * /statistics:
- *   get:
- *     summary: Lists all statistics records
- *     tags: [Statistics]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi

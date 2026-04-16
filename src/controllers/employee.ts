@@ -20,9 +20,28 @@ const readEmployee = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
+const readDeletedEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    const { employee_id } = req.params;
+    try {
+        const employee = await EmployeeService.getDeletedEmployee(employee_id);
+        return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employees = await EmployeeService.getAllEmployees();
+        return res.status(200).json(employees);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employees = await EmployeeService.getAllDeletedEmployees();
         return res.status(200).json(employees);
     } catch (error) {
         return res.status(500).json({ error });
@@ -39,14 +58,44 @@ const updateEmployee = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-const deleteEmployee = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteEmployee = async (req: Request, res: Response, next: NextFunction) => {
     const { employee_id } = req.params;
     try {
-        const employee = await EmployeeService.deleteEmployee(employee_id);
+        const employee = await EmployeeService.softDeleteEmployee(employee_id);
         return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
-export default { createEmployee, readEmployee, readAll, updateEmployee, deleteEmployee };
+const restoreEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    const { employee_id } = req.params;
+    try {
+        const employee = await EmployeeService.restoreEmployee(employee_id);
+        return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const hardDeleteEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    const { employee_id } = req.params;
+    try {
+        const employee = await EmployeeService.hardDeleteEmployee(employee_id);
+        return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+export default {
+    createEmployee,
+    readEmployee,
+    readDeletedEmployee,
+    readAll,
+    readAllDeleted,
+    updateEmployee,
+    softDeleteEmployee,
+    restoreEmployee,
+    hardDeleteEmployee
+};

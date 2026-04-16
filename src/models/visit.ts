@@ -3,13 +3,13 @@ import { Schema, model, Types, Query, Document, Model } from 'mongoose';
 // ─── 1. Interface ─────────────────────────────────────────────────────────────
 
 export interface IVisit {
-    _id?:          Types.ObjectId;
-    customer_id:   Types.ObjectId;
+    _id?: Types.ObjectId;
+    customer_id: Types.ObjectId;
     restaurant_id: Types.ObjectId;
-    date:          Date;
+    date: Date;
     pointsEarned?: number;
-    billAmount?:   number;
-    deletedAt:     Date | null;
+    billAmount?: number;
+    deletedAt?: Date | null;
 }
 
 // ─── 2. Query helpers ─────────────────────────────────────────────────────────
@@ -26,27 +26,29 @@ export type VisitModelType = Model<IVisit, VisitQueryHelpers>;
 
 const visitSchema = new Schema<IVisit, VisitModelType, {}, VisitQueryHelpers>(
     {
-        customer_id: { type: Schema.Types.ObjectId, ref: 'Customer',
+        customer_id: {
+            type: Schema.Types.ObjectId, ref: 'Customer',
             required: [true, 'customer_id is required'],
         },
-        restaurant_id: { type: Schema.Types.ObjectId, ref: 'Restaurant',
+        restaurant_id: {
+            type: Schema.Types.ObjectId, ref: 'Restaurant',
             required: [true, 'restaurant_id is required'],
         },
-        date: { type: Date, default:  Date.now, required: true },
+        date: { type: Date, default: Date.now, required: true },
         pointsEarned: { type: Number, min: [0, 'pointsEarned must be ≥ 0'], default: 0 },
         billAmount: { type: Number, min: [0, 'billAmount must be ≥ 0'], default: 0 },
         deletedAt: { type: Date, default: null },
     },
     {
-        timestamps:  true,
-        versionKey:  false, // ✅ del incoming
+        timestamps: true,
+        versionKey: false,
     },
 );
 
 // ─── 5. Indexes ───────────────────────────────────────────────────────────────
 
-visitSchema.index({ date: -1 });                              // ✅ del incoming, acelera sort
-visitSchema.index({ customer_id: 1, restaurant_id: 1, deletedAt: 1 }); // ✅ del doc 14
+visitSchema.index({ date: -1 });
+visitSchema.index({ customer_id: 1, restaurant_id: 1, deletedAt: 1 });
 
 // ─── 6. Query helper — .active() ─────────────────────────────────────────────
 
@@ -58,7 +60,7 @@ visitSchema.query.active = function (this: VisitModelType) {
 
 visitSchema.pre('save', async function (next) {
     try {
-        const { CustomerModel }   = await import('./customer');
+        const { CustomerModel } = await import('./customer');
         const { RestaurantModel } = await import('./restaurant');
 
         if (this.isModified('customer_id') || this.isNew) {

@@ -13,7 +13,8 @@ export interface IBadge {
 const badgeSchema = new Schema<IBadge>({
     title: { type: String, required: true },
     description: { type: String, required: true },
-    type: { type: String, required: true }
+    type: { type: String, required: true },
+    deletedAt: { type: Date, default: null, index: true },
 }, { timestamps: true });
 
 // Model

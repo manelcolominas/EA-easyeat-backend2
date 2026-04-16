@@ -177,39 +177,6 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
     controller.createDish
 );
 
-// ─── Read one ─────────────────────────────────────────────────────────────────
-
-/**
- * @openapi
- * /dishes/{dish_id}:
- *   get:
- *     summary: Get a dish by ID
- *     description: Returns a single dish. Publicly accessible.
- *     tags: [Dishes]
- *     parameters:
- *       - $ref: '#/components/parameters/dish_id'
- *     responses:
- *       200:
- *         description: Dish found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DishResponse'
- *       400:
- *         description: Invalid dish ID format
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       404:
- *         description: Dish not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.get('/:dish_id', controller.readDish);
-
 // ─── Read all ─────────────────────────────────────────────────────────────────
 
 /**
@@ -265,6 +232,104 @@ router.get('/:dish_id', controller.readDish);
  *                 $ref: '#/components/schemas/DishResponse'
  */
 router.get('/', controller.readAll);
+
+/**
+ * @openapi
+ * /dishes/deleted:
+ *   get:
+ *     summary: List all deleted dishes
+ *     description: Returns all deleted dishes across all restaurants.
+ *     tags: [Dishes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Max number of results to return
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *     responses:
+ *       200:
+ *         description: List of deleted dishes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/DishResponse'
+ */
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+// ─── Read one ─────────────────────────────────────────────────────────────────
+
+/**
+ * @openapi
+ * /dishes/{dish_id}:
+ *   get:
+ *     summary: Get a dish by ID
+ *     description: Returns a single dish. Publicly accessible.
+ *     tags: [Dishes]
+ *     parameters:
+ *       - $ref: '#/components/parameters/dish_id'
+ *     responses:
+ *       200:
+ *         description: Dish found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DishResponse'
+ *       400:
+ *         description: Invalid dish ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Dish not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/:dish_id', controller.readDish);
+
+/**
+ * @openapi
+ * /dishes/{dish_id}/deleted:
+ *   get:
+ *     summary: Get a deleted dish by ID
+ *     description: Returns a single deleted dish. Publicly accessible.
+ *     tags: [Dishes]
+ *     parameters:
+ *       - $ref: '#/components/parameters/dish_id'
+ *     responses:
+ *       200:
+ *         description: Dish found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DishResponse'
+ *       400:
+ *         description: Invalid dish ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Dish not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/:dish_id/deleted', authenticate, requireRole('admin'), controller.readDeletedDish);
 
 // ─── Full update ──────────────────────────────────────────────────────────────
 
@@ -324,10 +389,10 @@ router.put('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRest
 
 /**
  * @openapi
- * /dishes/{dish_id}:
+ * /dishes/{dish_id}/soft:
  *   delete:
- *     summary: Delete a dish by ID
- *     description: Permanently removes a dish. Requires admin or owner role with access to the target restaurant.
+ *     summary: Soft delete a dish by ID
+ *     description: Soft deletes a dish (marks as inactive). Requires admin or owner role with access to the target restaurant.
  *     tags: [Dishes]
  *     security:
  *       - bearerAuth: []
@@ -335,7 +400,7 @@ router.put('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRest
  *       - $ref: '#/components/parameters/dish_id'
  *     responses:
  *       200:
- *         description: Dish deleted successfully
+ *         description: Dish soft deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -343,7 +408,7 @@ router.put('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRest
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Dish deleted successfully
+ *                   example: Dish soft deleted successfully
  *       400:
  *         description: Invalid dish ID format
  *         content:
@@ -361,8 +426,90 @@ router.put('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRest
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
-    controller.deleteDish
+router.delete('/:dish_id/soft', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
+    controller.softDeleteDish
 );
+
+/**
+ * @openapi
+ * /dishes/{dish_id}/restore:
+ *   patch:
+ *     summary: Restore a soft-deleted dish by ID
+ *     description: Restores a previously soft-deleted dish (marks as active). Requires admin or owner role with access to the target restaurant.
+ *     tags: [Dishes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/dish_id'
+ *     responses:
+ *       200:
+ *         description: Dish restored successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Dish restored successfully
+ *       400:
+ *         description: Invalid dish ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized – missing or invalid token
+ *       403:
+ *         description: Forbidden – insufficient role or no restaurant access
+ *       404:
+ *         description: Dish not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.patch('/:dish_id/restore', authenticate, requireRole('admin'), controller.restoreDish);
+
+/**
+ * @openapi
+ * /dishes/{dish_id}/hard:
+ *   delete:
+ *     summary: Hard delete a dish by ID
+ *     description: Permanently removes a soft-deleted dish from the database. Requires admin role.
+ *     tags: [Dishes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/dish_id'
+ *     responses:
+ *       200:
+ *         description: Dish permanently deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Dish permanently deleted successfully
+ *       400:
+ *         description: Invalid dish ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized – missing or invalid token
+ *       403:
+ *         description: Forbidden – insufficient role (not admin)
+ *       404:
+ *         description: Dish not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.delete('/:dish_id/hard', authenticate, requireRole('admin'), controller.hardDeleteDish);
 
 export default router;
