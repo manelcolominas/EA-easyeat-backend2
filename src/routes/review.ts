@@ -9,7 +9,7 @@ const router = express.Router();
  * @openapi
  * tags:
  *   - name: Reviews
- *     description: CRUD endpoints for reviews (restaurant + dish ratings)
+ *     description: CRUD endpoints for reviews
  *
  * components:
  *   schemas:
@@ -36,158 +36,214 @@ const router = express.Router();
  *           type: string
  *         customer_id:
  *           type: string
+ *           description: Customer ObjectId
  *         restaurant_id:
  *           type: string
+ *           description: Restaurant ObjectId
+ *         date:
+ *           type: string
+ *           format: date
  *         globalRating:
  *           type: number
  *           example: 9
- *         dishRatings:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               dish_id:
- *                 type: string
- *               rating:
- *                 type: number
  *         ratings:
  *           $ref: '#/components/schemas/ratings'
  *         comment:
  *           type: string
+ *           example: "Amazing food!"
  *         likes:
  *           type: number
- *         images:
- *           type: array
- *           items:
- *             type: string
+ *           example: 10
  *
  *     ReviewCreateUpdate:
  *       type: object
  *       required:
  *         - customer_id
  *         - restaurant_id
- *       description: At least one of globalRating or dishRatings is required.
+ *         - globalRating
  *       properties:
  *         customer_id:
  *           type: string
  *         restaurant_id:
  *           type: string
+ *         date:
+ *           type: string
+ *           format: date
  *         globalRating:
  *           type: number
- *           minimum: 0
+ *           minimum: 1
  *           maximum: 10
- *         dishRatings:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               dish_id:
- *                 type: string
- *               rating:
- *                 type: number
  *         ratings:
  *           $ref: '#/components/schemas/ratings'
  *         comment:
  *           type: string
- *         images:
- *           type: array
- *           items:
- *             type: string
+ *         likes:
+ *           type: number
+ *           example: 10
  */
 
-// ========================
-// CREATE REVIEW (RESTAURANT + DISH)
-// ========================
 /**
  * @openapi
  * /reviews:
  *   post:
- *     summary: Creates a review (restaurant and optional dish rating)
+ *     summary: Creates a review
  *     tags: [Reviews]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ReviewCreateUpdate'
+ *     responses:
+ *       201:
+ *         description: Created
+ *       422:
+ *         description: Validation error
  */
-router.post(
-  '/',
-  authenticate,
-  requireRole('customer', 'admin'),
-  ValidateJoi(Schemas.review.create),
-  controller.createReview
-);
+router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Schemas.review.create), controller.createReview);
 
-// ========================
-// GET ALL (ADMIN)
-// ========================
-router.get(
-  '/',
-  authenticate,
-  requireRole('admin'),
-  controller.readAll
-);
+/**
+ * @openapi
+ * /reviews:
+ *   get:
+ *     summary: Lists all reviews
+ *     tags: [Reviews]
+ *     responses:
+ *       200:
+ *         description: List of reviews
+ */
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
-// ========================
-// GET BY RESTAURANT
-// ========================
+/**
+ * @openapi
+ * /reviews/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Get reviews by restaurant
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of reviews
+ */
 router.get('/restaurant/:restaurant_id', controller.readByRestaurant);
 
-// ========================
-// GET BY CUSTOMER
-// ========================
-router.get(
-  '/customer/:customer_id',
-  authenticate,
-  requireSelfOrAdmin('customer_id'),
-  controller.readByCustomer
-);
+/**
+ * @openapi
+ * /reviews/customer/{customer_id}:
+ *   get:
+ *     summary: Get reviews by customer
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: minglobalRating
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: sortByLikes
+ *         schema:
+ *           type: boolean
+ *     responses:
+ *       200:
+ *         description: List of reviews
+ */
+router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'),controller.readByCustomer);
 
-// ========================
-// GET ONE
-// ========================
+/**
+ * @openapi
+ * /reviews/{review_id}:
+ *   get:
+ *     summary: Get review by ID
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: review_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review found
+ *       404:
+ *         description: Not found
+ */
 router.get('/:review_id', controller.readReview);
 
-// ========================
-// UPDATE
-// ========================
-router.put(
-  '/:review_id',
-  authenticate,
-  requireRole('customer', 'admin'),
-  ValidateJoi(Schemas.review.update),
-  controller.updateReview
-);
+/**
+ * @openapi
+ * /reviews/{review_id}:
+ *   put:
+ *     summary: Update review
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: review_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Updated
+ *       404:
+ *         description: Not found
+ */
+router.put('/:review_id', authenticate, requireRole('customer', 'admin'),ValidateJoi(Schemas.review.update), controller.updateReview);
 
-// ========================
-// DELETE (SOFT)
-// ========================
-router.delete(
-  '/:review_id',
-  authenticate,
-  requireRole('customer', 'admin'),
-  controller.deleteReview
-);
+/**
+ * @openapi
+ * /reviews/{review_id}:
+ *   delete:
+ *     summary: Delete review
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: review_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Deleted
+ *       404:
+ *         description: Not found
+ */
+router.delete('/:review_id', authenticate, requireRole('customer', 'admin'), controller.deleteReview);
 
-// ========================
-// LIKE
-// ========================
-router.post(
-  '/:review_id/like',
-  authenticate,
-  requireRole('customer', 'admin'),
-  controller.likeReview
-);
-
-// ========================
-// TOP DISH 
-// ========================
-router.get(
-  '/restaurant/:restaurant_id/top-dish',
-  controller.getRestaurantTopDish
-);
-
-// ========================
-// ALL DISH RATINGS 
-// ========================
-router.get(
-  '/restaurant/:restaurant_id/dishes',
-  controller.getRestaurantDishesWithRatings
-);
+/**
+ * @openapi
+ * /reviews/{review_id}/like:
+ *   post:
+ *     summary: Add like to review
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: review_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Like added
+ *       404:
+ *         description: Not found
+ */
+router.post('/:review_id/like', authenticate, requireRole('customer', 'admin'), controller.likeReview);
 
 export default router;

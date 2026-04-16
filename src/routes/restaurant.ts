@@ -1,7 +1,6 @@
 import express from 'express';
 import controller from '../controllers/restaurant';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -213,7 +212,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', authenticate, requireRole('owner', 'admin'), ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
+router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestaurant);
 
 /**
  * @openapi
@@ -358,13 +357,13 @@ router.get('/filter', controller.getFiltered);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}:
+ * /restaurants/{restaurantId}:
  *   get:
  *     summary: Gets a restaurant by ID thought for the app mobile
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -379,17 +378,17 @@ router.get('/filter', controller.getFiltered);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id', controller.readRestaurant);
+router.get('/:restaurantId', controller.readRestaurant);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/full:
+ * /restaurants/{restaurantId}/full:
  *   get:
  *     summary: Gets a restaurant with all populated fields thought for the backoffice
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -404,17 +403,17 @@ router.get('/:restaurant_id', controller.readRestaurant);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/full', authenticate, requireRole('owner', 'admin', 'staff'), requireRestaurantAccess('restaurant_id'), controller.getRestaurantFull);
+router.get('/:restaurantId/full', controller.getRestaurantFull);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}:
+ * /restaurants/{restaurantId}:
  *   put:
  *     summary: Updates a restaurant by ID
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -625,7 +624,7 @@ router.get('/:restaurant_id/full', authenticate, requireRole('owner', 'admin', '
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:restaurant_id', authenticate, requireRole('owner', 'admin'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
+router.put('/:restaurantId', ValidateJoi(Schemas.restaurant.update), controller.updateRestaurant);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Lifecycle  (soft-delete / restore / hard-delete)
@@ -633,7 +632,7 @@ router.put('/:restaurant_id', authenticate, requireRole('owner', 'admin'), requi
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/soft:
+ * /restaurants/{restaurantId}/soft:
  *   delete:
  *     summary: Soft-deletes a restaurant
  *     description: >
@@ -643,7 +642,7 @@ router.put('/:restaurant_id', authenticate, requireRole('owner', 'admin'), requi
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -666,11 +665,11 @@ router.put('/:restaurant_id', authenticate, requireRole('owner', 'admin'), requi
  *       500:
  *         description: Internal server error
  */
-router.delete('/:restaurant_id/soft', authenticate, requireRole('owner', 'admin'), requireRestaurantAccess('restaurant_id'), controller.softDelete);
+router.delete('/:restaurantId/soft', controller.softDelete);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/restore:
+ * /restaurants/{restaurantId}/restore:
  *   patch:
  *     summary: Restores a soft-deleted restaurant
  *     description: >
@@ -679,7 +678,7 @@ router.delete('/:restaurant_id/soft', authenticate, requireRole('owner', 'admin'
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -702,11 +701,11 @@ router.delete('/:restaurant_id/soft', authenticate, requireRole('owner', 'admin'
  *       500:
  *         description: Internal server error
  */
-router.patch('/:restaurant_id/restore', authenticate, requireRole('admin'), controller.restore);
+router.patch('/:restaurantId/restore', controller.restore);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/hard:
+ * /restaurants/{restaurantId}/hard:
  *   delete:
  *     summary: Permanently deletes a restaurant
  *     description: >
@@ -715,7 +714,7 @@ router.patch('/:restaurant_id/restore', authenticate, requireRole('admin'), cont
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -738,7 +737,7 @@ router.patch('/:restaurant_id/restore', authenticate, requireRole('admin'), cont
  *       500:
  *         description: Internal server error
  */
-router.delete('/:restaurant_id/hard', authenticate, requireRole('admin','owner'), requireRestaurantAccess('restaurant_id'), controller.hardDelete);
+router.delete('/:restaurantId/hard', controller.hardDelete);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Read variants
@@ -746,13 +745,13 @@ router.delete('/:restaurant_id/hard', authenticate, requireRole('admin','owner')
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/badges:
+ * /restaurants/{restaurantId}/badges:
  *   get:
  *     summary: Gets all badges of a restaurant
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -762,17 +761,17 @@ router.delete('/:restaurant_id/hard', authenticate, requireRole('admin','owner')
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/badges', controller.getBadges);
+router.get('/:restaurantId/badges', controller.getBadges);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/statistics:
+ * /restaurants/{restaurantId}/statistics:
  *   get:
  *     summary: Gets the statistics of a restaurant
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -782,18 +781,17 @@ router.get('/:restaurant_id/badges', controller.getBadges);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/statistics', authenticate, requireRole('admin', 'owner'),
-    requireRestaurantAccess('restaurant_id'), controller.getStatistics);
+router.get('/:restaurantId/statistics', controller.getStatistics);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/employees:
+ * /restaurants/{restaurantId}/employees:
  *   get:
  *     summary: Gets the employees of a restaurant
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -803,19 +801,17 @@ router.get('/:restaurant_id/statistics', authenticate, requireRole('admin', 'own
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/employees', authenticate, requireRole('admin', 'owner'),
-    requireRestaurantAccess('restaurant_id'),
-    controller.getEmployees
-);
+router.get('/:restaurantId/employees',  controller.getEmployees);
+
 /**
  * @openapi
- * /restaurants/{restaurant_id}/dishes:
+ * /restaurants/{restaurantId}/dishes:
  *   get:
  *     summary: Gets the dishes of a restaurant
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -825,17 +821,17 @@ router.get('/:restaurant_id/employees', authenticate, requireRole('admin', 'owne
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/dishes', controller.getDishes);
+router.get('/:restaurantId/dishes',     controller.getDishes);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/rewards:
+ * /restaurants/{restaurantId}/rewards:
  *   get:
  *     summary: Gets the dishes of a restaurant
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -845,37 +841,17 @@ router.get('/:restaurant_id/dishes', controller.getDishes);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/dishes/top', controller.getTopDish);
+router.get('/:restaurantId/rewards',    controller.getRewards);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/rewards:
+ * /restaurants/{restaurantId}/visits:
  *   get:
  *     summary: Gets the dishes of a restaurant
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Restaurant rewards
- *       404:
- *         description: Restaurant not found
- */
-router.get('/:restaurant_id/rewards', controller.getRewards);
-
-/**
- * @openapi
- * /restaurants/{restaurant_id}/visits:
- *   get:
- *     summary: Gets the dishes of a restaurant
- *     tags: [Restaurants]
- *     parameters:
- *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -885,20 +861,17 @@ router.get('/:restaurant_id/rewards', controller.getRewards);
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/visits', authenticate, requireRole('admin', 'owner', 'staff'),
-    requireRestaurantAccess('restaurant_id'),
-    controller.getVisits
-);
+router.get('/:restaurantId/visits',     controller.getVisits);
 
 /**
  * @openapi
- * /restaurants/{restaurant_id}/reviews:
+ * /restaurants/{restaurantId}/reviews:
  *   get:
  *     summary: Gets the dishes of a restaurant
  *     tags: [Restaurants]
  *     parameters:
  *       - in: path
- *         name: restaurant_id
+ *         name: restaurantId
  *         required: true
  *         schema:
  *           type: string
@@ -908,6 +881,6 @@ router.get('/:restaurant_id/visits', authenticate, requireRole('admin', 'owner',
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurant_id/reviews',    controller.getReviews);
+router.get('/:restaurantId/reviews',    controller.getReviews);
 
 export default router;

@@ -194,12 +194,6 @@ export const Schemas = {
             customer_id:   objectId,
             restaurant_id: objectId.required(),
             globalRating:  Joi.number().min(0).max(10),
-            dishRatings: Joi.array().items(
-                Joi.object({
-                    dish_id: objectId.required(),
-                    rating: Joi.number().min(0).max(10).required(),
-                })
-            ),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
                 staffService: Joi.number().min(0).max(10),

@@ -10,7 +10,7 @@ const router = express.Router();
  * @openapi
  * tags:
  *   - name: Statistics
- *     description: CRUD endpoints for restaurant statistics and analytics
+ *     description: CRUD endpoints for restaurant statistics
  *
  * components:
  *   schemas:
@@ -75,48 +75,8 @@ const router = express.Router();
  *           minimum: 0
  *           default: 0
  *           example: 12.5
- *
- *     RestaurantKpis:
- *       type: object
- *       properties:
- *         totalPointsGiven:
- *           type: number
- *           example: 11400
- *         loyalCustomers:
- *           type: number
- *           example: 64
- *         averagePointsPerVisit:
- *           type: number
- *           example: 98
- *
- *     VisitPerHour:
- *       type: object
- *       properties:
- *         hour:
- *           type: number
- *           example: 14
- *         total:
- *           type: number
- *           example: 12
- *
- *     RatingCategory:
- *       type: object
- *       properties:
- *         name:
- *           type: string
- *           example: "Food Quality"
- *         value:
- *           type: number
- *           example: 8.4
- *
- *     RatingsByRestaurant:
- *       type: object
- *       properties:
- *         data:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/RatingCategory'
  */
+
 /**
  * @openapi
  * /statistics:

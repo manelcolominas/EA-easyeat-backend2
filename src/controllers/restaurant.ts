@@ -191,18 +191,6 @@ const getStatistics = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
-const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const restaurantId = req.params.restaurant_id || req.params.restaurantId;
-        const topDish = await RestaurantService.getTopDishByRestaurant(restaurantId);
-        return topDish
-            ? res.status(200).json(topDish)
-            : res.status(404).json({ message: 'No rated dishes found for this restaurant.' });
-    } catch (error) {
-        return res.status(500).json({ error });
-    }
-};
-
 const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { lng, lat, radiusMeters, categories, minglobalRating, city, openNow, openAt } = req.query;
@@ -296,7 +284,6 @@ export default {
     getNearby,
     getBadges,
     getStatistics,
-    getTopDish,
     getFiltered,
     getEmployees,
     getDishes,

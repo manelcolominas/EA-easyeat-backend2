@@ -1,8 +1,6 @@
 import { profile } from 'console';
 import { RestaurantModel, IRestaurant } from '../models/restaurant';
 import { PipelineStage }               from 'mongoose';
-import mongoose from 'mongoose';
-import { DishModel, IDish } from '../models/dish';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
@@ -142,19 +140,6 @@ const getDishes = async (restaurant_id: string): Promise<IRestaurant | null> => 
         .select('dishes')
         .populate('dishes')
         .lean<IRestaurant>();
-};
-
-const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | null> => {
-    if (!mongoose.Types.ObjectId.isValid(restaurantId)) return null;
-
-    return DishModel.findOne({
-        restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-        active: true,
-        userRatingCount: { $gt: 0 },
-    })
-        .sort({ userRatingAvg: -1, userRatingCount: -1, name: 1 })
-        .select('name description section price images userRatingAvg userRatingCount')
-        .lean<IDish>();
 };
 
 const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {
@@ -327,7 +312,6 @@ export default {
     getStatistics,
     getEmployees,
     getDishes,
-    getTopDishByRestaurant,
     getRewards,
     getVisits,
     getReviews,
