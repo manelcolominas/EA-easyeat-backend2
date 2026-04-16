@@ -1,10 +1,27 @@
 import { NextFunction, Request, Response } from 'express';
 import ReviewService, { ReviewServiceError } from '../services/review';
+import { AuthRequest } from '../middleware/auth';
+import { IReview } from '../models/review';
 
 // Crear review
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const savedReview = await ReviewService.createReview(req.body);
+        const authReq = req as AuthRequest;
+        const payload: Partial<IReview> = { ...req.body };
+
+        if (!payload.customer_id && authReq.user?.id) {
+            payload.customer_id = authReq.user.id as any;
+        }
+
+        if (
+            authReq.user?.role === 'customer' &&
+            payload.customer_id &&
+            String(payload.customer_id) !== authReq.user.id
+        ) {
+            return res.status(403).json({ message: 'Customers can only create their own reviews' });
+        }
+
+        const savedReview = await ReviewService.createReview(payload);
         return res.status(201).json(savedReview);
 
     } catch (error) {

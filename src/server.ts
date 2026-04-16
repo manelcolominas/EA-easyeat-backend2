@@ -56,6 +56,7 @@ const StartServer = () => {
     /** Public Routes */
     router.use('/auth', authRoutes);
     router.get('/ping', (req, res) => res.status(200).json({ hello: 'world' }));
+    router.get('/favicon.ico', (_req, res) => res.status(204).end());
     router.use('/statistics', publicStatistics);
 
     /** Protected Routes — requireAdmin = [authenticate, requireRole('admin')] */

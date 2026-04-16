@@ -124,7 +124,7 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  *               items:
  *                 $ref: '#/components/schemas/Visit'
  */
-router.get('/', authenticate, requireRole('admin'), controller.readAll);
+router.get('/', controller.readAll);
 
 /**
  * @openapi

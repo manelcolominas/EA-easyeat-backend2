@@ -180,12 +180,16 @@ const createReview = async (data: Partial<IReview>): Promise<IReview> => {
   }
 
   const normalizedRatings = normalizeDishRatings(data);
+  const hasDishRatings = normalizedRatings.length > 0;
 
-  if (!normalizedRatings.length) {
-    throw new ReviewServiceError(400, 'At least one dish rating is required');
+  if (
+    (data.globalRating === undefined || data.globalRating === null) &&
+    !hasDishRatings
+  ) {
+    throw new ReviewServiceError(400, 'globalRating is required when no dish rating is provided');
   }
 
-  if (normalizedRatings.length > MAX_DISH_RATINGS_PER_CUSTOMER) {
+  if (hasDishRatings && normalizedRatings.length > MAX_DISH_RATINGS_PER_CUSTOMER) {
     throw new ReviewServiceError(409, `Each customer can rate up to ${MAX_DISH_RATINGS_PER_CUSTOMER} dishes`);
   }
 
@@ -200,56 +204,74 @@ const createReview = async (data: Partial<IReview>): Promise<IReview> => {
   if (!customer) throw new ReviewServiceError(404, 'Customer not found');
   if (!restaurant) throw new ReviewServiceError(404, 'Restaurant not found');
 
-  const customerReviews = await ReviewModel.find({
-    customer_id: customerId,
-    ...ACTIVE_REVIEW_FILTER
-  })
-    .select('dishRatings dish_id dishRating')
-    .lean<Partial<IReview>[]>();
+  if (hasDishRatings) {
+    const dishIdsInPayload = normalizedRatings.map((rating) => String(rating.dish_id));
+    if (new Set(dishIdsInPayload).size !== dishIdsInPayload.length) {
+      throw new ReviewServiceError(409, 'Duplicate dish_id values are not allowed in dishRatings');
+    }
 
-  const alreadyRatedDishIds = new Set(
-    customerReviews.flatMap((review) => normalizeDishRatings(review).map((rating) => String(rating.dish_id)))
-  );
+    const customerReviews = await ReviewModel.find({
+      customer_id: customerId,
+      ...ACTIVE_REVIEW_FILTER
+    })
+      .select('dishRatings dish_id dishRating')
+      .lean<Partial<IReview>[]>();
 
-  for (const rating of normalizedRatings) {
-    if (alreadyRatedDishIds.has(String(rating.dish_id))) {
-      throw new ReviewServiceError(409, 'This customer has already rated one of these dishes');
+    const alreadyRatedDishIds = new Set(
+      customerReviews.flatMap((review) => normalizeDishRatings(review).map((rating) => String(rating.dish_id)))
+    );
+
+    for (const rating of normalizedRatings) {
+      if (alreadyRatedDishIds.has(String(rating.dish_id))) {
+        throw new ReviewServiceError(409, 'This customer has already rated one of these dishes');
+      }
+    }
+
+    const totalRatingsAfterSave = alreadyRatedDishIds.size + normalizedRatings.length;
+    if (totalRatingsAfterSave > MAX_DISH_RATINGS_PER_CUSTOMER) {
+      throw new ReviewServiceError(409, `Each customer can rate up to ${MAX_DISH_RATINGS_PER_CUSTOMER} dishes`);
+    }
+
+    const dishIds = normalizedRatings.map((rating) => rating.dish_id);
+    const dishes = await DishModel.find({
+      _id: { $in: dishIds },
+      restaurant_id: restaurantId
+    })
+      .select('_id')
+      .lean();
+
+    if (dishes.length !== dishIds.length) {
+      throw new ReviewServiceError(404, 'One or more dishes were not found for this restaurant');
     }
   }
 
-  const totalRatingsAfterSave = alreadyRatedDishIds.size + normalizedRatings.length;
-  if (totalRatingsAfterSave > MAX_DISH_RATINGS_PER_CUSTOMER) {
-    throw new ReviewServiceError(409, `Each customer can rate up to ${MAX_DISH_RATINGS_PER_CUSTOMER} dishes`);
-  }
-
-  const dishIds = normalizedRatings.map((rating) => rating.dish_id);
-  const dishes = await DishModel.find({
-    _id: { $in: dishIds },
-    restaurant_id: restaurantId
-  })
-    .select('_id')
-    .lean();
-
-  if (dishes.length !== dishIds.length) {
-    throw new ReviewServiceError(404, 'One or more dishes were not found for this restaurant');
-  }
-
-  if (!data.globalRating) {
+  if ((data.globalRating === undefined || data.globalRating === null) && hasDishRatings) {
     data.globalRating = normalizedRatings[0].rating;
   }
 
-  const review = new ReviewModel({
+  const reviewPayload: Partial<IReview> = {
     ...data,
     customer_id: customerId,
-    restaurant_id: restaurantId,
-    dishRatings: normalizedRatings,
-    dish_id: normalizedRatings[0].dish_id,
-    dishRating: normalizedRatings[0].rating
-  });
+    restaurant_id: restaurantId
+  };
+
+  if (!reviewPayload.images) {
+    reviewPayload.images = [];
+  }
+
+  if (hasDishRatings) {
+    reviewPayload.dishRatings = normalizedRatings;
+    reviewPayload.dish_id = normalizedRatings[0].dish_id;
+    reviewPayload.dishRating = normalizedRatings[0].rating;
+  }
+
+  const review = new ReviewModel(reviewPayload);
 
   const savedReview = await review.save();
 
-  await recalculateDishRatingsByRestaurant(restaurantId);
+  if (hasDishRatings) {
+    await recalculateDishRatingsByRestaurant(restaurantId);
+  }
 
   return savedReview;
 };

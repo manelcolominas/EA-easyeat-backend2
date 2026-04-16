@@ -151,4 +151,27 @@ router.put('/:badge_id', authenticate, requireRole('admin'),ValidateJoi(Schemas.
  */
 router.delete('/:badge_id', authenticate, requireRole('admin'), controller.deleteBadge);
 
+/**
+ * @openapi
+ * /badges/customer/{customer_id}:
+ *   get:
+ *     summary: Gets all badges for a customer
+ *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The customer's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK - Array of badges
+ *       404:
+ *         description: Customer not found
+ *       400:
+ *         description: Invalid customer_id format
+ */
+router.get('/customer/:customer_id', controller.getBadgesByCustomer);
+
 export default router;
