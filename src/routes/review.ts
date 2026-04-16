@@ -9,7 +9,7 @@ const router = express.Router();
  * @openapi
  * tags:
  *   - name: Reviews
- *     description: CRUD endpoints for reviews (restaurant + dish ratings)
+ *     description: CRUD endpoints for reviews
  *
  * components:
  *   schemas:
@@ -36,77 +36,71 @@ const router = express.Router();
  *           type: string
  *         customer_id:
  *           type: string
+ *           description: Customer ObjectId
  *         restaurant_id:
  *           type: string
- *         dish_id:
+ *           description: Restaurant ObjectId
+ *         date:
  *           type: string
- *           description: Optional dish being rated
+ *           format: date
  *         globalRating:
  *           type: number
  *           example: 9
- *         dishRating:
- *           type: number
- *           example: 8
  *         ratings:
  *           $ref: '#/components/schemas/ratings'
  *         comment:
  *           type: string
+ *           example: "Amazing food!"
  *         likes:
  *           type: number
- *         images:
- *           type: array
- *           items:
- *             type: string
+ *           example: 10
  *
  *     ReviewCreateUpdate:
  *       type: object
  *       required:
  *         - customer_id
  *         - restaurant_id
- *       description: At least one of globalRating or dishRating is required.
- *         If dish_id is sent, dishRating is also required.
+ *         - globalRating
  *       properties:
  *         customer_id:
  *           type: string
  *         restaurant_id:
  *           type: string
- *         dish_id:
+ *         date:
  *           type: string
+ *           format: date
  *         globalRating:
  *           type: number
- *           minimum: 0
- *           maximum: 10
- *         dishRating:
- *           type: number
- *           minimum: 0
+ *           minimum: 1
  *           maximum: 10
  *         ratings:
  *           $ref: '#/components/schemas/ratings'
  *         comment:
  *           type: string
- *         images:
- *           type: array
- *           items:
- *             type: string
+ *         likes:
+ *           type: number
+ *           example: 10
  */
 
-// ========================
-// CREATE REVIEW (RESTAURANT + DISH)
-// ========================
 /**
  * @openapi
  * /reviews:
  *   post:
- *     summary: Creates a review (restaurant and optional dish rating)
+ *     summary: Creates a review
  *     tags: [Reviews]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ReviewCreateUpdate'
+ *     responses:
+ *       201:
+ *         description: Created
+ *       422:
+ *         description: Validation error
  */
-router.post(
-  '/',
-  authenticate,
-  requireRole('customer', 'admin'),
-  ValidateJoi(Schemas.review.create),
-  controller.createReview
-);
+router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Schemas.review.create), controller.createReview);
 
 /**
  * @openapi

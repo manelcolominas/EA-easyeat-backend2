@@ -92,8 +92,7 @@ const getCustomerAllPointsWallet = async (customer_id: string): Promise<IPointsW
         }
 
         // Fetch all points wallets for this customer
-        return await PointsWalletModel.find({ customer_id: customer_id })
-            .populate('restaurant_id', 'profile.name profile.location')
+        return await PointsWalletModel.find({ customer_id: customer_id }).populate('restaurant_id', 'profile.name profile.location')
             .lean();
     }
     catch (error) {

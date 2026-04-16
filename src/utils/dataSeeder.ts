@@ -17,6 +17,7 @@ import { PointsWalletModel } from '../models/pointsWallet';
 import { RewardRedemptionModel } from '../models/rewardRedemption';
 import { DishModel } from '../models/dish';
 import { AdminModel } from '../models/admin';
+import { DishRatingModel } from '../models/dishRating';
 
 const SALT_ROUNDS = 10;
 
@@ -32,7 +33,8 @@ const modelMap: { [key: string]: mongoose.Model<any> } = {
     'pointsWallets.json': PointsWalletModel,
     'rewardRedemptions.json': RewardRedemptionModel,
     'dishes.json': DishModel,
-    'admins.json': AdminModel
+    'admins.json': AdminModel,
+    'dishRatings.json': DishRatingModel
 };
 
 /**

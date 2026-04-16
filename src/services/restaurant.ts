@@ -1,8 +1,6 @@
 import { profile } from 'console';
 import { RestaurantModel, IRestaurant } from '../models/restaurant';
 import { PipelineStage }               from 'mongoose';
-import mongoose from 'mongoose';
-import { DishModel, IDish } from '../models/dish';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
@@ -193,6 +191,8 @@ const getDishes = async (restaurant_id: string): Promise<IRestaurant | null> => 
         .lean<IRestaurant>();
 };
 
+<<<<<<< dishRating
+=======
 const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
@@ -214,6 +214,7 @@ const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | nul
         .lean<IDish>();
 };
 
+>>>>>>> develop2
 const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findById(restaurant_id)
@@ -415,8 +416,11 @@ export default {
     getEmployees,
     getDeletedRestaurantEmployees,
     getDishes,
+<<<<<<< dishRating
+=======
     getDeletedRestaurantDishes,
     getTopDishByRestaurant,
+>>>>>>> develop2
     getRewards,
     getDeletedRestaurantRewards,
     getVisits,

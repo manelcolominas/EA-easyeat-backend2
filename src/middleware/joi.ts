@@ -11,6 +11,7 @@ import { IRewardRedemption } from '../models/rewardRedemption';
 import { IStatistics } from '../models/statistics';
 import { IVisit } from '../models/visit';
 import { IDish } from '../models/dish';
+import { IDishRating } from '../models/dishRating';
 
 import Logging from '../library/logging';
 
@@ -193,15 +194,7 @@ export const Schemas = {
         create: Joi.object<IReview>({
             customer_id:   objectId,
             restaurant_id: objectId.required(),
-            dish_id:       objectId,
             globalRating:  Joi.number().min(0).max(10),
-            dishRating:    Joi.number().min(0).max(10),
-            dishRatings: Joi.array().items(
-                Joi.object({
-                    dish_id: objectId.required(),
-                    rating: Joi.number().min(0).max(10).required(),
-                })
-            ),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
                 staffService: Joi.number().min(0).max(10),
@@ -211,35 +204,9 @@ export const Schemas = {
             images: Joi.array().items(Joi.string()),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0).default(0),
-        })
-            .unknown(true)
-            .custom((value, helpers) => {
-                const hasDishRatingsArray = Array.isArray(value.dishRatings) && value.dishRatings.length > 0;
-                const hasDishId = !!value.dish_id;
-                const hasDishRating = value.dishRating !== undefined && value.dishRating !== null;
-                const hasLegacyPair = hasDishId && hasDishRating;
-                const hasGlobalRating = value.globalRating !== undefined && value.globalRating !== null;
-
-                if (!hasGlobalRating && !hasDishRatingsArray && !hasLegacyPair) {
-                    return helpers.error('any.custom', {
-                        message: 'Provide globalRating, dishRatings, or dish_id + dishRating'
-                    });
-                }
-
-                if (hasDishId !== hasDishRating) {
-                    return helpers.error('any.custom', {
-                        message: 'dish_id and dishRating must be provided together'
-                    });
-                }
-
-                return value;
-            })
-            .messages({
-                'any.custom': '{{#message}}'
-            }),
+        }),
         update: Joi.object<IReview>({
             globalRating: Joi.number().min(0).max(10),
-            dishRating: Joi.number().min(0).max(10),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
                 staffService: Joi.number().min(0).max(10),
@@ -252,24 +219,6 @@ export const Schemas = {
         })
             .unknown(true),
     },
-
-    dishRating: {
-        create: Joi.object({
-            customer_id: objectId,
-            customerId: objectId,
-            restaurant_id: objectId,
-            restaurantId: objectId,
-            dish_id: objectId,
-            dishId: objectId,
-            rating: Joi.number().min(1).max(5).required(),
-        })
-            .xor('customer_id', 'customerId')
-            .xor('restaurant_id', 'restaurantId')
-            .xor('dish_id', 'dishId'),
-
-     
-    },
-
     reward: {
         create: Joi.object<IReward>({
             restaurant_id:  objectId.required(),
@@ -417,5 +366,16 @@ export const Schemas = {
         })
     },
 
-    
+
+    dishRating: {
+        create: Joi.object<IDishRating>({
+            customer_id: objectId.required(),
+            dish_id:     objectId.required(),
+            rating:      Joi.number().min(0).max(10).required(),
+        }),
+        update: Joi.object<IDishRating>({
+            rating:  Joi.number().min(0).max(10),
+        }),
+    },
+
 }

@@ -1,0 +1,202 @@
+[
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b001",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789014",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "rating": 9,
+    "deletedAt": null,
+    "createdAt": "2024-02-10T12:30:00.000Z",
+    "updatedAt": "2024-02-10T12:30:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b002",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789015",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "rating": 8,
+    "deletedAt": null,
+    "createdAt": "2024-02-10T12:35:00.000Z",
+    "updatedAt": "2024-02-10T12:35:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b003",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789016",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "rating": 10,
+    "deletedAt": null,
+    "createdAt": "2024-03-05T19:20:00.000Z",
+    "updatedAt": "2024-03-05T19:20:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b004",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789017",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "rating": 9,
+    "deletedAt": null,
+    "createdAt": "2024-03-05T19:25:00.000Z",
+    "updatedAt": "2024-03-05T19:25:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b005",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789018",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "rating": 10,
+    "deletedAt": null,
+    "createdAt": "2024-04-01T20:10:00.000Z",
+    "updatedAt": "2024-04-01T20:10:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b006",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789019",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "rating": 8,
+    "deletedAt": null,
+    "createdAt": "2024-04-01T20:15:00.000Z",
+    "updatedAt": "2024-04-01T20:15:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b007",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789020",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "rating": 7,
+    "deletedAt": null,
+    "createdAt": "2024-04-20T13:00:00.000Z",
+    "updatedAt": "2024-04-20T13:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b008",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789021",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "rating": 9,
+    "deletedAt": null,
+    "createdAt": "2024-04-20T13:05:00.000Z",
+    "updatedAt": "2024-04-20T13:05:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b009",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789022",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "rating": 10,
+    "deletedAt": null,
+    "createdAt": "2024-05-12T20:45:00.000Z",
+    "updatedAt": "2024-05-12T20:45:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b010",
+    "customer_id": "65f1c2a1b2c3d4e5f6789051",
+    "dish_id": "65f1c2a1b2c3d4e5f6789023",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "rating": 9,
+    "deletedAt": null,
+    "createdAt": "2024-05-12T20:50:00.000Z",
+    "updatedAt": "2024-05-12T20:50:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b011",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789014",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "rating": 7,
+    "deletedAt": null,
+    "createdAt": "2024-05-20T14:00:00.000Z",
+    "updatedAt": "2024-05-20T14:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b012",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789015",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "rating": 6,
+    "deletedAt": null,
+    "createdAt": "2024-05-20T14:05:00.000Z",
+    "updatedAt": "2024-05-20T14:05:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b013",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789016",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "rating": 10,
+    "deletedAt": null,
+    "createdAt": "2024-05-22T19:30:00.000Z",
+    "updatedAt": "2024-05-22T19:30:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b014",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789017",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "rating": 8,
+    "deletedAt": null,
+    "createdAt": "2024-05-22T19:35:00.000Z",
+    "updatedAt": "2024-05-22T19:35:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b015",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789018",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "rating": 9,
+    "deletedAt": null,
+    "createdAt": "2024-05-25T21:00:00.000Z",
+    "updatedAt": "2024-05-25T21:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b016",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789019",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "rating": 10,
+    "deletedAt": null,
+    "createdAt": "2024-05-25T21:05:00.000Z",
+    "updatedAt": "2024-05-25T21:05:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b017",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789020",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "rating": 6,
+    "deletedAt": null,
+    "createdAt": "2024-05-28T12:15:00.000Z",
+    "updatedAt": "2024-05-28T12:15:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b018",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789021",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "rating": 8,
+    "deletedAt": null,
+    "createdAt": "2024-05-28T12:20:00.000Z",
+    "updatedAt": "2024-05-28T12:20:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b019",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789022",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "rating": 9,
+    "deletedAt": null,
+    "createdAt": "2024-06-01T21:10:00.000Z",
+    "updatedAt": "2024-06-01T21:10:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678b020",
+    "customer_id": "65f1c2a1b2c3d4e5f6789052",
+    "dish_id": "65f1c2a1b2c3d4e5f6789023",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "rating": 10,
+    "deletedAt": null,
+    "createdAt": "2024-06-01T21:15:00.000Z",
+    "updatedAt": "2024-06-01T21:15:00.000Z"
+  }
+]

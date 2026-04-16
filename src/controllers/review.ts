@@ -1,33 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
-import ReviewService, { ReviewServiceError } from '../services/review';
-import { AuthRequest } from '../middleware/auth';
-import { IReview } from '../models/review';
+import ReviewService from '../services/review';
 
 // Create review
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const authReq = req as AuthRequest;
-        const payload: Partial<IReview> = { ...req.body };
-
-        if (!payload.customer_id && authReq.user?.id) {
-            payload.customer_id = authReq.user.id as any;
-        }
-
-        if (
-            authReq.user?.role === 'customer' &&
-            payload.customer_id &&
-            String(payload.customer_id) !== authReq.user.id
-        ) {
-            return res.status(403).json({ message: 'Customers can only create their own reviews' });
-        }
-
-        const savedReview = await ReviewService.createReview(payload);
+        const savedReview = await ReviewService.createReview(req.body);
         return res.status(201).json(savedReview);
 
     } catch (error) {
-        if (error instanceof ReviewServiceError) {
-            return res.status(error.statusCode).json({ message: error.message });
-        }
         return next(error);
     }
 };
@@ -35,7 +15,7 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
 // Obtain a review by ID
 const readReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const review = await ReviewService.getReview(req.params.review_id);
+        const review = await ReviewService.getReview(req.params.reviewId);
 
         return review
             ? res.status(200).json(review)
@@ -84,7 +64,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
 const updateReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const updatedReview = await ReviewService.updateReview(
-            req.params.review_id,
+            req.params.reviewId,
             req.body
         );
 
@@ -126,7 +106,11 @@ const restoreReview = async (req: Request, res: Response, next: NextFunction) =>
 
 const hardDeleteReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
+<<<<<<< dishRating
+        const deleted = await ReviewService.deleteReview(req.params.reviewId);
+=======
         const deleted = await ReviewService.hardDeleteReview(req.params.review_id);
+>>>>>>> develop2
 
         return deleted
             ? res.status(200).json({ message: 'Review deleted' })
@@ -140,7 +124,7 @@ const hardDeleteReview = async (req: Request, res: Response, next: NextFunction)
 // Obtain reviews by restaurant
 const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getReviewsByRestaurant(req.params.restaurant_id);
+        const reviews = await ReviewService.getReviewsByRestaurant(req.params.restaurantId);
         return res.status(200).json(reviews);
 
     } catch (error) {
@@ -161,19 +145,18 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
 // Obtain reviews by customer
 const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { customer_id } = req.params;
+        const { customerId } = req.params;
 
         const limit = Number(req.query.limit) || 5;
         const skip = Number(req.query.skip) || 0;
-        const minGlobalRatingRaw = req.query.minGlobalRating ?? req.query.minglobalRating;
-        const minGlobalRating = minGlobalRatingRaw !== undefined ? Number(minGlobalRatingRaw) : undefined;
+        const minglobalRating = req.query.minglobalRating !== undefined ? Number(req.query.minglobalRating) : undefined;
         const sortByLikes = req.query.sortByLikes === 'true';
 
         const result = await ReviewService.getReviewsByCustomer(
-            customer_id,
+            customerId,
             limit,
             skip,
-            minGlobalRating,
+            minglobalRating,
             sortByLikes
         );
 
@@ -211,41 +194,13 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
 
 const likeReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const review = await ReviewService.likeReview(req.params.review_id);
+        const review = await ReviewService.likeReview(req.params.reviewId);
 
         return review
             ? res.status(200).json(review)
             : res.status(404).json({ message: 'Review not found' });
 
     } catch (error) {
-        return next(error);
-    }
-};
-
-//  TOP DISH
-const getRestaurantTopDish = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await ReviewService.getRestaurantTopDish(req.params.restaurant_id);
-        return res.status(200).json(result);
-
-    } catch (error) {
-        if (error instanceof ReviewServiceError) {
-            return res.status(error.statusCode).json({ message: error.message });
-        }
-        return next(error);
-    }
-};
-
-//  ALL DISH RATINGS
-const getRestaurantDishesWithRatings = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await ReviewService.getRestaurantDishesWithRatings(req.params.restaurant_id);
-        return res.status(200).json(result);
-
-    } catch (error) {
-        if (error instanceof ReviewServiceError) {
-            return res.status(error.statusCode).json({ message: error.message });
-        }
         return next(error);
     }
 };
@@ -263,8 +218,13 @@ export default {
     readByRestaurant,
     readDeletedByRestaurant,
     readByCustomer,
+<<<<<<< dishRating
+    likeReview
+};
+=======
     readDeletedByCustomer,
     likeReview,
     getRestaurantTopDish,
     getRestaurantDishesWithRatings
 };
+>>>>>>> develop2
