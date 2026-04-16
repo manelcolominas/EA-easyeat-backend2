@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import CustomerService from '../services/customer';
+import Logging from '../library/logging';
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -63,10 +64,12 @@ const readDeletedCustomerFull = async (req: Request, res: Response, next: NextFu
 };
 
 const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
-    const { customer_id } = req.params;
+    const customer_id = req.params.customer_id;
     try {
         const badges = await CustomerService.getCustomerAllBadges(customer_id);
-        return res.status(200).json(badges);
+        return badges
+            ? res.status(200).json(badges)
+            : res.status(404).json({ message: 'Customer not found' });
     } catch (error) {
         return res.status(500).json({ error });
     }
