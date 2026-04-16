@@ -102,6 +102,18 @@ router.post('/', ValidateJoi(Schemas.employee.create), controller.createEmployee
 
 /**
  * @openapi
+ * /employees:
+ *   get:
+ *     summary: Lists all employees
+ *     tags: [Employees]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), controller.readAll);
+
+/**
+ * @openapi
  * /employees/deleted:
  *   get:
  *     summary: List all deleted employees
@@ -168,18 +180,6 @@ router.get('/:employee_id', authenticate, requireSelfOrAdmin('employee_id'), con
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/:employee_id/deleted', authenticate, requireRole('admin'), controller.readDeletedEmployee);
-
-/**
- * @openapi
- * /employees:
- *   get:
- *     summary: Lists all employees
- *     tags: [Employees]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), controller.readAll);
 
 /**
  * @openapi

@@ -70,6 +70,30 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.badge.c
 
 /**
  * @openapi
+ * /badges:
+ *   get:
+ *     summary: Lists all badges
+ *     tags: [Badges]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', controller.readAll);
+
+/**
+ * @openapi
+ * /badges/deleted:
+ *   get:
+ *     summary: Lists all deleted badges
+ *     tags: [Badges]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+/**
+ * @openapi
  * /badges/{badge_id}:
  *   get:
  *     summary: Gets a badge by ID
@@ -109,30 +133,6 @@ router.get('/:badge_id', controller.readBadge);
  *         description: Not found
  */
 router.get('/:badge_id/deleted', authenticate, requireRole('admin'), controller.readDeletedBadge);
-
-/**
- * @openapi
- * /badges:
- *   get:
- *     summary: Lists all badges
- *     tags: [Badges]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/', controller.readAll);
-
-/**
- * @openapi
- * /badges/deleted:
- *   get:
- *     summary: Lists all deleted badges
- *     tags: [Badges]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
 /**
  * @openapi

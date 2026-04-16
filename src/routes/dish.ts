@@ -177,70 +177,6 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
     controller.createDish
 );
 
-// ─── Read one ─────────────────────────────────────────────────────────────────
-
-/**
- * @openapi
- * /dishes/{dish_id}:
- *   get:
- *     summary: Get a dish by ID
- *     description: Returns a single dish. Publicly accessible.
- *     tags: [Dishes]
- *     parameters:
- *       - $ref: '#/components/parameters/dish_id'
- *     responses:
- *       200:
- *         description: Dish found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DishResponse'
- *       400:
- *         description: Invalid dish ID format
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       404:
- *         description: Dish not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.get('/:dish_id', controller.readDish);
-
-/**
- * @openapi
- * /dishes/{dish_id}/deleted:
- *   get:
- *     summary: Get a deleted dish by ID
- *     description: Returns a single deleted dish. Publicly accessible.
- *     tags: [Dishes]
- *     parameters:
- *       - $ref: '#/components/parameters/dish_id'
- *     responses:
- *       200:
- *         description: Dish found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DishResponse'
- *       400:
- *         description: Invalid dish ID format
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       404:
- *         description: Dish not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.get('/:dish_id/deleted', authenticate, requireRole('admin'), controller.readDeletedDish);
-
 // ─── Read all ─────────────────────────────────────────────────────────────────
 
 /**
@@ -330,6 +266,70 @@ router.get('/', controller.readAll);
  *                 $ref: '#/components/schemas/DishResponse'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+// ─── Read one ─────────────────────────────────────────────────────────────────
+
+/**
+ * @openapi
+ * /dishes/{dish_id}:
+ *   get:
+ *     summary: Get a dish by ID
+ *     description: Returns a single dish. Publicly accessible.
+ *     tags: [Dishes]
+ *     parameters:
+ *       - $ref: '#/components/parameters/dish_id'
+ *     responses:
+ *       200:
+ *         description: Dish found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DishResponse'
+ *       400:
+ *         description: Invalid dish ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Dish not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/:dish_id', controller.readDish);
+
+/**
+ * @openapi
+ * /dishes/{dish_id}/deleted:
+ *   get:
+ *     summary: Get a deleted dish by ID
+ *     description: Returns a single deleted dish. Publicly accessible.
+ *     tags: [Dishes]
+ *     parameters:
+ *       - $ref: '#/components/parameters/dish_id'
+ *     responses:
+ *       200:
+ *         description: Dish found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DishResponse'
+ *       400:
+ *         description: Invalid dish ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Dish not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/:dish_id/deleted', authenticate, requireRole('admin'), controller.readDeletedDish);
 
 // ─── Full update ──────────────────────────────────────────────────────────────
 

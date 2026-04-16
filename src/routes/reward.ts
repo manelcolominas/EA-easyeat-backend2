@@ -102,6 +102,30 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
 
 /**
  * @openapi
+ * /rewards:
+ *   get:
+ *     summary: Lists all rewards
+ *     tags: [Rewards]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', controller.readAll);
+
+/**
+ * @openapi
+ * /rewards/deleted:
+ *   get:
+ *     summary: Lists all deleted rewards
+ *     tags: [Rewards]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+/**
+ * @openapi
  * /rewards/{reward_id}:
  *   get:
  *     summary: Gets a reward by ID
@@ -141,30 +165,6 @@ router.get('/:reward_id', controller.readReward);
  *         description: Not found
  */
 router.get('/:reward_id/deleted', authenticate, requireRole('admin'), controller.readDeletedReward);
-
-/**
- * @openapi
- * /rewards:
- *   get:
- *     summary: Lists all rewards
- *     tags: [Rewards]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/', controller.readAll);
-
-/**
- * @openapi
- * /rewards/deleted:
- *   get:
- *     summary: Lists all deleted rewards
- *     tags: [Rewards]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
 /**
  * @openapi

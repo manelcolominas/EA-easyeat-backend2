@@ -114,6 +114,18 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'),
 
 /**
  * @openapi
+ * /rewardRedemptions:
+ *   get:
+ *     summary: Lists all reward redemptions
+ *     tags: [RewardRedemptions]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/', authenticate, requireRole('admin'),controller.readAll);
+
+/**
+ * @openapi
  * /rewardRedemptions/{redemptionId}:
  *   get:
  *     summary: Gets a reward redemption by ID
@@ -133,18 +145,6 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'),
  */
 router.get('/:redemptionId', authenticate,
     requireRole('admin', 'owner', 'staff'), controller.readRewardRedemption);
-
-/**
- * @openapi
- * /rewardRedemptions:
- *   get:
- *     summary: Lists all reward redemptions
- *     tags: [RewardRedemptions]
- *     responses:
- *       200:
- *         description: OK
- */
-router.get('/', authenticate, requireRole('admin'),controller.readAll);
 
 /**
  * @openapi
