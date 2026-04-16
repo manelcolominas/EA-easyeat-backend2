@@ -3,6 +3,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789051",
     "name": "Maria García",
     "email": "maria.garcia@gmail.com",
+    "password": "password123",
     "profilePictures": [
       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Official_Presidential_Portrait_of_President_Donald_J._Trump_%282025%29.jpg/500px-Official_Presidential_Portrait_of_President_Donald_J._Trump_%282025%29.jpg"
     ],
@@ -37,6 +38,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789052",
     "name": "Jordi Puig",
     "email": "jordi.puig@gmail.com",
+    "password": "password123",
     "profilePictures": [],
     "pointsWallet": [
       "65f1c2a1b2c3d4e5f6789061",
@@ -64,6 +66,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789053",
     "name": "Laia Vidal",
     "email": "laia.vidal@outlook.com",
+    "password": "password123",
     "profilePictures": [
       "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&q=80"
     ],
@@ -97,6 +100,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789054",
     "name": "Àlex Martínez",
     "email": "alex.martinez@gmail.com",
+    "password": "password123",
     "profilePictures": [
       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&q=80"
     ],
@@ -124,6 +128,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789055",
     "name": "Núria Soler",
     "email": "nuria.soler@protonmail.com",
+    "password": "password123",
     "profilePictures": [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80"
     ],
@@ -160,6 +165,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789056",
     "name": "Pau Ferrer",
     "email": "pau.ferrer@icloud.com",
+    "password": "password123",
     "profilePictures": [],
     "pointsWallet": [],
     "visitHistory": [
@@ -177,6 +183,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789057",
     "name": "Carmen López",
     "email": "carmen.lopez@gmail.com",
+    "password": "password123",
     "profilePictures": [
       "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=300&q=80"
     ],
@@ -209,6 +216,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789058",
     "name": "Marc Ribas",
     "email": "marc.ribas@hotmail.com",
+    "password": "password123",
     "profilePictures": [
       "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&q=80"
     ],
@@ -238,6 +246,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789059",
     "name": "Sofia Blanc",
     "email": "sofia.blanc@gmail.com",
+    "password": "password123",
     "profilePictures": [
       "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&q=80"
     ],
@@ -269,6 +278,7 @@
     "_id": "65f1c2a1b2c3d4e5f6789060",
     "name": "Tomàs Oliveras",
     "email": "tomas.oliveras@gmail.com",
+    "password": "password123",
     "profilePictures": [],
     "pointsWallet": [],
     "visitHistory": [],
