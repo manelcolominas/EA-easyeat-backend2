@@ -27,7 +27,7 @@ const router = express.Router();
  *           description: ObjectId of the dish
  *         restaurant_id:
  *           type: string
- *           description: ObjectId of the restaurant (denormalised from dish)
+ *           description: ObjectId of the restaurant (denormalized from dish)
  *         rating:
  *           type: number
  *           minimum: 0
