@@ -17,8 +17,6 @@ export interface IDish {
     flavorProfile?: ('spicy' | 'mild' | 'sweet' | 'sour' | 'salty' | 'bitter' | 'umami' | 'smoky' | 'rich' | 'light' | 'creamy' | 'tangy' | 'fresh' | 'hearty' | 'nutty' )[];
     cuisineTags?: string[];
     portionSize?: 'small' | 'medium' | 'large' | 'sharing';
-    userRatingAvg?: number;
-    userRatingCount?: number;
 }
 
 // Schema
@@ -46,8 +44,6 @@ const dishSchema = new Schema<IDish>({
         ]
     }],
     portionSize: { type: String, enum: ['small', 'medium', 'large', 'sharing'] },
-    userRatingAvg: { type: Number, default: 0, min: 0, max: 10 },
-    userRatingCount: { type: Number, default: 0, min: 0 },
 }, { timestamps: true });
 
 // Indexes
@@ -59,7 +55,6 @@ dishSchema.index({ dietaryFlags: 1 });
 dishSchema.index({ allergens: 1 });
 dishSchema.index({ flavorProfile: 1 });
 dishSchema.index({ cuisineTags: 1 });
-dishSchema.index({ restaurant_id: 1, userRatingAvg: -1, userRatingCount: -1 });
 
 // Model
 export const DishModel = model<IDish>('Dish', dishSchema);

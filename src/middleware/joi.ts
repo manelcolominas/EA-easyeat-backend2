@@ -203,23 +203,7 @@ export const Schemas = {
             images: Joi.array().items(Joi.string()),
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0).default(0),
-        })
-            .unknown(true)
-            .custom((value, helpers) => {
-                const hasDishRatingsArray = Array.isArray(value.dishRatings) && value.dishRatings.length > 0;
-                const hasGlobalRating = value.globalRating !== undefined && value.globalRating !== null;
-
-                if (!hasGlobalRating && !hasDishRatingsArray) {
-                    return helpers.error('any.custom', {
-                        message: 'Provide globalRating or dishRatings'
-                    });
-                }
-
-                return value;
-            })
-            .messages({
-                'any.custom': '{{#message}}'
-            }),
+        }),
         update: Joi.object<IReview>({
             globalRating: Joi.number().min(0).max(10),
             ratings: Joi.object({
