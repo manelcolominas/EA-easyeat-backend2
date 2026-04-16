@@ -313,7 +313,7 @@ router.delete('/:review_id/soft', authenticate, requireSelfOrAdmin('customer_id'
 /**
  * @openapi
  * /reviews/{review_id}/restore:
- *   put:
+ *   patch:
  *     summary: Restore review
  *     tags: [Reviews]
  *     parameters:
@@ -328,7 +328,7 @@ router.delete('/:review_id/soft', authenticate, requireSelfOrAdmin('customer_id'
  *       404:
  *         description: Not found
  */
-router.put('/:review_id/restore', authenticate, requireRole('admin'), controller.restoreReview);
+router.patch('/:review_id/restore', authenticate, requireRole('admin'), controller.restoreReview);
 
 /**
  * @openapi

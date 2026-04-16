@@ -132,9 +132,26 @@ router.get('/', authenticate, requireRole('admin'), controller.readAll);
  *   get:
  *     summary: Lists all deleted visits
  *     tags: [Visits]
+ *     parameters:
+ *       - in: query
+ *         name: customer_id
+ *         schema:
+ *           type: string
+ *         description: Filter by customer ObjectId
+ *       - in: query
+ *         name: restaurant_id
+ *         schema:
+ *           type: string
+ *         description: Filter by restaurant ObjectId
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Visit'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
@@ -291,7 +308,7 @@ router.delete('/:visit_id/soft', authenticate, requireRole('admin'), controller.
 /**
  * @openapi
  * /visits/{visit_id}/restore:
- *   put:
+ *   patch:
  *     summary: Restores a deleted visit by ID
  *     tags: [Visits]
  *     parameters:
@@ -307,7 +324,7 @@ router.delete('/:visit_id/soft', authenticate, requireRole('admin'), controller.
  *       404:
  *         description: Visit not found
  */
-router.put('/:visit_id/restore', authenticate, requireRole('admin'), controller.restoreVisit);
+router.patch('/:visit_id/restore', authenticate, requireRole('admin'), controller.restoreVisit);
 
 /**
  * @openapi

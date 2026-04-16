@@ -60,7 +60,6 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
         const filter = {
             customer_id: customer_id as string | undefined,
             restaurant_id: restaurant_id as string | undefined,
-            deletedAt: null // only active visits
         };
 
         const result = await VisitService.getAllVisits(filter, page, limit);

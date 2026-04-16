@@ -433,7 +433,7 @@ router.delete('/:dish_id/soft', authenticate, requireRole('admin', 'owner'), req
 /**
  * @openapi
  * /dishes/{dish_id}/restore:
- *   put:
+ *   patch:
  *     summary: Restore a soft-deleted dish by ID
  *     description: Restores a previously soft-deleted dish (marks as active). Requires admin or owner role with access to the target restaurant.
  *     tags: [Dishes]
@@ -469,7 +469,7 @@ router.delete('/:dish_id/soft', authenticate, requireRole('admin', 'owner'), req
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:dish_id/restore', authenticate, requireRole('admin'), controller.restoreDish);
+router.patch('/:dish_id/restore', authenticate, requireRole('admin'), controller.restoreDish);
 
 /**
  * @openapi

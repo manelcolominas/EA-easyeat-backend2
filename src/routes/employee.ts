@@ -234,7 +234,7 @@ router.delete('/:employee_id/soft', authenticate, requireRole('owner', 'admin'),
 /**
  * @openapi
  * /employees/{employee_id}/restore:
- *   put:
+ *   patch:
  *     summary: Restore a soft-deleted employee by ID
  *     description: Restores a previously soft-deleted employee (marks as active). Requires admin or owner role with access to the target restaurant.
  *     tags: [Employees]
@@ -270,7 +270,7 @@ router.delete('/:employee_id/soft', authenticate, requireRole('owner', 'admin'),
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:employee_id/restore', authenticate, requireRole('admin'), controller.restoreEmployee);
+router.patch('/:employee_id/restore', authenticate, requireRole('admin'), controller.restoreEmployee);
 
 /**
  * @openapi

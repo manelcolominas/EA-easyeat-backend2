@@ -187,7 +187,7 @@ router.delete('/:badge_id/soft', authenticate, requireRole('admin'), controller.
 /**
  * @openapi
  * /badges/{badge_id}/restore:
- *   put:
+ *   patch:
  *     summary: Restores a badge by ID
  *     tags: [Badges]
  *     parameters:
@@ -203,7 +203,7 @@ router.delete('/:badge_id/soft', authenticate, requireRole('admin'), controller.
  *       404:
  *         description: Not found
  */
-router.put('/:badge_id/restore', authenticate, requireRole('admin'), controller.restoreBadge);
+router.patch('/:badge_id/restore', authenticate, requireRole('admin'), controller.restoreBadge);
 
 /**
  * @openapi

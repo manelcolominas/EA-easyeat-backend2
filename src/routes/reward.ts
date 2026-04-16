@@ -219,7 +219,7 @@ router.delete('/:reward_id/soft', authenticate, requireRole('admin', 'owner'), r
 /**
  * @openapi
  * /rewards/{reward_id}/restore:
- *   put:
+ *   patch:
  *     summary: Restores a deleted reward by ID
  *     tags: [Rewards]
  *     parameters:
@@ -235,7 +235,7 @@ router.delete('/:reward_id/soft', authenticate, requireRole('admin', 'owner'), r
  *       404:
  *         description: Not found
  */
-router.put('/:reward_id/restore', authenticate, requireRole('admin'), controller.restoreReward);
+router.patch('/:reward_id/restore', authenticate, requireRole('admin'), controller.restoreReward);
 
 /**
  * @openapi
