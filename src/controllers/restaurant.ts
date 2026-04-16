@@ -246,8 +246,6 @@ const getStatistics = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
-<<<<<<< dishRating
-=======
 const getDeletedRestaurantStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.getDeletedRestaurantStatistics(req.params.restaurantId);
@@ -271,7 +269,6 @@ const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
->>>>>>> develop2
 const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { lng, lat, radiusMeters, categories, minglobalRating, city, openNow, openAt } = req.query;
@@ -427,11 +424,8 @@ export default {
     getBadges,
     getDeletedRestaurantBadges,
     getStatistics,
-<<<<<<< dishRating
-=======
     getDeletedRestaurantStatistics,
     getTopDish,
->>>>>>> develop2
     getFiltered,
     getEmployees,
     getDeletedRestaurantEmployees,

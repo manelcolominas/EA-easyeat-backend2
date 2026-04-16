@@ -106,11 +106,7 @@ const restoreReview = async (req: Request, res: Response, next: NextFunction) =>
 
 const hardDeleteReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-<<<<<<< dishRating
-        const deleted = await ReviewService.deleteReview(req.params.reviewId);
-=======
         const deleted = await ReviewService.hardDeleteReview(req.params.review_id);
->>>>>>> develop2
 
         return deleted
             ? res.status(200).json({ message: 'Review deleted' })
@@ -218,13 +214,6 @@ export default {
     readByRestaurant,
     readDeletedByRestaurant,
     readByCustomer,
-<<<<<<< dishRating
+    readDeletedByCustomer,
     likeReview
 };
-=======
-    readDeletedByCustomer,
-    likeReview,
-    getRestaurantTopDish,
-    getRestaurantDishesWithRatings
-};
->>>>>>> develop2

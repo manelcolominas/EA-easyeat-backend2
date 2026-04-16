@@ -191,8 +191,6 @@ const getDishes = async (restaurant_id: string): Promise<IRestaurant | null> => 
         .lean<IRestaurant>();
 };
 
-<<<<<<< dishRating
-=======
 const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
@@ -202,19 +200,8 @@ const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestau
 };
 
 const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | null> => {
-    if (!mongoose.Types.ObjectId.isValid(restaurantId)) return null;
-
-    return DishModel.findOne({
-        restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-        active: true,
-        userRatingCount: { $gt: 0 },
-    })
-        .sort({ userRatingAvg: -1, userRatingCount: -1, name: 1 })
-        .select('name description section price images userRatingAvg userRatingCount')
-        .lean<IDish>();
 };
 
->>>>>>> develop2
 const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findById(restaurant_id)
@@ -416,11 +403,8 @@ export default {
     getEmployees,
     getDeletedRestaurantEmployees,
     getDishes,
-<<<<<<< dishRating
-=======
     getDeletedRestaurantDishes,
     getTopDishByRestaurant,
->>>>>>> develop2
     getRewards,
     getDeletedRestaurantRewards,
     getVisits,
