@@ -18,6 +18,7 @@ import employeeRoutes from './routes/employee';
 import pointsWallets from './routes/pointsWallet';
 import rewardRedemption from './routes/rewardRedemption';
 import statistics from './routes/statistics';
+import dishRatingRoutes from './routes/dishRating';
 
 import authRoutes from './routes/auth';
 
@@ -69,6 +70,7 @@ const StartServer = () => {
     router.use('/pointsWallets',    pointsWallets);
     router.use('/rewardRedemptions', rewardRedemption);
     router.use('/statistics',       statistics);
+    router.use('/dish-ratings',     dishRatingRoutes);
 
     /** 404 fallback */
     router.use((req, res) => {
