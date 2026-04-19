@@ -112,11 +112,18 @@ EA-easyeat-backend2/
 │   ├── config/          # Configuració de l'aplicació
 │   │   └── config.ts
 │   ├── controllers/     # Controladors de l'APIç
-│   │   └── restaurant.ts
-│   │   └── review.ts
-│   │   └── customer.ts
-│   │   └── reward.ts
-│   │   └── visit.ts
+│   │   ├─── restaurant.ts
+│   │   ├─── review.ts
+│   │   ├─── customer.ts
+│   │   ├─── reward.ts
+│   │   ├─── visit.ts
+│   │   ├─── badge.ts
+│   │   ├─── dish.ts
+│   │   ├─── rewardRedemption.ts
+│   │   ├─── statistics.ts
+│   │   ├─── pointsWallet.ts
+│   │   ├─── dishRating.ts
+│   │   └─── employee.ts
 │   ├── models/          # Models de Mongoose
 │   │   ├─── restaurant.ts
 │   │   ├─── review.ts
@@ -128,26 +135,41 @@ EA-easyeat-backend2/
 │   │   ├─── rewardRedemption.ts
 │   │   ├─── statistics.ts
 │   │   ├─── pointsWallet.ts
+│   │   ├─── dishRating.ts
 │   │   └─── employee.ts
 │   ├── routes/          # Definició de rutes
 │   │   ├─── restaurant.ts
 │   │   ├─── review.ts
 │   │   ├─── customer.ts
 │   │   ├─── reward.ts
-│   │   └─── visit.ts
+│   │   ├─── visit.ts
+│   │   ├─── badge.ts
+│   │   ├─── dish.ts
+│   │   ├─── rewardRedemption.ts
+│   │   ├─── statistics.ts
+│   │   ├─── pointsWallet.ts
+│   │   ├─── dishRating.ts
+│   │   └─── employee.ts
 │   ├── services/        # Lògica de negoci
 │   │   ├─── restaurant.ts
 │   │   ├─── review.ts
 │   │   ├─── customer.ts
 │   │   ├─── reward.ts
-│   │   └─── visit.ts
+│   │   ├─── visit.ts
+│   │   ├─── badge.ts
+│   │   ├─── dish.ts
+│   │   ├─── rewardRedemption.ts
+│   │   ├─── statistics.ts
+│   │   ├─── pointsWallet.ts
+│   │   ├─── dishRating.ts
+│   │   └─── employee.ts
 │   ├── middleware/      # Middleware personalitzat
 │   │   └── joi.ts
 │   ├── utils/           # Utilitats (seeding, recomanacions, etc.)
 │   │   ├─── dataSeeder.ts
 │   │   ├─── recommendation.ts
 │   │   ├─── softDelete.ts
-│   │   └── servicePeriod.ts
+│   │   └─── servicePeriod.ts
 │   ├── data/            # Dades JSON per seeding
 │   │   ├─── restaurant.json
 │   │   ├─── review.json
@@ -159,6 +181,7 @@ EA-easyeat-backend2/
 │   │   ├─── rewardRedemption.json
 │   │   ├─── statistics.json
 │   │   ├─── pointsWallet.json
+│   │   ├─── dishRating.json
 │   │   └─── employee.json
 │   ├── library/         # Utilitats compartides (logging)
 │   │   └── logging.ts

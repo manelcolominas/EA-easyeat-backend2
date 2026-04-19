@@ -17,6 +17,8 @@ export interface IDish {
     flavorProfile?: ('spicy' | 'mild' | 'sweet' | 'sour' | 'salty' | 'bitter' | 'umami' | 'smoky' | 'rich' | 'light' | 'creamy' | 'tangy' | 'fresh' | 'hearty' | 'nutty' )[];
     cuisineTags?: string[];
     portionSize?: 'small' | 'medium' | 'large' | 'sharing';
+    avgRating?: number;
+    ratingsCount?: number;
 }
 
 // Schema
@@ -44,6 +46,8 @@ const dishSchema = new Schema<IDish>({
         ]
     }],
     portionSize: { type: String, enum: ['small', 'medium', 'large', 'sharing'] },
+    avgRating: { type: Number, min: 0, max: 10, default: 0 },
+    ratingsCount : { type: Number, default: 0 }
 }, { timestamps: true });
 
 // Indexes

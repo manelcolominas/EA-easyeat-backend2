@@ -111,13 +111,30 @@ export const insertData = async () => {
                         Logging.info(`Inserting data into ${model.collection.name} collection...`);
                         await model.insertMany(data);
                         Logging.info(`Data inserted into ${model.collection.name} collection.`);
-                    } else {
+                    }
+                    else {
                         Logging.info(`${model.collection.name} collection is not empty. Skipping insertion.`);
                     }
                 }
             }
         }
+
         Logging.info('Database data check completed.');
+
+        // 1. Get all unique dish IDs that have ratings
+        const ratedDishes = await DishRatingModel.distinct('dish_id', { deletedAt: null });
+
+        Logging.info(`Recalculating avgRating for ${ratedDishes.length} dishes...`);
+
+        // 2. Trigger the static method for each dish
+        // Note: We use Promise.all to run these in parallel for speed
+        await Promise.all(
+            ratedDishes.map((dishId) =>
+                (DishRatingModel as any).calculateAvgRating(dishId)
+            )
+        );
+
+        Logging.info('Dish avgRatings updated successfully.');
     } catch (error) {
         Logging.error('Error inserting data:');
         Logging.error(error);
