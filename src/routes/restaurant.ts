@@ -159,6 +159,44 @@ const router = express.Router();
  *         updatedAt:
  *           type: string
  *           format: date-time
+ * 
+ *     PaginatedRestaurants:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Restaurant'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ * 
+ *     PaginatedCustomers:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -219,17 +257,26 @@ router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestau
  * @openapi
  * /restaurants:
  *   get:
- *     summary: Lists all restaurants
+ *     summary: Lists all restaurants (paginated)
  *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Restaurant'
+ *               $ref: '#/components/schemas/PaginatedRestaurants'
  */
 router.get('/', controller.readAll);
 
@@ -237,17 +284,26 @@ router.get('/', controller.readAll);
  * @openapi
  * /restaurants/deleted:
  *   get:
- *     summary: Lists all deleted restaurants
+ *     summary: Lists all deleted restaurants (paginated)
  *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Restaurant'
+ *               $ref: '#/components/schemas/PaginatedRestaurants'
  */
 router.get('/deleted', authenticate, requireRole('admin'),controller.readAllDeleted);
 
@@ -331,48 +387,6 @@ router.get('/deleted', authenticate, requireRole('admin'),controller.readAllDele
  *         description: Internal server error
  */
 router.get('/filter', controller.getFiltered);
-
-
-// /**
-//  * @openapi
-//  * /restaurants/nearby:
-//  *   get:
-//  *     summary: Gets restaurants near a location (geospatial query)
-//  *     tags: [Restaurants]
-//  *     parameters:
-//  *       - in: query
-//  *         name: lng
-//  *         required: true
-//  *         schema:
-//  *           type: number
-//  *         description: Longitude
-//  *         example: 2.1734
-//  *       - in: query
-//  *         name: lat
-//  *         required: true
-//  *         schema:
-//  *           type: number
-//  *         description: Latitude
-//  *         example: 41.3851
-//  *       - in: query
-//  *         name: maxDistance
-//  *         schema:
-//  *           type: number
-//  *         description: Max distance in meters (default 5000)
-//  *         example: 2000
-//  *     responses:
-//  *       200:
-//  *         description: List of nearby restaurants
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: array
-//  *               items:
-//  *                 $ref: '#/components/schemas/Restaurant'
-//  *       400:
-//  *         description: Missing or invalid coordinates
-//  */
-// router.get('/nearby', controller.getNearby);
 
 /**
  * @openapi
@@ -1097,6 +1111,74 @@ router.get('/:restaurantId/reviews', controller.getReviews);
  *         description: Deleted restaurant not found
  */
 router.get('/:restaurantId/reviews/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantReviews);
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/customers:
+ *   get:
+ *     summary: Gets the customers of a restaurant (paginated)
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: List of customers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedCustomers'
+ *       404:
+ *         description: Restaurant not found
+ */
+router.get('/:restaurantId/customers', controller.getRestaurantCustomers);
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/customers/deleted:
+ *   get:
+ *     summary: Gets the customers of a deleted restaurant (paginated)
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: List of customers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedCustomers'
+ *       404:
+ *         description: Restaurant not found
+ */
+router.get('/:restaurantId/customers/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantCustomers);
 
 /**
  * @openapi

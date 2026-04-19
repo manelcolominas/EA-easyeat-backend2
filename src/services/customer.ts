@@ -66,9 +66,15 @@ const getDeletedCustomerFull = async (customer_id: string) => {
 // ─── Get all points wallets for a customer ────────────────────────────────────
 
 const getCustomerAllPointsWallet = async (customer_id: string, skip: number, limit: number): Promise<{ pointsWallet: IPointsWallet[], total: number }> => {
+    const filter = { customer_id: customer_id };
     const [pointsWallet, total] = await Promise.all([
-        PointsWalletModel.find({ customer_id: customer_id }).populate('restaurant_id', 'profile.name profile.location').lean().skip(skip).limit(limit),
-        PointsWalletModel.countDocuments({ customer_id: customer_id })]);
+        PointsWalletModel.find(filter)
+            .populate('restaurant_id', 'profile.name profile.location')
+            .skip(skip)
+            .limit(limit)
+            .lean<IPointsWallet[]>(),
+        PointsWalletModel.countDocuments(filter)
+    ]);
 
     return { pointsWallet, total };
 };
@@ -83,7 +89,7 @@ const getCustomerAllVisits = async (customer_id: string, skip: number, limit: nu
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
-            .lean(),
+            .lean<IVisit[]>(),
         VisitModel.countDocuments(filter)
     ]);
     return { visits, total };
@@ -97,7 +103,7 @@ const getCustomerAllDeletedVisits = async (customer_id: string, skip: number, li
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
-            .lean(),
+            .lean<IVisit[]>(),
         VisitModel.countDocuments(filter)
     ]);
     return { visits, total };
@@ -105,48 +111,55 @@ const getCustomerAllDeletedVisits = async (customer_id: string, skip: number, li
 
 // ─── Get all favourite restaurants for a customer ────────────────────────────
 
-const getCustomerAllFavouriteRestaurants = async (customer_id: string, skip: number, limit: number): Promise<{ favoriteRestaurants: IRestaurant[], total: number }> => {
-    const customer = await CustomerModel.findById(customer_id)
-        .active()
-        .populate({
-            path: 'favoriteRestaurants',
-            select: 'profile.name profile.description profile.globalRating profile.category profile.image profile.location.city',
-            options: { skip, limit },
-            transform: (doc) => {
-                if (doc && doc.profile && doc.profile.image && Array.isArray(doc.profile.image)) {
-                    doc.profile.image = doc.profile.image.slice(0, 3);
-                }
-                return doc;
-            }
-        })
-        .lean<ICustomer & { favoriteRestaurants: IRestaurant[] }>();
+const getCustomerAllFavouriteRestaurants = async ( customer_id: string, skip: number, limit: number ): Promise<{ favoriteRestaurants: IRestaurant[]; total: number }> => {
+    const customer = await CustomerModel.findById(customer_id).active().select('favoriteRestaurants').lean();
 
-    if (!customer) return { favoriteRestaurants: [], total: 0 };
+    if (!customer || !customer.favoriteRestaurants || customer.favoriteRestaurants.length === 0) {
+        return { favoriteRestaurants: [], total: 0 };
+    }
 
-    const fullCustomer = await CustomerModel.findById(customer_id).select('favoriteRestaurants').lean();
-    const total = fullCustomer?.favoriteRestaurants?.length || 0;
+    const filter = { _id: { $in: customer.favoriteRestaurants }, deletedAt: null };
 
-    return { favoriteRestaurants: customer.favoriteRestaurants || [], total };
+    const [restaurants, total] = await Promise.all([
+        RestaurantModel.find(filter)
+            .select('profile.name profile.description profile.globalRating profile.category profile.image profile.location.city')
+            .skip(skip)
+            .limit(limit)
+            .lean<IRestaurant[]>(),
+        RestaurantModel.countDocuments(filter)
+    ]);
+
+    const favoriteRestaurants = restaurants.map((doc) => {
+        if (doc?.profile?.image && Array.isArray(doc.profile.image)) {
+            doc.profile.image = doc.profile.image.slice(0, 3);
+        }
+        return doc;
+    });
+
+    return { favoriteRestaurants, total };
 };
 
 // ─── Get all badges earned by a customer ──────────────────────────────────────
 
 const getCustomerAllBadges = async (customer_id: string, skip: number, limit: number): Promise<{ badges: IBadge[], total: number }> => {
-    const customer = await CustomerModel.findById(customer_id)
-        .active()
-        .populate<{ badges: IBadge[] }>({
-            path: 'badges',
-            select: 'title description type',
-            options: { skip, limit }
-        })
-        .lean<ICustomer & { badges: IBadge[] }>();
+    const customer = await CustomerModel.findById(customer_id).active().select('badges').lean();
 
-    if (!customer) return { badges: [], total: 0 };
+    if (!customer || !customer.badges || customer.badges.length === 0) {
+        return { badges: [], total: 0 };
+    }
 
-    const fullCustomer = await CustomerModel.findById(customer_id).select('badges').lean();
-    const total = fullCustomer?.badges?.length || 0;
+    const filter = { _id: { $in: customer.badges }, deletedAt: null };
 
-    return { badges: customer.badges || [], total };
+    const [badges, total] = await Promise.all([
+        BadgeModel.find(filter)
+            .select('title description type')
+            .skip(skip)
+            .limit(limit)
+            .lean<IBadge[]>(),
+        BadgeModel.countDocuments(filter)
+    ]);
+
+    return { badges, total };
 };
 
 // ─── Get all reviews written by a customer ────────────────────────────────────
@@ -159,7 +172,7 @@ const getCustomerAllReviews = async (customer_id: string, skip: number, limit: n
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
-            .lean(),
+            .lean<IReview[]>(),
         ReviewModel.countDocuments(filter)
     ]);
     return { reviews, total };
@@ -170,7 +183,7 @@ const getCustomerAllReviews = async (customer_id: string, skip: number, limit: n
 const getAllCustomers = async (skip: number, limit: number): Promise<{ data: ICustomer[], total: number }> => {
     const filter = { deletedAt: null };
     const [data, total] = await Promise.all([
-        CustomerModel.find(filter).skip(skip).limit(limit).lean(),
+        CustomerModel.find(filter).skip(skip).limit(limit).lean<ICustomer[]>(),
         CustomerModel.countDocuments(filter)
     ]);
     return { data, total };
@@ -179,7 +192,7 @@ const getAllCustomers = async (skip: number, limit: number): Promise<{ data: ICu
 const getAllDeletedCustomers = async (skip: number, limit: number): Promise<{ data: ICustomer[], total: number }> => {
     const filter = { deletedAt: { $ne: null } };
     const [data, total] = await Promise.all([
-        CustomerModel.find(filter).skip(skip).limit(limit).lean(),
+        CustomerModel.find(filter).skip(skip).limit(limit).lean<ICustomer[]>(),
         CustomerModel.countDocuments(filter)
     ]);
     return { data, total };

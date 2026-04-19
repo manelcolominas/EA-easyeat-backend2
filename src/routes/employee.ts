@@ -78,6 +78,25 @@ const router = express.Router();
  *         isActive:
  *           type: boolean
  *           example: true
+ * 
+ *     PaginatedEmployees:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Employee'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -104,11 +123,28 @@ router.post('/', ValidateJoi(Schemas.employee.create), controller.createEmployee
  * @openapi
  * /employees:
  *   get:
- *     summary: Lists all employees
+ *     summary: Lists all employees (paginated)
  *     tags: [Employees]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedEmployees'
  */
 router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), controller.readAll);
 
@@ -116,11 +152,28 @@ router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAc
  * @openapi
  * /employees/deleted:
  *   get:
- *     summary: List all deleted employees
+ *     summary: List all deleted employees (paginated)
  *     tags: [Employees]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedEmployees'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
@@ -241,7 +294,12 @@ router.delete('/:employee_id/soft', authenticate, requireRole('owner', 'admin'),
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/components/parameters/employee_id'
+ *       - in: path
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The employee's ObjectId
  *     responses:
  *       200:
  *         description: Employee restored successfully
@@ -282,7 +340,12 @@ router.patch('/:employee_id/restore', authenticate, requireRole('admin'), contro
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/components/parameters/employee_id'
+ *       - in: path
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The employee's ObjectId
  *     responses:
  *       200:
  *         description: Employee permanently deleted successfully
