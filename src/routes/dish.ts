@@ -91,6 +91,25 @@ const router = express.Router();
  *             updatedAt:
  *               type: string
  *               format: date-time
+ * 
+ *     PaginatedDishes:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DishResponse'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  *
  *     Error:
  *       type: object
@@ -183,7 +202,7 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
  * @openapi
  * /dishes:
  *   get:
- *     summary: List all dishes
+ *     summary: List all dishes (paginated)
  *     description: Returns all dishes across all restaurants. Supports optional query filters.
  *     tags: [Dishes]
  *     parameters:
@@ -213,7 +232,7 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
  *         name: limit
  *         schema:
  *           type: integer
- *           default: 20
+ *           default: 10
  *         description: Max number of results to return
  *       - in: query
  *         name: page
@@ -227,9 +246,7 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishResponse'
+ *               $ref: '#/components/schemas/PaginatedDishes'
  */
 router.get('/', controller.readAll);
 
@@ -237,7 +254,7 @@ router.get('/', controller.readAll);
  * @openapi
  * /dishes/deleted:
  *   get:
- *     summary: List all deleted dishes
+ *     summary: List all deleted dishes (paginated)
  *     description: Returns all deleted dishes across all restaurants.
  *     tags: [Dishes]
  *     security:
@@ -247,7 +264,7 @@ router.get('/', controller.readAll);
  *         name: limit
  *         schema:
  *           type: integer
- *           default: 20
+ *           default: 10
  *         description: Max number of results to return
  *       - in: query
  *         name: page
@@ -261,9 +278,7 @@ router.get('/', controller.readAll);
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishResponse'
+ *               $ref: '#/components/schemas/PaginatedDishes'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 

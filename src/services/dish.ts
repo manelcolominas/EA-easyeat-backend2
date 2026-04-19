@@ -27,12 +27,20 @@ const getDeletedDish = async (dish_id: string) => {
     return await DishModel.findOne({ _id: dish_id, active: false }).lean();
 };
 
-const getAllDishes = async (): Promise<IDish[]> => {
-    return await DishModel.find();
+const getAllDishes = async (skip: number, limit: number): Promise<{ dishes: IDish[], total: number }> => {
+    const [dishes, total] = await Promise.all([
+        DishModel.find({ active: true }).lean().skip(skip).limit(limit),
+        DishModel.countDocuments({ active: true })
+    ]);
+    return { dishes, total };
 };
 
-const getAllDeletedDishes = async (): Promise<IDish[]> => {
-    return await DishModel.find({ active: false }).lean();
+const getAllDeletedDishes = async (skip: number, limit: number): Promise<{ dishes: IDish[], total: number }> => {
+    const [dishes, total] = await Promise.all([
+        DishModel.find({ active: false }).lean().skip(skip).limit(limit),
+        DishModel.countDocuments({ active: false })
+    ]);
+    return { dishes, total };
 };
 
 const updateDish = async (dish_id: string, data: Partial<IDish>) => {

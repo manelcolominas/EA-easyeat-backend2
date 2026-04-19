@@ -51,7 +51,13 @@ const StartServer = () => {
     router.use(cors());
 
     /** Swagger — public */
-    router.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    router.use('/api', swaggerUi.serve,
+        swaggerUi.setup(swaggerSpec, {
+            swaggerOptions: {
+                persistAuthorization: true
+            }
+        })
+    );
 
     /** Public Routes */
     router.use('/auth', authRoutes);

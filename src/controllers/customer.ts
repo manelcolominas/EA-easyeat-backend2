@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import CustomerService from '../services/customer';
-import Logging from '../library/logging';
+import { getPaginationOptions } from '../utils/pagination';
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -64,12 +64,15 @@ const readDeletedCustomerFull = async (req: Request, res: Response, next: NextFu
 };
 
 const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
-    const customer_id = req.params.customer_id;
+    const { customer_id } = req.params;
     try {
-        const badges = await CustomerService.getCustomerAllBadges(customer_id);
-        return badges
-            ? res.status(200).json(badges)
-            : res.status(404).json({ message: 'Customer not found' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await CustomerService.getCustomerAllBadges(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -78,8 +81,13 @@ const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunct
 const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const restaurants = await CustomerService.getCustomerAllFavouriteRestaurants(customer_id);
-        return res.status(200).json(restaurants);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { favoriteRestaurants, total } = await CustomerService.getCustomerAllFavouriteRestaurants(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: favoriteRestaurants,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -88,8 +96,13 @@ const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, n
 const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const reviews = await CustomerService.getCustomerAllReviews(customer_id);
-        return res.status(200).json(reviews);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await CustomerService.getCustomerAllReviews(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -98,8 +111,13 @@ const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunc
 const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const visits = await CustomerService.getCustomerAllVisits(customer_id);
-        return res.status(200).json(visits);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await CustomerService.getCustomerAllVisits(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -108,8 +126,13 @@ const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunct
 const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const visits = await CustomerService.getCustomerAllDeletedVisits(customer_id);
-        return res.status(200).json(visits);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await CustomerService.getCustomerAllDeletedVisits(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -118,8 +141,13 @@ const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: Ne
 const getCustomerAllPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const pointsWallet = await CustomerService.getCustomerAllPointsWallet(customer_id);
-        return res.status(200).json(pointsWallet);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { pointsWallet, total } = await CustomerService.getCustomerAllPointsWallet(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: pointsWallet,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -128,26 +156,28 @@ const getCustomerAllPointsWallet = async (req: Request, res: Response, next: Nex
 // ─── Read (paginated list) ────────────────────────────────────────────────────
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
-    // Accept ?page=1&limit=20 query params
-    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
-    const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
-
     try {
-        const result = await CustomerService.getAllCustomers({ page, limit });
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { data, total } = await CustomerService.getAllCustomers(skip, limit);
+        
+        return res.status(200).json({
+            data,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
-    // Accept ?page=1&limit=20 query params
-    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
-    const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
-
     try {
-        const result = await CustomerService.getAllDeletedCustomers({ page, limit });
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { data, total } = await CustomerService.getAllDeletedCustomers(skip, limit);
+        
+        return res.status(200).json({
+            data,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
