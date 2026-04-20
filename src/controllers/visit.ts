@@ -62,7 +62,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
             restaurant_id: restaurant_id as string | undefined,
         };
 
-        const result = await VisitService.getAllVisits(filter, page, limit);
+        const result = await VisitService.getAllDeletedVisits(filter, page, limit);
         return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ error });
