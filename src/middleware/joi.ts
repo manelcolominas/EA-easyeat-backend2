@@ -179,18 +179,6 @@ export const Schemas = {
         employee_id: Joi.string().hex().length(24).optional().allow(null, ''),
         notes: Joi.string().trim().optional().allow('')
     }),
-
-    listQuery: Joi.object({
-        status: Joi.string()
-            .valid('pending', 'approved', 'redeemed', 'cancelled', 'expired')
-            .optional(),
-        restaurant_id: Joi.string().hex().length(24).optional(),
-        customer_id: Joi.string().hex().length(24).optional(),
-        reward_id: Joi.string().hex().length(24).optional(),
-        employee_id: Joi.string().hex().length(24).optional(),
-        skip: Joi.number().integer().min(0).default(0).optional(),
-        limit: Joi.number().integer().min(1).max(100).default(10).optional()
-    })
 },
 
     review: {

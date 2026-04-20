@@ -195,7 +195,6 @@ router.get(
   '/',
   authenticate,
   requireRole('admin'),
-  ValidateJoi(Schemas.rewardRedemption.listQuery, 'query'),
   controller.readAll
 );
 

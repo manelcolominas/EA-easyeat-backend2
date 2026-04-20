@@ -101,13 +101,45 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.statist
  * @openapi
  * /statistics:
  *   get:
- *     summary: Lists all statistics records
+ *     summary: Lists all statistics records with pagination
  *     tags: [Statistics]
+ *     parameters:
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
  */
 router.get('/', authenticate, requireRole('admin'), controller.readAll);
+
+/**
+ * @openapi
+ * /statistics/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Gets statistics record by restaurant ID
+ *     tags: [Statistics]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not found
+ */
+router.get('/restaurant/:restaurant_id', authenticate, requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
 
 /**
  * @openapi
