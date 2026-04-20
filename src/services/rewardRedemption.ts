@@ -57,6 +57,7 @@ const createRewardRedemption = async (data: Partial<IRewardRedemption>) => {
   return await redemption.save();
 };
 
+
 const redeemReward = async (data: RedeemRewardPayload) => {
   const session = await mongoose.startSession();
 
@@ -172,11 +173,8 @@ const getRewardRedemption = async (redemptionId: string) => {
     .populate('employee_id');
 };
 
-const getAllRewardRedemptions = async (
-  filters: RewardRedemptionFilters = {}
-): Promise<IRewardRedemption[]> => {
+const getAllRewardRedemptions = async ( filters: RewardRedemptionFilters = {} ): Promise<IRewardRedemption[]> => {
   const query: Record<string, unknown> = {};
-
   if (filters.status) query.status = filters.status;
   if (filters.restaurant_id) query.restaurant_id = filters.restaurant_id;
   if (filters.customer_id) query.customer_id = filters.customer_id;
@@ -229,6 +227,7 @@ const isTransactionUnsupportedError = (error: any): boolean => {
   const message = String(error?.message || '');
   return message.includes('Transaction numbers are only allowed on a replica set member or mongos');
 };
+
 const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
   const { customer_id, reward_id, employee_id, notes } = data;
 

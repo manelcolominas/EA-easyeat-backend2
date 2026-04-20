@@ -108,6 +108,17 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  *   get:
  *     summary: Lists all reviews
  *     tags: [Reviews]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of reviews
@@ -125,6 +136,17 @@ router.get(
  *   get:
  *     summary: Lists all deleted reviews
  *     tags: [Reviews]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of deleted reviews
@@ -152,6 +174,16 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of reviews
@@ -174,6 +206,16 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of deleted reviews
@@ -205,12 +247,14 @@ router.get(
  *         name: limit
  *         schema:
  *           type: integer
+ *           default: 5
  *       - in: query
  *         name: skip
  *         schema:
  *           type: integer
+ *           default: 0
  *       - in: query
- *         name: minglobalRating
+ *         name: minGlobalRating
  *         schema:
  *           type: number
  *       - in: query
@@ -244,12 +288,14 @@ router.get(
  *         name: limit
  *         schema:
  *           type: integer
+ *           default: 5
  *       - in: query
  *         name: skip
  *         schema:
  *           type: integer
+ *           default: 0
  *       - in: query
- *         name: minglobalRating
+ *         name: minGlobalRating
  *         schema:
  *           type: number
  *       - in: query

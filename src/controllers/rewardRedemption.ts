@@ -23,7 +23,6 @@ const redeemReward = async (req: Request, res: Response, next: NextFunction) => 
 
 const readRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   const { redemptionId } = req.params;
-
   try {
     const redemption = await RewardRedemptionService.getRewardRedemption(redemptionId);
     return redemption
