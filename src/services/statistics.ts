@@ -23,8 +23,16 @@ const getStatistics = async (statistics_id: string) => {
     return await StatisticsModel.findById(statistics_id);
 };
 
-const getAllStatistics = async (): Promise<IStatistics[]> => {
-    return await StatisticsModel.find();
+const getAllStatistics = async (skip: number, limit: number): Promise<{ statistics: IStatistics[], total: number }> => {
+    const [statistics, total] = await Promise.all([
+    StatisticsModel.find().skip(skip).limit(limit),
+        StatisticsModel.countDocuments()
+    ]);
+    return { statistics, total };
+};
+
+const getByRestaurant = async (restaurant_id: string) => {
+    return await StatisticsModel.findOne({ restaurant_id });
 };
 
 const updateStatistics = async (statistics_id: string, data: Partial<IStatistics>) => {
@@ -50,4 +58,4 @@ const deleteStatistics = async (statistics_id: string) => {
     return deleted;
 };
 
-export default { createStatistics, getStatistics, getAllStatistics, updateStatistics, deleteStatistics };
+export default { createStatistics, getStatistics, getAllStatistics, getByRestaurant, updateStatistics, deleteStatistics };

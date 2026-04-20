@@ -23,9 +23,13 @@ const getPointsWallet = async (walletId: string) => {
     return await PointsWalletModel.findById(walletId);
 };
 
-const getAllPointsWallets = async (): Promise<IPointsWallet[]> => {
-    return await PointsWalletModel.find();
-};
+const getAllPointsWallets = async (skip: number, limit: number): Promise<{ wallets:IPointsWallet[], total: number }> => {
+    const [wallets, total] = await Promise.all([
+        PointsWalletModel.find().lean().skip(skip).limit(limit),
+        PointsWalletModel.countDocuments()
+    ]);
+    return { wallets, total };
+}
 
 const updatePointsWallet = async (walletId: string, data: Partial<IPointsWallet>) => {
     const wallet = await PointsWalletModel.findById(walletId);

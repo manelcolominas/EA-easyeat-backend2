@@ -15,7 +15,7 @@ export const config = {
     jwt: {
         accessSecret:     process.env.JWT_SECRET         || 'cce788eebd26d18a40e2f414c69692bb9bdedd9fc3438d92e52915359abe8d59',
         refreshSecret:    process.env.JWT_REFRESH_SECRET || '9a23ae4899d12aa77c66240a3b4a058f935e3634d06a72a4311e7d290274c121',
-        accessExpiresIn:  process.env.JWT_ACCESS_EXPIRES_IN  || '15m',
+        accessExpiresIn:  process.env.JWT_ACCESS_EXPIRES_IN  || '1d',
         refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     },
     cookies: {

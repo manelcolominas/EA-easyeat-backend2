@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import StatisticsService from '../services/statistics';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -22,8 +23,22 @@ const readStatistics = async (req: Request, res: Response, next: NextFunction) =
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const statistics = await StatisticsService.getAllStatistics();
-        return res.status(200).json(statistics);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { statistics , total } = await StatisticsService.getAllStatistics(skip, limit);
+        return res.status(200).json({
+            data: statistics,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    const { restaurant_id } = req.params;
+    try {
+        const statistics = await StatisticsService.getByRestaurant(restaurant_id);
+        return statistics ? res.status(200).json(statistics) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -49,4 +64,4 @@ const deleteStatistics = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-export default { createStatistics, readStatistics, readAll, updateStatistics, deleteStatistics };
+export default { createStatistics, readStatistics, readAll, readByRestaurant, updateStatistics, deleteStatistics };

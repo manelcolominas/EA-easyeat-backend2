@@ -43,6 +43,48 @@ dishRatingSchema.index(
     }
 );
 
+dishRatingSchema.statics.calculateAvgRating = async function(dishId: Types.ObjectId) {
+    const stats = await this.aggregate([
+        {
+            $match: { dish_id: dishId, deletedAt: null }
+        },
+        {
+            $group: {
+                _id: '$dish_id',
+                avgRating: { $avg: '$rating' },
+                ratingsCount: { $sum: 1 }
+            }
+        }
+    ]);
+
+    if (stats.length > 0) {
+        await model('Dish').findByIdAndUpdate(dishId, {
+            avgRating: Math.round(stats[0].avgRating * 10) / 10, // Round to 1 decimal
+            ratingsCount: stats[0].ratingsCount
+        });
+    }
+    else {
+        await model('Dish').findByIdAndUpdate(dishId, {
+            avgRating: 0,
+            ratingsCount: 0
+        });
+    }
+};
+
+// Post-save hook (handles creation and updates)
+dishRatingSchema.post('save', async function() {
+    // 'this' refers to the document being saved
+    await (this.constructor as any).calculateAvgRating(this.dish_id);
+});
+
+// If you use findOneAndUpdate for soft deletes, add a post hook for that too
+dishRatingSchema.post(/^findOneAnd/, async function(doc) {
+    if (doc) {
+        await (doc.constructor as any).calculateAvgRating(doc.dish_id);
+    }
+});
+
+
 // Fast lookup by dish (listing + analytics)
 dishRatingSchema.index({ dish_id: 1, deletedAt: 1, createdAt: -1 });
 // Fast lookup by customer (profile page)

@@ -3,22 +3,9 @@ import { CustomerModel, ICustomer } from '../models/customer';
 import { softDeleteDocument, restoreDocument } from '../utils/softDelete';
 import { PointsWalletModel, IPointsWallet } from '../models/pointsWallet';
 import { VisitModel, IVisit } from '../models/visit';
-import { RestaurantModel } from '../models/restaurant';
+import { RestaurantModel, IRestaurant } from '../models/restaurant';
 import { BadgeModel, IBadge } from '../models/badge';
 import { ReviewModel, IReview } from '../models/review';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface PaginationOptions {
-    page?: number;   // 1-based, default 1
-    limit?: number;   // default 20
-}
-
-export interface PaginatedResult<T> {
-    data: T[]; total: number;
-    page: number;
-    totalPages: number;
-}
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -78,189 +65,137 @@ const getDeletedCustomerFull = async (customer_id: string) => {
 
 // ─── Get all points wallets for a customer ────────────────────────────────────
 
-const getCustomerAllPointsWallet = async (customer_id: string): Promise<IPointsWallet[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
+const getCustomerAllPointsWallet = async (customer_id: string, skip: number, limit: number): Promise<{ pointsWallet: IPointsWallet[], total: number }> => {
+    const filter = { customer_id: customer_id };
+    const [pointsWallet, total] = await Promise.all([
+        PointsWalletModel.find(filter)
+            .populate('restaurant_id', 'profile.name profile.location')
+            .skip(skip)
+            .limit(limit)
+            .lean<IPointsWallet[]>(),
+        PointsWalletModel.countDocuments(filter)
+    ]);
 
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id).active();
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all points wallets for this customer
-        return await PointsWalletModel.find({ customer_id: customer_id }).populate('restaurant_id', 'profile.name profile.location')
-            .lean();
-    }
-    catch (error) {
-        console.error(`Error fetching points wallets for customer ${customer_id}:`, error);
-        return [];
-    }
+    return { pointsWallet, total };
 };
 
 // ─── Get all visits for a customer ────────────────────────────────────────────
 
-const getCustomerAllVisits = async (customer_id: string): Promise<IVisit[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
-
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id).active();
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all visits for this customer, excluding soft-deleted ones
-        return await VisitModel.find({
-            customer_id: customer_id,
-            deletedAt: null,
-        })
+const getCustomerAllVisits = async (customer_id: string, skip: number, limit: number): Promise<{ visits: IVisit[], total: number }> => {
+    const filter = { customer_id: customer_id, deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter)
             .populate('restaurant_id', 'profile.name profile.rating profile.location.city')
-            .sort({ createdAt: -1 })  // Most recent first
-            .lean();
-    } catch (error) {
-        console.error(`Error fetching visits for customer ${customer_id}:`, error);
-        return [];
-    }
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
-const getCustomerAllDeletedVisits = async (customer_id: string): Promise<IVisit[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
-
-    try {
-        const customer = await CustomerModel.findOne({ _id: customer_id, deletedAt: { $ne: null } });
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all visits for this customer
-        return await VisitModel.findById(customer_id)
+const getCustomerAllDeletedVisits = async (customer_id: string, skip: number, limit: number): Promise<{ visits: IVisit[], total: number }> => {
+    const filter = { customer_id: customer_id, deletedAt: { $ne: null } };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter)
             .populate('restaurant_id', 'profile.name profile.rating profile.location.city')
-            .sort({ createdAt: -1 })  // Most recent first
-            .lean();
-    } catch (error) {
-        console.error(`Error fetching visits for customer ${customer_id}:`, error);
-        return [];
-    }
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
 // ─── Get all favourite restaurants for a customer ────────────────────────────
 
-const getCustomerAllFavouriteRestaurants = async (customer_id: string) => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
+const getCustomerAllFavouriteRestaurants = async ( customer_id: string, skip: number, limit: number ): Promise<{ favoriteRestaurants: IRestaurant[]; total: number }> => {
+    const customer = await CustomerModel.findById(customer_id).active().select('favoriteRestaurants').lean();
+
+    if (!customer || !customer.favoriteRestaurants || customer.favoriteRestaurants.length === 0) {
+        return { favoriteRestaurants: [], total: 0 };
     }
 
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id)
-            .active()
-            .populate({
-                path: 'favoriteRestaurants',
-                select: 'profile.name profile.description profile.globalRating profile.category profile.image profile.location.city',
-                transform: (doc) => {
-                    if (doc && doc.profile && doc.profile.image && Array.isArray(doc.profile.image)) {
-                        doc.profile.image = doc.profile.image.slice(0, 3);
-                    }
-                    return doc;
-                }
-            });
+    const filter = { _id: { $in: customer.favoriteRestaurants }, deletedAt: null };
 
-        if (!customer || !customer.favoriteRestaurants) {
-            return [];
+    const [restaurants, total] = await Promise.all([
+        RestaurantModel.find(filter)
+            .select('profile.name profile.description profile.globalRating profile.category profile.image profile.location.city')
+            .skip(skip)
+            .limit(limit)
+            .lean<IRestaurant[]>(),
+        RestaurantModel.countDocuments(filter)
+    ]);
+
+    const favoriteRestaurants = restaurants.map((doc) => {
+        if (doc?.profile?.image && Array.isArray(doc.profile.image)) {
+            doc.profile.image = doc.profile.image.slice(0, 3);
         }
+        return doc;
+    });
 
-        return customer.favoriteRestaurants;
-    }
-    catch (error) {
-        console.error(`Error fetching favourite restaurants for customer ${customer_id}:`, error);
-        return [];
-    }
+    return { favoriteRestaurants, total };
 };
 
 // ─── Get all badges earned by a customer ──────────────────────────────────────
 
-const getCustomerAllBadges = async (customer_id: string): Promise<IBadge[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
+const getCustomerAllBadges = async (customer_id: string, skip: number, limit: number): Promise<{ badges: IBadge[], total: number }> => {
+    const customer = await CustomerModel.findById(customer_id).active().select('badges').lean();
+
+    if (!customer || !customer.badges || customer.badges.length === 0) {
+        return { badges: [], total: 0 };
     }
 
-    try {
-        // Fetch customer with populated badges
-        const customer = await CustomerModel.findById(customer_id)
-            .active()
-            .populate<{ badges: IBadge[] }>({
-                path: 'badges',
-                select: 'title description type',
-            })
-            .lean();
+    const filter = { _id: { $in: customer.badges }, deletedAt: null };
 
-        if (!customer || !customer.badges) {
-            return [];
-        }
+    const [badges, total] = await Promise.all([
+        BadgeModel.find(filter)
+            .select('title description type')
+            .skip(skip)
+            .limit(limit)
+            .lean<IBadge[]>(),
+        BadgeModel.countDocuments(filter)
+    ]);
 
-        return customer.badges;
-    } catch (error) {
-        console.error(`Error fetching badges for customer ${customer_id}:`, error);
-        return [];
-    }
+    return { badges, total };
 };
 
 // ─── Get all reviews written by a customer ────────────────────────────────────
 
-const getCustomerAllReviews = async (customer_id: string): Promise<IReview[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
-
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id).active();
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all reviews by this customer, excluding soft-deleted ones
-        return await ReviewModel.find({
-            customer_id: customer_id,
-            deletedAt: null,
-            deleted: { $ne: true },
-        })
+const getCustomerAllReviews = async (customer_id: string, skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const filter = { customer_id: customer_id, deletedAt: null, deleted: { $ne: true } };
+    const [reviews, total] = await Promise.all([
+        ReviewModel.find(filter)
             .populate('restaurant_id', 'profile.name profile.rating')
-            .sort({ createdAt: -1 })  // Most recent first
-            .lean();
-    } catch (error) {
-        console.error(`Error fetching reviews for customer ${customer_id}:`, error);
-        return [];
-    }
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IReview[]>(),
+        ReviewModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
-// ─── Read (paginated list — active only) ──────────────────────────────────────
+// ─── Read (paginated list) ────────────────────────────────────────────────────
 
-const getAllCustomers = async ({ page = 1, limit = 20 }: PaginationOptions = {}): Promise<PaginatedResult<ICustomer>> => {
-    const skip = (page - 1) * limit;
+const getAllCustomers = async (skip: number, limit: number): Promise<{ data: ICustomer[], total: number }> => {
     const filter = { deletedAt: null };
-    const [data, total] = await Promise.all([CustomerModel.find(filter).skip(skip).limit(limit).lean(), CustomerModel.countDocuments(filter)]);
-    return { data, total, page, totalPages: Math.ceil(total / limit) };
+    const [data, total] = await Promise.all([
+        CustomerModel.find(filter).skip(skip).limit(limit).lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+    return { data, total };
 };
 
-const getAllDeletedCustomers = async ({ page = 1, limit = 20 }: PaginationOptions = {}): Promise<PaginatedResult<ICustomer>> => {
-    const skip = (page - 1) * limit;
+const getAllDeletedCustomers = async (skip: number, limit: number): Promise<{ data: ICustomer[], total: number }> => {
     const filter = { deletedAt: { $ne: null } };
-    const [data, total] = await Promise.all([CustomerModel.find(filter).skip(skip).limit(limit).lean(), CustomerModel.countDocuments(filter)]);
-    return { data, total, page, totalPages: Math.ceil(total / limit) };
+    const [data, total] = await Promise.all([
+        CustomerModel.find(filter).skip(skip).limit(limit).lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+    return { data, total };
 };
 
 // ─── Update ───────────────────────────────────────────────────────────────────
@@ -284,7 +219,7 @@ const restoreCustomer = async (customer_id: string) => {
     return restoreDocument(CustomerModel, customer_id);
 };
 
-// ─── Hard Delete ─────────────────────────────────────────────────────────────
+// ─── Hard Delete (admin only) ─────────────────────────────────────────────────
 
 const hardDeleteCustomer = async (customer_id: string) => {
     return CustomerModel.findByIdAndDelete(customer_id);

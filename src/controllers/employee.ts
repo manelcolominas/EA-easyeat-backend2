@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import EmployeeService from '../services/employee';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -32,8 +33,12 @@ const readDeletedEmployee = async (req: Request, res: Response, next: NextFuncti
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employees = await EmployeeService.getAllEmployees();
-        return res.status(200).json(employees);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await EmployeeService.getAllEmployees(skip,limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -41,8 +46,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employees = await EmployeeService.getAllDeletedEmployees();
-        return res.status(200).json(employees);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await EmployeeService.getAllDeletedEmployees(skip,limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }

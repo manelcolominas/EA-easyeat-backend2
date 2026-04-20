@@ -179,15 +179,6 @@ export const Schemas = {
         employee_id: Joi.string().hex().length(24).optional().allow(null, ''),
         notes: Joi.string().trim().optional().allow('')
     }),
-
-    listQuery: Joi.object({
-        status: Joi.string()
-            .valid('pending', 'approved', 'redeemed', 'cancelled', 'expired')
-            .optional(),
-        restaurant_id: Joi.string().hex().length(24).optional(),
-        customer_id: Joi.string().hex().length(24).optional(),
-        reward_id: Joi.string().hex().length(24).optional()
-    })
 },
 
     review: {
@@ -339,7 +330,7 @@ export const Schemas = {
             description:   Joi.string().required(),
             section:       Joi.string().valid('Starters', 'Mains', 'Desserts', 'Drinks', 'Sides', 'Specials').required(),
             price:         Joi.number().min(0).required(),
-            images:         Joi.array().items(Joi.string().uri()),
+            images:        Joi.array().items(Joi.string().uri()),
             active:        Joi.boolean().default(true),
             availableAt:   Joi.array().items(Joi.string().valid('breakfast', 'brunch', 'lunch', 'happy-hour', 'dinner', 'all-day')).required(),
             ingredients:   Joi.array().items(Joi.string()),
@@ -347,7 +338,9 @@ export const Schemas = {
             dietaryFlags:  Joi.array().items(Joi.string().valid('vegan', 'vegetarian', 'gluten-free', 'halal', 'kosher', 'dairy-free', 'nut-free')),
             flavorProfile: Joi.array().items(Joi.string().valid('spicy', 'mild', 'sweet', 'sour', 'salty', 'bitter', 'umami', 'smoky', 'rich', 'light', 'creamy', 'tangy', 'fresh', 'hearty', 'nutty')),
             cuisineTags:   Joi.array().items(Joi.string().valid(...categoryEnum)),
-            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing')
+            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing'),
+            avgRating:     Joi.forbidden(),
+            ratingsCount:  Joi.forbidden()
         }),
         update: Joi.object<IDish>({
             name:          Joi.string(),
@@ -362,10 +355,11 @@ export const Schemas = {
             dietaryFlags:  Joi.array().items(Joi.string().valid('vegan', 'vegetarian', 'gluten-free', 'halal', 'kosher', 'dairy-free', 'nut-free')),
             flavorProfile: Joi.array().items(Joi.string().valid('spicy', 'mild', 'sweet', 'sour', 'salty', 'bitter', 'umami', 'smoky', 'rich', 'light', 'creamy', 'tangy', 'fresh', 'hearty', 'nutty')),
             cuisineTags:   Joi.array().items(Joi.string().valid(...categoryEnum)),
-            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing')
+            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing'),
+            avgRating:     Joi.forbidden(),
+            ratingsCount:  Joi.forbidden()
         })
     },
-
 
     dishRating: {
         create: Joi.object<IDishRating>({

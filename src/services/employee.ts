@@ -27,13 +27,21 @@ const getDeletedEmployee = async (employee_id: string) => {
     return await EmployeeModel.findOne({ _id: employee_id, isActive: false }).lean();
 };
 
-const getAllEmployees = async (): Promise<IEmployee[]> => {
-    return await EmployeeModel.find();
+const getAllEmployees = async (skip: number, limit: number): Promise<{ employees: IEmployee[], total: number }> => {
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find({ isActive: true }).lean().skip(skip).limit(limit),
+        EmployeeModel.countDocuments({ isActive: true })
+    ]);
+    return { employees, total };
 };
 
-const getAllDeletedEmployees = async (): Promise<IEmployee[]> => {
-    return await EmployeeModel.find({ isActive: false }).lean();
-};
+const getAllDeletedEmployees = async (skip: number, limit: number): Promise<{ employees: IEmployee[], total: number }> => {
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find({ isActive: false }).lean().skip(skip).limit(limit),
+        EmployeeModel.countDocuments({ isActive: false })
+    ]);
+    return { employees, total };
+}
 
 const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => {
     const employee = await EmployeeModel.findById(employee_id);

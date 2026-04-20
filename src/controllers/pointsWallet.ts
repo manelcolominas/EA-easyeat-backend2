@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import PointsWalletService from '../services/pointsWallet';
+import { getPaginationOptions } from '../utils/pagination';
+
 
 const createPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -22,8 +24,12 @@ const readPointsWallet = async (req: Request, res: Response, next: NextFunction)
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const wallets = await PointsWalletService.getAllPointsWallets();
-        return res.status(200).json(wallets);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { wallets, total } = await PointsWalletService.getAllPointsWallets(skip, limit);
+        return res.status(200).json({
+            data: wallets,
+            meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }

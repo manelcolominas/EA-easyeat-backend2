@@ -28,18 +28,27 @@ const getDeletedReward = async (reward_id: string) => {
     return await RewardModel.findOne({ _id: reward_id, active: false }).lean();
 };
 
-const getAllRewards = async (page: number = 1, limit: number = 10) => {
-    const skip = (page - 1) * limit;
-    return await RewardModel.find()
-        .skip(skip)
-        .limit(limit);
+const getAllRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[], total: number }> => {
+    const [rewards, total] = await Promise.all([
+        RewardModel.find()
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        RewardModel.countDocuments()
+    ]);
+    return { rewards, total };
 };
 
-const getAllDeletedRewards = async (page: number = 1, limit: number = 10) => {
-    const skip = (page - 1) * limit;
-    return await RewardModel.find({ active: false })
-        .skip(skip)
-        .limit(limit);
+const getAllDeletedRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[], total: number }> => {
+    const filter = { active: false };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        RewardModel.countDocuments(filter)
+    ]);
+    return { rewards, total };
 };
 
 const updateReward = async (reward_id: string, data: Partial<IReward>) => {
@@ -63,8 +72,6 @@ const restoreReward = async (reward_id: string) => {
 
 const hardDeleteReward = async (reward_id: string) => {
     const deletedReward = await RewardModel.findByIdAndDelete(reward_id);
-
-    // Automatically remove the reward ID from the restaurant's rewards array
     if (deletedReward && deletedReward.restaurant_id) {
         await RestaurantModel.findByIdAndUpdate(deletedReward.restaurant_id, {
             $pull: { rewards: deletedReward._id }
