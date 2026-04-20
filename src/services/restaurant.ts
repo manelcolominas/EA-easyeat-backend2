@@ -1,7 +1,12 @@
 import mongoose, { PipelineStage } from 'mongoose';
 import { RestaurantModel, IRestaurant } from '../models/restaurant';
 import { DishRatingModel }              from '../models/dishRating';
-import { IDish }                        from '../models/dish';
+
+interface TopDishByRestaurant {
+    name: string;
+    averageRating: number;
+    totalRatings: number;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
@@ -200,7 +205,7 @@ const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestau
         .lean<IRestaurant>();
 };
 
-const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | null> => {
+const getTopDishByRestaurant = async (restaurantId: string): Promise<TopDishByRestaurant | null> => {
     if (!mongoose.Types.ObjectId.isValid(restaurantId)) return null;
 
     const pipeline: PipelineStage[] = [
@@ -213,11 +218,11 @@ const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | nul
         {
             $group: {
                 _id:         '$dish_id',
-                avgRating:   { $avg: '$rating' },
-                ratingCount: { $sum: 1 },
+                averageRating: { $avg: '$rating' },
+                totalRatings:  { $sum: 1 },
             },
         },
-        { $sort: { avgRating: -1, ratingCount: -1 } },
+        { $sort: { averageRating: -1, totalRatings: -1 } },
         { $limit: 1 },
         {
             $lookup: {
@@ -229,11 +234,24 @@ const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | nul
         },
         { $unwind: '$dish' },
         { $match: { 'dish.active': true } },
-        { $replaceRoot: { newRoot: '$dish' } },
+        {
+            $project: {
+                _id: 0,
+                name: '$dish.name',
+                averageRating: 1,
+                totalRatings: 1,
+            },
+        },
     ];
 
-    const [topDish] = await DishRatingModel.aggregate<IDish>(pipeline);
-    return topDish ?? null;
+    const [topDish] = await DishRatingModel.aggregate<TopDishByRestaurant>(pipeline);
+    if (!topDish) return null;
+
+    return {
+        name: topDish.name,
+        averageRating: Math.round(topDish.averageRating * 10) / 10,
+        totalRatings: topDish.totalRatings,
+    };
 };
 
 const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {

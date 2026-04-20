@@ -133,6 +133,46 @@ const getDishRatingSummary = async (dish_id: string): Promise<RateSummary> => {
     };
 };
 
+const getTopDishByRestaurant = async (restaurant_id: string) => {
+    if (!mongoose.Types.ObjectId.isValid(restaurant_id)) return null;
+
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
+                deletedAt: null
+            }
+        },
+        {
+            $group: {
+                _id: "$dish_id",
+                averageRating: { $avg: "$rating" },
+                totalRatings: { $sum: 1 }
+            }
+        },
+        {
+            $sort: { averageRating: -1 }
+        },
+        {
+            $limit: 1
+        }
+    ];
+
+    const [topDish] = await DishRatingModel.aggregate(pipeline);
+
+    if (!topDish) return null;
+
+    const dish = await DishModel.findOne({ _id: topDish._id, active: true });
+
+    if (!dish) return null;
+
+    return {
+        name: dish.name,
+        averageRating: Math.round(topDish.averageRating * 10) / 10,
+        totalRatings: topDish.totalRatings
+    };
+};
+
 // ─── Exports ──────────────────────────────────────────────────────────────────
 
 export default {
@@ -141,4 +181,5 @@ export default {
     getRatingsByCustomer,
     softDeleteRating,
     getDishRatingSummary,
+    getTopDishByRestaurant
 };

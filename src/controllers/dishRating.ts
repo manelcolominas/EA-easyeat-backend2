@@ -93,4 +93,20 @@ const getRatingSummary = async (req: AuthRequest, res: Response, next: NextFunct
     }
 };
 
-export default { rateOrUpdateDish, readByDish, readByCustomer, softDeleteRating, getRatingSummary };
+const getTopDishByRestaurant = async (req: AuthRequest, res: Response) => {
+    const { restaurant_id } = req.params;
+
+    try {
+        const result = await DishRatingService.getTopDishByRestaurant(restaurant_id);
+
+        if (!result) {
+            return res.status(404).json({ message: 'No ratings yet' });
+        }
+
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+export default { rateOrUpdateDish, readByDish, readByCustomer, softDeleteRating, getRatingSummary, getTopDishByRestaurant };
