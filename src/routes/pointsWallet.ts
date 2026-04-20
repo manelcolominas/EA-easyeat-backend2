@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/pointsWallet';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireRestaurantAccess, requireSelfOrAdmin} from '../middleware/auth';
+import { authenticate, requireRole, requireRestaurantAccess } from '../middleware/auth';
 
 
 const router = express.Router();
@@ -51,6 +51,25 @@ const router = express.Router();
  *           minimum: 0
  *           default: 0
  *           example: 150
+ * 
+ *     PaginatedPointsWallets:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/PointsWallet'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -77,11 +96,28 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  * @openapi
  * /pointsWallets:
  *   get:
- *     summary: Lists all points wallets
+ *     summary: Lists all points wallets (paginated)
  *     tags: [PointsWallets]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedPointsWallets'
  */
 router.get('/', authenticate, requireRole('admin'),controller.readAll);
 

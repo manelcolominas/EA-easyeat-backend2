@@ -73,6 +73,25 @@ const router = express.Router();
  *         avgRating:
  *           type: number
  *           example: 7.8
+ *
+ *     PaginatedDishRatings:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DishRating'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 // ─── POST /dish-ratings ───────────────────────────────────────────────────────
@@ -125,7 +144,7 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  * @openapi
  * /dish-ratings/dish/{dish_id}:
  *   get:
- *     summary: List all ratings for a dish
+ *     summary: List all ratings for a dish (paginated)
  *     tags: [DishRatings]
  *     parameters:
  *       - in: path
@@ -133,15 +152,25 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of ratings
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishRating'
+ *               $ref: '#/components/schemas/PaginatedDishRatings'
  */
 router.get('/dish/:dish_id', controller.readByDish);
 
@@ -175,7 +204,7 @@ router.get('/dish/:dish_id/summary', controller.getRatingSummary);
  * @openapi
  * /dish-ratings/customer/{customer_id}:
  *   get:
- *     summary: List all ratings for a customer (self or admin)
+ *     summary: List all ratings for a customer (self or admin, paginated)
  *     tags: [DishRatings]
  *     security:
  *       - bearerAuth: []
@@ -185,15 +214,25 @@ router.get('/dish/:dish_id/summary', controller.getRatingSummary);
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of ratings
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishRating'
+ *               $ref: '#/components/schemas/PaginatedDishRatings'
  *       401:
  *         description: Authentication required
  *       403:

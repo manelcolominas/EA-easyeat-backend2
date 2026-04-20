@@ -1,8 +1,6 @@
 import mongoose, { PipelineStage } from 'mongoose';
 import { DishRatingModel, IDishRating } from '../models/dishRating';
 import { DishModel } from '../models/dish';
-import { CustomerModel } from '../models/customer';
-import { PointsWalletModel } from '../models/pointsWallet';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,14 +20,6 @@ export interface RateResult {
  * Returns null when the dish is not found or is inactive.
  */
 const rateOrUpdateDish = async ( customer_id: string, dish_id: string, rating: number ): Promise<RateResult | null> => {
-    if (
-        !mongoose.Types.ObjectId.isValid(customer_id) ||
-        !mongoose.Types.ObjectId.isValid(dish_id)
-    )
-    {
-        return null;
-    }
-    // Validate dish exists and is active
     const dish = await DishModel.findOne({ _id: dish_id, active: true });
     if (!dish) return null;
 
@@ -61,29 +51,31 @@ const rateOrUpdateDish = async ( customer_id: string, dish_id: string, rating: n
 
 // ─── Read ratings for a dish ─────────────────────────────────────────────────
 
-const getRatingsByDish = async (dish_id: string): Promise<any[]> => {
-    if (!mongoose.Types.ObjectId.isValid(dish_id)) {
-        return [];
-    }
-
-    const dishRatings = await DishRatingModel.find({ dish_id: dish_id });
-    return dishRatings;
+const getRatingsByDish = async (dish_id: string, skip: number, limit: number): Promise<{ dishRatings: IDishRating[], total: number }> => {
+    const [ dishRatings, total ]= await Promise.all([
+        DishRatingModel.find({ dish_id: dish_id }).skip(skip).limit(limit).lean(),
+        DishRatingModel.countDocuments({ dish_id: dish_id })
+    ]);
+    return { dishRatings, total };
 };
 
 // ─── Read ratings for a customer ─────────────────────────────────────────────
 
-const getRatingsByCustomer = async ( customer_id: string ): Promise<any[]> => {
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
+const getRatingsByCustomer = async ( customer_id: string, skip: number, limit: number ): Promise<{ dishRatings: IDishRating[], total: number}> => {
 
     const filter = { customer_id: new mongoose.Types.ObjectId(customer_id), deletedAt: null };
+    const [ dishRatings, total ] = await Promise.all([
+        DishRatingModel.find(filter)
+            .sort({ createdAt: -1 })
+            .populate('dish_id', 'name section price')
+            .lean()
+            .skip(skip)
+            .limit(limit),
+        DishRatingModel.countDocuments(filter)
+    ]);
 
-    return DishRatingModel.find(filter)
-        .sort({ createdAt: -1 })
-        .populate('dish_id', 'name section price')
-        .lean();
-};
+    return { dishRatings, total };
+}
 
 // ─── Soft Delete ──────────────────────────────────────────────────────────────
 
@@ -108,10 +100,6 @@ const softDeleteRating = async ( rating_id: string, customer_id?: string ): Prom
 // ─── Rating summary (aggregation) ────────────────────────────────────────────
 
 const getDishRatingSummary = async (dish_id: string): Promise<RateSummary> => {
-    if (!mongoose.Types.ObjectId.isValid(dish_id)) {
-        return { avgRating: 0 };
-    }
-
     const pipeline: PipelineStage[] = [
         { $match: { dish_id: new mongoose.Types.ObjectId(dish_id), deletedAt: null } },
         {
@@ -123,10 +111,6 @@ const getDishRatingSummary = async (dish_id: string): Promise<RateSummary> => {
     ];
 
     const [result] = await DishRatingModel.aggregate(pipeline);
-
-    if (!result) {
-        return { avgRating: 0 };
-    }
 
     return {
         avgRating: Math.round(result.avgRating * 10) / 10,

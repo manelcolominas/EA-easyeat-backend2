@@ -106,6 +106,17 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
  *   get:
  *     summary: Lists all rewards
  *     tags: [Rewards]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
@@ -118,6 +129,17 @@ router.get('/', controller.readAll);
  *   get:
  *     summary: Lists all deleted rewards
  *     tags: [Rewards]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK

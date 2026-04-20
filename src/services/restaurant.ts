@@ -1,8 +1,14 @@
 import mongoose, { PipelineStage } from 'mongoose';
 import { RestaurantModel, IRestaurant } from '../models/restaurant';
-import { DishRatingModel }              from '../models/dishRating';
-import { IDish }                        from '../models/dish';
-
+import { DishRatingModel, IDishRating }              from '../models/dishRating';
+import { CustomerModel, ICustomer } from '../models/customer';
+import { BadgeModel, IBadge } from '../models/badge';
+import { DishModel, IDish } from '../models/dish';
+import { EmployeeModel, IEmployee } from '../models/employee';
+import {  RewardModel, IReward } from '../models/reward';
+import { ReviewModel, IReview } from '../models/review';
+import { StatisticsModel, IStatistics } from '../models/statistics';
+import { VisitModel, IVisit } from '../models/visit';
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
 // ─────────────────────────────────────────────────────────────────────────────
@@ -16,34 +22,66 @@ const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null>
     const restaurant = await RestaurantModel
         .findById(restaurant_id)
         .active()
-        .select('profile rewards badges')
-        .populate('rewards', 'name description pointsRequired active expiry')
-        .populate('badges', 'title description')
+        .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
         .lean<IRestaurant>();
-    return restaurant;
-        
+
+    if (!restaurant) return null;
+
+    return {
+        ...restaurant,
+        profile: {
+            ...restaurant.profile,
+            image: restaurant.profile.image?.slice(0, 3)
+        }
+    };
 };
 
 const getDeletedRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
     return RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } }).lean();
 };
 
-const getAllRestaurants = async (): Promise<IRestaurant[]> => {
-    const restaurants = await RestaurantModel
-        .find()
-        .active()
-        .sort({ 'profile.globalRating': -1 })
-        .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
-        .lean<IRestaurant[]>();
+const getAllRestaurants = async (skip: number, limit: number): Promise<{ restaurants: IRestaurant[]; total: number }> => {
+    const [restaurants, total] = await Promise.all([
+        RestaurantModel.find()
+            .active()
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .skip(skip)
+            .limit(limit)
+            .lean<IRestaurant[]>(),
+        RestaurantModel.countDocuments({ deletedAt: null })
+    ]);
 
-    return restaurants.map((r: IRestaurant) => ({
+    const formattedRestaurants = restaurants.map((r) => ({
         ...r,
-        profile: { ...r.profile, image: r.profile.image?.slice(0, 3) }
+        profile: {
+            ...r.profile,
+            image: r.profile.image?.slice(0, 3)
+        }
     }));
+
+    return { restaurants: formattedRestaurants, total };
 };
 
-const getAllDeletedRestaurants = async (): Promise<IRestaurant[]> => {
-    return RestaurantModel.find({ deletedAt: { $ne: null } }).lean();
+const getAllDeletedRestaurants = async ( skip: number, limit: number ): Promise<{ restaurants: IRestaurant[]; total: number }> => {
+    const filter = { deletedAt: { $ne: null } };
+    const [restaurants, total] = await Promise.all([
+        RestaurantModel.find(filter)
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .skip(skip)
+            .limit(limit)
+            .lean<IRestaurant[]>(),
+        RestaurantModel.countDocuments(filter)
+    ]);
+
+    const formattedRestaurants = restaurants.map((r) => ({
+        ...r,
+        profile: {
+            ...r.profile,
+            image: r.profile.image?.slice(0, 3)
+        }
+    }));
+
+    return { restaurants: formattedRestaurants, total };
 };
 
 const updateRestaurant = async ( restaurant_id: string, data: Partial<IRestaurant> ): Promise<IRestaurant | null> => {
@@ -93,17 +131,29 @@ const hardDeleteRestaurant = async (restaurant_id: string): Promise<IRestaurant 
 // Read variants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const getRestaurantWithCustomers = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id).active().populate({ path: 'visits', populate: { path: 'customer_id' } })
-        .lean();
+const getRestaurantCustomers = async (restaurant_id: string, skip: number, limit: number ): Promise<{ customers: ICustomer[]; total: number }> => {
+    const filter = { favoriteRestaurants: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [customers, total] = await Promise.all([
+        CustomerModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+    return { customers, total };
 };
 
-const getDeletedRestaurantWithCustomers = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .populate({ path: 'visits', populate: { path: 'customer_id' } })
-        .lean();
+const getDeletedRestaurantCustomers = async (restaurant_id: string, skip: number, limit: number): Promise<{ customers: ICustomer[]; total: number }> => {
+    const filter = { favoriteRestaurants: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [customers, total] = await Promise.all([
+        CustomerModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+
+    return { customers, total };
 };
 
 const getRestaurantFull = async (restaurant_id: string): Promise<IRestaurant | null> => {
@@ -142,62 +192,88 @@ const getNearby = async ( lng: number, lat: number,
                 } } }).lean();
 };
 
-const getBadges = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel.findById(restaurant_id)
-        .active().select('badges').populate('badges').lean<IRestaurant>();
+const getBadges = async (restaurant_id: string, skip: number, limit: number): Promise<{badges: IBadge[]; total: number}> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [badges, total] = await Promise.all([
+        BadgeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IBadge[]>(),
+        BadgeModel.countDocuments(filter)
+    ]);
+    return { badges, total };
 };
 
-const getDeletedRestaurantBadges = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('badges').populate('badges').lean<IRestaurant>();
+const getDeletedRestaurantBadges = async (restaurant_id: string, skip: number, limit: number): Promise<{badges: IBadge[]; total: number}> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [badges, total] = await Promise.all([
+        BadgeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IBadge[]>(),
+        BadgeModel.countDocuments(filter)
+    ]);
+    return { badges, total };
 };
 
-const getStatistics = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id).active().select('statistics').populate('statistics')
-        .lean<IRestaurant>();
+const getStatistics = async (restaurant_id: string): Promise<IStatistics> => {
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id) };
+    const stats = await StatisticsModel.findOne(filter).lean<IStatistics>();
+    return stats;
 };
 
-const getDeletedRestaurantStatistics = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('statistics')
-        .populate('statistics')
-        .lean<IRestaurant>();
+const getDeletedRestaurantStatistics = async (restaurant_id: string): Promise<IStatistics> => {
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const stats = await StatisticsModel.findOne(filter).select('statistics').populate('statistics').lean<IStatistics>();
+    return stats;
 };
 
-const getEmployees = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('employees')
-        .populate('employees')
-        .lean<IRestaurant>();
+const getEmployees = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IEmployee[]>(),
+        EmployeeModel.countDocuments(filter)
+    ]);
+    return { employees, total };
 };
 
-const getDeletedRestaurantEmployees = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('employees')
-        .populate('employees')
-        .lean<IRestaurant>();
+const getDeletedRestaurantEmployees = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IEmployee[]>(),
+        EmployeeModel.countDocuments(filter)
+    ]);
+    return { employees, total };
 };
 
-const getDishes = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('dishes')
-        .populate('dishes')
-        .lean<IRestaurant>();
+const getDishes = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [dishes, total] = await Promise.all([
+        DishModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IDish[]>(),
+        DishModel.countDocuments(filter)
+    ]);
+    return { dishes, total };
 };
 
-const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('dishes')
-        .populate('dishes')
-        .lean<IRestaurant>();
+const getDeletedRestaurantDishes = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [dishes, total] = await Promise.all([
+        DishModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IDish[]>(),
+        DishModel.countDocuments(filter)
+    ]);
+    return { dishes, total };
 };
 
 const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | null> => {
@@ -236,55 +312,58 @@ const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | nul
     return topDish ?? null;
 };
 
-const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('rewards')
-        .populate('rewards', 'name description pointsRequired active expiry')
-        .lean<IRestaurant>();
+const getRewards = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(filter).skip(skip).limit(limit).lean<IReward[]>(),
+        RewardModel.countDocuments(filter)
+        ]);
+    return { rewards, total };
 };
 
-const getDeletedRestaurantRewards = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('rewards')
-        .populate('rewards', 'name description pointsRequired active expiry')
-        .lean<IRestaurant>();
+const getDeletedRestaurantRewards = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(filter).skip(skip).limit(limit).lean<IReward[]>(),
+        RewardModel.countDocuments(filter)
+    ]);
+    return { rewards, total };
 };
 
-const getVisits = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('visits')
-        .populate('visits')
-        .lean<IRestaurant>();
+const getVisits = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
-const getDeletedRestaurantVisits = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('visits')
-        .populate('visits')
-        .lean<IRestaurant>();
+const getDeletedRestaurantVisits = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
-const getReviews = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('reviews')
-        .populate('reviews')
-        .lean<IRestaurant>();
+const getReviews = async (restaurant_id: string, skip: number, limit: number): Promise<{ reviews: IReview[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [reviews, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
-const getDeletedRestaurantReviews = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('reviews')
-        .populate('reviews')
-        .lean<IRestaurant>();
+const getDeletedRestaurantReviews = async (restaurant_id: string, skip: number, limit: number): Promise<{ reviews: IReview[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null} };
+    const [reviews, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -367,9 +446,7 @@ function buildOpenAtStages(date: Date): PipelineStage[] {
     ];
 }
 
-const getFilteredRestaurants = async (
-    params: RestaurantFilterParams
-): Promise<RestaurantWithDistance[]> => {
+const getFilteredRestaurants = async ( params: RestaurantFilterParams ): Promise<RestaurantWithDistance[]> => {
     const { lng, lat, radiusMeters = 5_000, categories, minGlobalRating, city, openNow, openAt } = params;
 
     const hasGeo = lng !== undefined && lat !== undefined && isFinite(lng) && isFinite(lat);
@@ -425,8 +502,8 @@ export default {
     softDeleteRestaurant,
     restoreRestaurant,
     hardDeleteRestaurant,
-    getRestaurantWithCustomers,
-    getDeletedRestaurantWithCustomers,
+    getRestaurantCustomers,
+    getDeletedRestaurantCustomers,
     getRestaurantFull,
     getDeletedRestaurantFull,
     getNearby,

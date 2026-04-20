@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import RewardRedemptionService from '../services/rewardRedemption';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -23,7 +24,6 @@ const redeemReward = async (req: Request, res: Response, next: NextFunction) => 
 
 const readRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   const { redemptionId } = req.params;
-
   try {
     const redemption = await RewardRedemptionService.getRewardRedemption(redemptionId);
     return redemption
@@ -36,18 +36,73 @@ const readRewardRedemption = async (req: Request, res: Response, next: NextFunct
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filters = {
-      status: req.query.status as string | undefined,
-      restaurant_id: req.query.restaurant_id as string | undefined,
-      customer_id: req.query.customer_id as string | undefined,
-      reward_id: req.query.reward_id as string | undefined
-    };
-
-    const redemptions = await RewardRedemptionService.getAllRewardRedemptions(filters);
-    return res.status(200).json(redemptions);
+    const { page, limit, skip } = getPaginationOptions(req.query);
+    const { redemptions, total } = await RewardRedemptionService.getAllRewardRedemptions(skip, limit);
+    
+    return res.status(200).json({
+        data: redemptions,
+        meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+    });
   } catch (error) {
     return res.status(500).json({ error });
   }
+};
+
+const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customer_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByCustomer(customer_id,skip, limit);
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByRestaurant(restaurant_id, skip, limit);
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { employee_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByEmployee(employee_id,skip, limit);
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByReward = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { reward_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByReward(reward_id, skip, limit);
+        
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
 };
 
 const updateStatus = async (req: Request, res: Response, next: NextFunction) => {
@@ -60,7 +115,6 @@ const updateStatus = async (req: Request, res: Response, next: NextFunction) => 
       employee_id,
       notes
     });
-
     return updated
       ? res.status(200).json(updated)
       : res.status(404).json({ message: 'not found' });
@@ -71,7 +125,6 @@ const updateStatus = async (req: Request, res: Response, next: NextFunction) => 
 
 const updateRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   const { redemptionId } = req.params;
-
   try {
     const updated = await RewardRedemptionService.updateRewardRedemption(redemptionId, req.body);
     return updated
@@ -100,6 +153,10 @@ export default {
   redeemReward,
   readRewardRedemption,
   readAll,
+  readByCustomer,
+  readByRestaurant,
+  readByEmployee,
+  readByReward,
   updateStatus,
   updateRewardRedemption,
   deleteRewardRedemption

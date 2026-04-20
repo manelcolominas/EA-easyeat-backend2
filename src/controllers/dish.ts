@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import DishService from '../services/dish';
+import { getPaginationOptions } from '../utils/pagination';
+
 
 const createDish = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -32,8 +34,12 @@ const readDeletedDish = async (req: Request, res: Response, next: NextFunction) 
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dishes = await DishService.getAllDishes();
-        return res.status(200).json(dishes);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total }= await DishService.getAllDishes(skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -41,8 +47,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dishes = await DishService.getAllDeletedDishes();
-        return res.status(200).json(dishes);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await DishService.getAllDeletedDishes(skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }

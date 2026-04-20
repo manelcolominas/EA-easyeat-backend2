@@ -81,15 +81,112 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/Customer'
- *         total:
- *           type: number
- *           example: 42
- *         page:
- *           type: number
- *           example: 1
- *         totalPages:
- *           type: number
- *           example: 3
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedBadges:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedRestaurants:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedPointsWallet:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedReviews:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedVisits:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 // ─── POST /customers ──────────────────────────────────────────────────────────
@@ -264,7 +361,7 @@ router.get('/:customer_id/full/deleted', authenticate, requireRole('admin'), con
  * @openapi
  * /customers/{customer_id}/badges:
  *   get:
- *     summary: Gets all badges earned by the customer
+ *     summary: Gets all badges earned by the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -272,9 +369,23 @@ router.get('/:customer_id/full/deleted', authenticate, requireRole('admin'), con
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of badges
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedBadges'
  *       404:
  *         description: Customer not found
  */
@@ -285,7 +396,7 @@ router.get('/:customer_id/badges', authenticate, requireSelfOrAdmin('customer_id
  * @openapi
  * /customers/{customer_id}/favouriteRestaurants:
  *   get:
- *     summary: Gets all favourite restaurants for the customer
+ *     summary: Gets all favourite restaurants for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -293,9 +404,23 @@ router.get('/:customer_id/badges', authenticate, requireSelfOrAdmin('customer_id
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of favourite restaurants
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedRestaurants'
  *       404:
  *         description: Customer not found
  */
@@ -306,7 +431,7 @@ router.get('/:customer_id/favouriteRestaurants', authenticate, requireSelfOrAdmi
  * @openapi
  * /customers/{customer_id}/pointsWallet:
  *   get:
- *     summary: Gets all points wallet entries for the customer
+ *     summary: Gets all points wallet entries for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -314,9 +439,23 @@ router.get('/:customer_id/favouriteRestaurants', authenticate, requireSelfOrAdmi
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of points wallet entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedPointsWallet'
  *       404:
  *         description: Customer not found
  */
@@ -327,7 +466,7 @@ router.get('/:customer_id/pointsWallet', authenticate, requireSelfOrAdmin('custo
  * @openapi
  * /customers/{customer_id}/reviews:
  *   get:
- *     summary: Gets all reviews written by the customer
+ *     summary: Gets all reviews written by the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -335,9 +474,23 @@ router.get('/:customer_id/pointsWallet', authenticate, requireSelfOrAdmin('custo
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of reviews
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedReviews'
  *       404:
  *         description: Customer not found
  */
@@ -348,7 +501,7 @@ router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_i
  * @openapi
  * /customers/{customer_id}/visits:
  *   get:
- *     summary: Gets all visits for the customer
+ *     summary: Gets all visits for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -356,9 +509,23 @@ router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_i
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of visits
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedVisits'
  *       404:
  *         description: Customer not found
  */
@@ -368,7 +535,7 @@ router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id
  * @openapi
  * /customers/{customer_id}/visits/deleted:
  *   get:
- *     summary: Gets all visits for the customer
+ *     summary: Gets all visits for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -376,9 +543,23 @@ router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of visits
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedVisits'
  *       404:
  *         description: Customer not found
  */

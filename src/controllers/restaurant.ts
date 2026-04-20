@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import RestaurantService from '../services/restaurant.js';
+import { getPaginationOptions } from '../utils/pagination';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
@@ -50,8 +51,12 @@ const readDeletedRestaurant = async (req: Request, res: Response, next: NextFunc
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurants = await RestaurantService.getAllRestaurants();
-        return res.status(200).json(restaurants);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { restaurants, total } = await RestaurantService.getAllRestaurants(skip, limit);
+        return res.status(200).json({
+            data: restaurants,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -59,8 +64,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurants = await RestaurantService.getAllDeletedRestaurants();
-        return res.status(200).json(restaurants);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { restaurants, total } = await RestaurantService.getAllDeletedRestaurants(skip, limit);
+        return res.status(200).json({
+            data:  restaurants,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -148,27 +157,27 @@ const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
 // Read variants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const getRestaurantWithCustomers = async (req: Request, res: Response, next: NextFunction) => {
+const getRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getRestaurantWithCustomers(
-            req.params.restaurantId
-        );
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { customers, total } = await RestaurantService.getRestaurantCustomers( req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: customers,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
-const getDeletedRestaurantWithCustomers = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantWithCustomers(
-            req.params.restaurantId
-        );
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { customers, total } = await RestaurantService.getDeletedRestaurantCustomers( req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: customers,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -215,10 +224,12 @@ const getNearby = async (req: Request, res: Response, next: NextFunction) => {
 
 const getBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const badges = await RestaurantService.getBadges(req.params.restaurantId);
-        return badges
-            ? res.status(200).json(badges)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await RestaurantService.getBadges(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -226,10 +237,13 @@ const getBadges = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantBadges(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await RestaurantService.getDeletedRestaurantBadges(req.params.restaurantId, skip, limit);
+        return res.status(200).json(
+            {
+                data: badges,
+                meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+            })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -238,9 +252,7 @@ const getDeletedRestaurantBadges = async (req: Request, res: Response, next: Nex
 const getStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const statistics = await RestaurantService.getStatistics(req.params.restaurantId);
-        return statistics
-            ? res.status(200).json(statistics)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        return res.status(200).json(statistics);
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -248,10 +260,8 @@ const getStatistics = async (req: Request, res: Response, next: NextFunction) =>
 
 const getDeletedRestaurantStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantStatistics(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const statistics = await RestaurantService.getDeletedRestaurantStatistics(req.params.restaurantId);
+        return res.status(200).json(statistics)
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -261,9 +271,7 @@ const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurantId = req.params.restaurantId;
         const topDish = await RestaurantService.getTopDishByRestaurant(restaurantId);
-        return topDish
-            ? res.status(200).json(topDish)
-            : res.status(404).json({ message: 'No rated dishes found for this restaurant.' });
+        return res.status(200).json(topDish)
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -292,10 +300,12 @@ const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
 
 const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getEmployees(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await RestaurantService.getEmployees(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -303,10 +313,12 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
 
 const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total} = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -314,10 +326,12 @@ const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: 
 
 const getDishes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDishes(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await RestaurantService.getDishes(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -325,10 +339,12 @@ const getDishes = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantDishes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantDishes(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await RestaurantService.getDeletedRestaurantDishes(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -336,10 +352,12 @@ const getDeletedRestaurantDishes = async (req: Request, res: Response, next: Nex
 
 const getRewards = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getRewards(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RestaurantService.getRewards(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -347,10 +365,12 @@ const getRewards = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantRewards = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantRewards(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RestaurantService.getDeletedRestaurantRewards(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -359,10 +379,12 @@ const getDeletedRestaurantRewards = async (req: Request, res: Response, next: Ne
 
 const getVisits = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getVisits(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await RestaurantService.getVisits(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -370,10 +392,12 @@ const getVisits = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantVisits = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantVisits(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await RestaurantService.getDeletedRestaurantVisits(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -382,10 +406,12 @@ const getDeletedRestaurantVisits = async (req: Request, res: Response, next: Nex
 
 const getReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getReviews(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await RestaurantService.getReviews(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -393,10 +419,12 @@ const getReviews = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantReviews(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await RestaurantService.getDeletedRestaurantReviews(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -416,8 +444,8 @@ export default {
     softDelete,
     restore,
     hardDelete,
-    getRestaurantWithCustomers,
-    getDeletedRestaurantWithCustomers,
+    getRestaurantCustomers,
+    getDeletedRestaurantCustomers,
     getRestaurantFull,
     getDeletedRestaurantFull,
     getNearby,

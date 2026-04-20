@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import DishRatingService from '../services/dishRating';
 import { AuthRequest } from '../middleware/auth';
+import { getPaginationOptions } from '../utils/pagination';
 
 // ─── Create or update a rating ────────────────────────────────────────────────
 
@@ -37,10 +38,13 @@ const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunct
 
 const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { dish_id } = req.params;
-
     try {
-        const ratings = await DishRatingService.getRatingsByDish(dish_id);
-        return res.status(200).json(ratings);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishRatings, total } = await DishRatingService.getRatingsByDish(dish_id, skip, limit);
+        return res.status(200).json({
+            data: dishRatings,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -50,10 +54,13 @@ const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) =
 
 const readByCustomer = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
-
     try {
-        const ratings = await DishRatingService.getRatingsByCustomer(customer_id);
-        return res.status(200).json(ratings);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishRatings, total } = await DishRatingService.getRatingsByCustomer(customer_id, skip, limit);
+        return res.status(200).json({
+            data: dishRatings,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }

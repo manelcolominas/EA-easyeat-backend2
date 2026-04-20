@@ -18,12 +18,20 @@ const getDeletedBadge = async (badge_id: string) => {
     return await BadgeModel.findOne({ _id: badge_id, deletedAt: { $ne: null } });
 };
 
-const getAllBadges = async (): Promise<IBadge[]> => {
-    return await BadgeModel.find()
+const getAllBadges = async (skip: number, limit: number): Promise<{ badges: IBadge[], total: number}> => {
+    const [badges, total] = await Promise.all([
+        BadgeModel.find({ deletedAt: null }).skip(skip).limit(limit), 
+        BadgeModel.countDocuments({ deletedAt: null })
+    ]);
+    return { badges, total };
 };
 
-const getAllDeletedBadges = async (): Promise<IBadge[]> => {
-    return await BadgeModel.find({ deletedAt: { $ne: null } });
+const getAllDeletedBadges = async (skip: number, limit: number): Promise<{ badges: IBadge[], total: number}> => {
+    const [badges, total] = await Promise.all([
+        BadgeModel.find({ deletedAt: { $ne: null } }).skip(skip).limit(limit),
+        BadgeModel.countDocuments({ deletedAt: { $ne: null } })
+    ]);
+    return { badges, total };
 };
 
 const updateBadge = async (badge_id: string, data: Partial<IBadge>) => {

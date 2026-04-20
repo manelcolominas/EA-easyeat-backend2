@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import ReviewService from '../services/review';
+import { getPaginationOptions } from '../utils/pagination';
 
 // Create review
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const savedReview = await ReviewService.createReview(req.body);
         return res.status(201).json(savedReview);
-
     } catch (error) {
         return next(error);
     }
@@ -16,7 +16,6 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
 const readReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.getReview(req.params.review_id);
-
         return review
             ? res.status(200).json(review)
             : res.status(404).json({ message: 'Review not found' });
@@ -29,11 +28,9 @@ const readReview = async (req: Request, res: Response, next: NextFunction) => {
 const readDeletedReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.getDeletedReview(req.params.review_id);
-
         return review
             ? res.status(200).json(review)
             : res.status(404).json({ message: 'Review not found' });
-
     } catch (error) {
         return next(error);
     }
@@ -42,9 +39,12 @@ const readDeletedReview = async (req: Request, res: Response, next: NextFunction
 // Obtain all reviews
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getAllReviews();
-        return res.status(200).json(reviews);
-
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getAllReviews(skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -52,9 +52,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getAllDeletedReviews();
-        return res.status(200).json(reviews);
-
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getAllDeletedReviews(skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -67,7 +70,6 @@ const updateReview = async (req: Request, res: Response, next: NextFunction) => 
             req.params.review_id,
             req.body
         );
-
         return updatedReview
             ? res.status(200).json(updatedReview)
             : res.status(404).json({ message: 'Review not found' });
@@ -120,9 +122,12 @@ const hardDeleteReview = async (req: Request, res: Response, next: NextFunction)
 // Obtain reviews by restaurant
 const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getReviewsByRestaurant(req.params.restaurant_id);
-        return res.status(200).json(reviews);
-
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getReviewsByRestaurant(req.params.restaurant_id, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -130,8 +135,12 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
 
 const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getDeletedReviewsByRestaurant(req.params.restaurant_id);
-        return res.status(200).json(reviews);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getDeletedReviewsByRestaurant(req.params.restaurant_id, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
 
     } catch (error) {
         return next(error);
@@ -142,18 +151,17 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
 const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { customer_id } = req.params;
-
-        const result = await ReviewService.getReviewsByCustomer(customer_id, {
-            limit:           Number(req.query.limit)           || 5,
-            skip:            Number(req.query.skip)            || 0,
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const {reviews, total} = await ReviewService.getReviewsByCustomer(customer_id, skip, limit, {
             minGlobalRating: req.query.minGlobalRating !== undefined
                 ? Number(req.query.minGlobalRating)
                 : undefined,
             sortByLikes: req.query.sortByLikes === 'true',
         });
-
-        return res.status(200).json(result);
-
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -162,18 +170,17 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
 const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { customer_id } = req.params;
-
-        const result = await ReviewService.getDeletedReviewsByCustomer(customer_id, {
-            limit:           Number(req.query.limit)           || 5,
-            skip:            Number(req.query.skip)            || 0,
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total} = await ReviewService.getDeletedReviewsByCustomer(customer_id, skip, limit, {
             minGlobalRating: req.query.minGlobalRating !== undefined
                 ? Number(req.query.minGlobalRating)
                 : undefined,
             sortByLikes: req.query.sortByLikes === 'true',
         });
-
-        return res.status(200).json(result);
-
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -183,11 +190,7 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
 const likeReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.likeReview(req.params.review_id);
-
-        return review
-            ? res.status(200).json(review)
-            : res.status(404).json({ message: 'Review not found' });
-
+        return res.status(200).json(review)
     } catch (error) {
         return next(error);
     }

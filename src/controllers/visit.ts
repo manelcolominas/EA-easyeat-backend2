@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import VisitService from '../services/visit';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createVisit = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -14,8 +15,6 @@ const readVisit = async (req: Request, res: Response, next: NextFunction) => {
     const visit_id = req.params.visit_id;
     try {
         const visit = await VisitService.getVisit(visit_id);
-        // Filter soft delete: if it has deletedAt, return 404
-        if (visit && (visit as any).deletedAt) return res.status(404).json({ message: 'not found' });
         return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -33,57 +32,58 @@ const readDeletedVisit = async (req: Request, res: Response, next: NextFunction)
 };
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
-    const { customer_id, restaurant_id } = req.query;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-
     try {
-        const filter = {
-            customer_id: customer_id as string | undefined,
-            restaurant_id: restaurant_id as string | undefined,
-            deletedAt: null // only active visits
-        };
-
-        const result = await VisitService.getAllVisits(filter, page, limit);
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getAllVisits(skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
-    const { customer_id, restaurant_id } = req.query;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-
     try {
-        const filter = {
-            customer_id: customer_id as string | undefined,
-            restaurant_id: restaurant_id as string | undefined,
-        };
-
-        const result = await VisitService.getAllDeletedVisits(filter, page, limit);
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getAllDeletedVisits(skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
-const getVisitFull = async (req: Request, res: Response, next: NextFunction) => {
-    const visit_id = req.params.visit_id;
+const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const visit = await VisitService.getVisitFull(visit_id);
-        return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
+        const { customer_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getByCustomer(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
-const getDeletedVisitFull = async (req: Request, res: Response, next: NextFunction) => {
-    const visit_id = req.params.visit_id;
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const visit = await VisitService.getDeletedVisitFull(visit_id);
-        return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getByRestaurant(restaurant_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -135,8 +135,8 @@ export default {
     readDeletedVisit,
     readAll,
     readAllDeleted,
-    getVisitFull,
-    getDeletedVisitFull,
+    readByCustomer,
+    readByRestaurant,
     updateVisit,
     softDeleteVisit,
     restoreVisit,

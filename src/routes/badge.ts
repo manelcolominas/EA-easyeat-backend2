@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/badge';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
+import { authenticate, requireRole } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -46,6 +46,25 @@ const router = express.Router();
  *         type:
  *           type: string
  *           example: "visit_milestone"
+ * 
+ *     PaginatedBadges:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Badge'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -74,9 +93,26 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.badge.c
  *   get:
  *     summary: Lists all badges
  *     tags: [Badges]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedBadges'
  */
 router.get('/', controller.readAll);
 
@@ -86,9 +122,26 @@ router.get('/', controller.readAll);
  *   get:
  *     summary: Lists all deleted badges
  *     tags: [Badges]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedBadges'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 

@@ -88,12 +88,6 @@ const router = express.Router();
  *     responses:
  *       201:
  *         description: Created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
- *       422:
- *         description: Validation failed (Joi)
  */
 router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.visit.create), controller.createVisit);
 
@@ -101,59 +95,103 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  * @openapi
  * /visits:
  *   get:
- *     summary: Lists all visits
+ *     summary: Lists all visits with pagination
  *     tags: [Visits]
  *     parameters:
  *       - in: query
- *         name: customer_id
+ *         name: page
  *         schema:
- *           type: string
- *         description: Filter by customer ObjectId
+ *           type: integer
+ *           default: 1
  *       - in: query
- *         name: restaurant_id
+ *         name: limit
  *         schema:
- *           type: string
- *         description: Filter by restaurant ObjectId
+ *           type: integer
+ *           default: 5
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Visit'
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
  * /visits/deleted:
  *   get:
- *     summary: Lists all deleted visits
+ *     summary: Lists all deleted visits with pagination
  *     tags: [Visits]
  *     parameters:
  *       - in: query
- *         name: customer_id
+ *         name: page
  *         schema:
- *           type: string
- *         description: Filter by customer ObjectId
+ *           type: integer
+ *           default: 1
  *       - in: query
- *         name: restaurant_id
+ *         name: limit
  *         schema:
- *           type: string
- *         description: Filter by restaurant ObjectId
+ *           type: integer
+ *           default: 5
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Visit'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+/**
+ * @openapi
+ * /visits/customer/{customer_id}:
+ *   get:
+ *     summary: Lists all visits for a specific customer
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readByCustomer);
+
+/**
+ * @openapi
+ * /visits/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Lists all visits for a specific restaurant
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/restaurant/:restaurant_id', authenticate, requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
 
 /**
  * @openapi
@@ -171,10 +209,6 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
  *       404:
  *         description: Visit not found
  */
@@ -203,56 +237,6 @@ router.get('/:visit_id/deleted', authenticate, requireRole('admin'), controller.
 
 /**
  * @openapi
- * /visits/{visit_id}/full:
- *   get:
- *     summary: Gets a visit with all populated fields (customer, restaurant)
- *     tags: [Visits]
- *     parameters:
- *       - in: path
- *         name: visit_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The visit's ObjectId
- *     responses:
- *       200:
- *         description: Visit with populated relations
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
- *       404:
- *         description: Visit not found
- */
-router.get('/:visit_id/full', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.getVisitFull);
-
-/**
- * @openapi
- * /visits/{visit_id}/full/deleted:
- *   get:
- *     summary: Gets a deleted visit with all populated fields (customer, restaurant)
- *     tags: [Visits]
- *     parameters:
- *       - in: path
- *         name: visit_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The visit's ObjectId
- *     responses:
- *       200:
- *         description: Visit with populated relations
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
- *       404:
- *         description: Visit not found
- */
-router.get('/:visit_id/full/deleted', authenticate, requireRole('admin'), controller.getDeletedVisitFull);
-
-/**
- * @openapi
  * /visits/{visit_id}:
  *   put:
  *     summary: Updates a visit by ID
@@ -273,10 +257,6 @@ router.get('/:visit_id/full/deleted', authenticate, requireRole('admin'), contro
  *     responses:
  *       200:
  *         description: Updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
  *       404:
  *         description: Visit not found
  *       422:

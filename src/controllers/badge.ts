@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import BadgeService from '../services/badge';
 import { CustomerModel } from '../models/customer';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createBadge = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -36,8 +37,13 @@ const readDeletedBadge = async (req: Request, res: Response, next: NextFunction)
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const badges = await BadgeService.getAllBadges();
-        return res.status(200).json(badges);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getAllBadges(skip, limit);
+        
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -45,8 +51,13 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const badges = await BadgeService.getAllDeletedBadges();
-        return res.status(200).json(badges);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getAllDeletedBadges(skip, limit);
+        
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }

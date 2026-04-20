@@ -3,14 +3,7 @@ import { ReviewModel, IReview } from '../models/review';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface ICustomerReviewListResponse {
-    data: IReview[];
-    total: number;
-}
-
 export interface ReviewListOptions {
-    limit?: number;
-    skip?: number;
     minGlobalRating?: number;
     sortByLikes?: boolean;
 }
@@ -31,8 +24,7 @@ const createReview = async (data: Partial<IReview>): Promise<IReview> => {
     return review.save();
 };
 
-const getReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const getReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOne({ _id: reviewId, ...ACTIVE_REVIEW_FILTER })
         .populate('customer_id', 'name profilePictures')
@@ -40,8 +32,7 @@ const getReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const getDeletedReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const getDeletedReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOne({ _id: reviewId, ...DELETED_REVIEW_FILTER })
         .populate('customer_id', 'name profilePictures')
@@ -49,24 +40,34 @@ const getDeletedReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const getAllReviews = async (): Promise<IReview[]> => {
-    return ReviewModel
-        .find(ACTIVE_REVIEW_FILTER)
+const getAllReviews = async (skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const [reviews, total] = await Promise.all([
+        ReviewModel.find(ACTIVE_REVIEW_FILTER)
         .populate('customer_id', 'name')
         .populate('restaurant_id', 'name')
-        .lean();
+            .skip(skip)
+            .limit(limit)
+        .lean(),
+        ReviewModel.countDocuments(ACTIVE_REVIEW_FILTER),
+    ]);
+    return { reviews, total };
 };
 
-const getAllDeletedReviews = async (): Promise<IReview[]> => {
-    return ReviewModel
+const getAllDeletedReviews = async (skip: number, limit: number): Promise<{ reviews: IReview[], total: number}> => {
+    const [reviews, total] = await Promise.all([
+    ReviewModel
         .find(DELETED_REVIEW_FILTER)
         .populate('customer_id', 'name')
         .populate('restaurant_id', 'name')
-        .lean();
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+        ReviewModel.countDocuments(DELETED_REVIEW_FILTER),
+    ]);
+    return { reviews, total };
 };
 
-const updateReview = async (reviewId: string, data: Partial<IReview>): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const updateReview = async (reviewId: string, data: Partial<IReview>): Promise<IReview> => {
     const { _id, customer_id, restaurant_id, ...safeData } = data;
     return ReviewModel
         .findOneAndUpdate(
@@ -79,8 +80,7 @@ const updateReview = async (reviewId: string, data: Partial<IReview>): Promise<I
 
 // ─── Delete / Restore ─────────────────────────────────────────────────────────
 
-const softDeleteReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const softDeleteReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOneAndUpdate(
             { _id: reviewId, ...ACTIVE_REVIEW_FILTER },
@@ -90,8 +90,7 @@ const softDeleteReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const restoreReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const restoreReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOneAndUpdate(
             { _id: reviewId, ...DELETED_REVIEW_FILTER },
@@ -101,101 +100,98 @@ const restoreReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const hardDeleteReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const hardDeleteReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel.findByIdAndDelete(reviewId).lean();
 };
 
 // ─── Queries by relation ──────────────────────────────────────────────────────
 
-const getReviewsByRestaurant = async (restaurantId: string): Promise<IReview[]> => {
-    return ReviewModel
-        .find({
-            restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-            ...ACTIVE_REVIEW_FILTER,
-        })
-        .populate('customer_id', 'name profilePictures')
-        .lean();
+const getReviewsByRestaurant = async (restaurantId: string, skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const filter = {
+        restaurant_id: new mongoose.Types.ObjectId(restaurantId),
+        ...ACTIVE_REVIEW_FILTER,
+    };
+    const [reviews, total] = await Promise.all([
+        ReviewModel
+            .find(filter)
+            .populate('customer_id', 'name profilePictures')
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        ReviewModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
-const getDeletedReviewsByRestaurant = async (restaurantId: string): Promise<IReview[]> => {
-    return ReviewModel
-        .find({
-            restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-            ...DELETED_REVIEW_FILTER,
-        })
-        .populate('customer_id', 'name profilePictures')
-        .lean();
+const getDeletedReviewsByRestaurant = async (restaurantId: string, skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const filter =  { restaurant_id: new mongoose.Types.ObjectId(restaurantId), 
+        ...DELETED_REVIEW_FILTER };
+    const [reviews, total ] = await Promise.all([
+        ReviewModel
+            .find(filter)
+            .populate('customer_id', 'name profilePictures')
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        ReviewModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
 // ─── Paginated queries by customer ───────────────────────────────────────────
 
-const buildCustomerFilter = (
-    customerId: string,
-    deletedFilter: Record<string, boolean>,
-    minGlobalRating?: number,
-): Record<string, unknown> => {
-    const filter: Record<string, unknown> = {
+const getReviewsByCustomer = async ( customerId: string, skip: number, limit: number, options: ReviewListOptions = {} ): Promise<{ reviews: IReview[], total: number }> => {
+    const filter: Record<string, any> = {
         customer_id: new mongoose.Types.ObjectId(customerId),
-        ...deletedFilter,
+        ...ACTIVE_REVIEW_FILTER,
     };
-    if (minGlobalRating !== undefined) {
-        filter.globalRating = { $gte: minGlobalRating };
-    }
-    return filter;
-};
 
-const fetchCustomerReviews = async (
-    filter: Record<string, unknown>,
-    options: ReviewListOptions,
-): Promise<ICustomerReviewListResponse> => {
-    const { limit = 5, skip = 0, sortByLikes = false } = options;
-    const sort: Record<string, 1 | -1> = sortByLikes ? { likes: -1 } : { createdAt: -1 };
+    if (options.minGlobalRating !== undefined) {
+        filter.globalRating = { $gte: options.minGlobalRating };
+    }
+    
+    const sort: Record<string, 1 | -1> = options.sortByLikes ? { likes: -1 } : { createdAt: -1 };
 
     const [reviews, total] = await Promise.all([
         ReviewModel.find(filter)
             .sort(sort)
             .skip(skip)
             .limit(limit)
-            .populate({ path: 'restaurant_id', select: 'profile' })
-            .lean(),
+            .populate({ path: 'restaurant_id', select: 'profile.name' })
+            .lean<IReview[]>(),
         ReviewModel.countDocuments(filter),
     ]);
 
-    return {
-        data: reviews.map((review: any) => ({
-            ...review,
-            restaurant_id: {
-                _id:  review.restaurant_id._id,
-                name: review.restaurant_id.profile?.name,
-            },
-        })),
-        total,
+    return { reviews, total };
+};
+
+const getDeletedReviewsByCustomer = async ( customerId: string, skip: number, limit: number, options: ReviewListOptions = {} ): Promise<{ reviews: IReview[]; total: number }> => {
+    const filter: Record<string, any> = {
+        customer_id: new mongoose.Types.ObjectId(customerId),
+        ...DELETED_REVIEW_FILTER,
     };
-};
+    if (options.minGlobalRating !== undefined) {
+        filter.globalRating = { $gte: options.minGlobalRating };
+    }
+    
+    const sort: Record<string, 1 | -1> = options.sortByLikes ? { likes: -1 } : { createdAt: -1 };
 
-const getReviewsByCustomer = async (
-    customerId: string,
-    options: ReviewListOptions = {},
-): Promise<ICustomerReviewListResponse> => {
-    if (!mongoose.Types.ObjectId.isValid(customerId)) return { data: [], total: 0 };
-    const filter = buildCustomerFilter(customerId, ACTIVE_REVIEW_FILTER, options.minGlobalRating);
-    return fetchCustomerReviews(filter, options);
-};
+    const [reviews, total] = await Promise.all([
+        ReviewModel.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .populate({ path: 'restaurant_id', select: 'profile.name' })
+            .lean<IReview[]>(),
+        ReviewModel.countDocuments(filter),
+    ]);
 
-const getDeletedReviewsByCustomer = async (
-    customerId: string,
-    options: ReviewListOptions = {},
-): Promise<ICustomerReviewListResponse> => {
-    if (!mongoose.Types.ObjectId.isValid(customerId)) return { data: [], total: 0 };
-    const filter = buildCustomerFilter(customerId, DELETED_REVIEW_FILTER, options.minGlobalRating);
-    return fetchCustomerReviews(filter, options);
+    return { reviews, total };
 };
 
 // ─── Like ─────────────────────────────────────────────────────────────────────
 
-const likeReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const likeReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOneAndUpdate(
             { _id: reviewId, ...ACTIVE_REVIEW_FILTER },
