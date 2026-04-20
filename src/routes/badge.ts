@@ -99,7 +99,7 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.badge.c
  *         schema:
  *           type: integer
  *           default: 1
- *         description: Page number
+ *         description: page number
  *       - in: query
  *         name: limit
  *         schema:
@@ -128,7 +128,7 @@ router.get('/', controller.readAll);
  *         schema:
  *           type: integer
  *           default: 1
- *         description: Page number
+ *         description: page number
  *       - in: query
  *         name: limit
  *         schema:

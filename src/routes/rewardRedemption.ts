@@ -172,7 +172,7 @@ router.get(
  *     tags: [RewardRedemptions]
  *     parameters:
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 1
@@ -211,7 +211,7 @@ router.get(
  *         schema:
  *           type: string
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 1
@@ -244,7 +244,7 @@ router.get(
  *         schema:
  *           type: string
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 1
@@ -277,7 +277,7 @@ router.get(
  *         schema:
  *           type: string
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 1
@@ -310,7 +310,7 @@ router.get(
  *         schema:
  *           type: string
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 1

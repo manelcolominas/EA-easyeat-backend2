@@ -115,7 +115,7 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  *           type: integer
  *           default: 10
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 0
@@ -143,7 +143,7 @@ router.get(
  *           type: integer
  *           default: 10
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 0
@@ -180,7 +180,7 @@ router.get(
  *           type: integer
  *           default: 10
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 0
@@ -212,7 +212,7 @@ router.get(
  *           type: integer
  *           default: 10
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 0
@@ -249,7 +249,7 @@ router.get(
  *           type: integer
  *           default: 5
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 0
@@ -290,7 +290,7 @@ router.get(
  *           type: integer
  *           default: 5
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 0

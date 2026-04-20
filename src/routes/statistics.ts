@@ -105,7 +105,7 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.statist
  *     tags: [Statistics]
  *     parameters:
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
  *           default: 1
