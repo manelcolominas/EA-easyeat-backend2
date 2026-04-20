@@ -99,7 +99,7 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  *     tags: [Visits]
  *     parameters:
  *       - in: query
- *         name: page
+ *         name: skip
  *         schema:
  *           type: integer
  *           default: 1
