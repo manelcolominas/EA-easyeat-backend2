@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/rewardRedemption';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRestaurantAccess, requireRole } from '../middleware/auth';
+import { authenticate, requireRestaurantAccess, requireRole, requireSelfOrAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -168,47 +168,22 @@ router.get(
  * @openapi
  * /rewardRedemptions:
  *   get:
- *     summary: Lists reward redemptions with optional filters
+ *     summary: Lists reward redemptions with pagination
  *     tags: [RewardRedemptions]
  *     parameters:
  *       - in: query
- *         name: status
- *         required: false
+ *         name: skip
  *         schema:
- *           type: string
- *           enum: [pending, approved, redeemed, cancelled, expired]
- *         description: Filter redemptions by status
- *         example: pending
+ *           type: integer
+ *           default: 1
  *       - in: query
- *         name: restaurant_id
- *         required: false
+ *         name: limit
  *         schema:
- *           type: string
- *         description: Filter redemptions by restaurant ObjectId
- *         example: "65f1c2a1b2c3d4e5f6789000"
- *       - in: query
- *         name: customer_id
- *         required: false
- *         schema:
- *           type: string
- *         description: Filter redemptions by customer ObjectId
- *         example: "65f1c2a1b2c3d4e5f6789001"
- *       - in: query
- *         name: reward_id
- *         required: false
- *         schema:
- *           type: string
- *         description: Filter redemptions by reward ObjectId
- *         example: "65f1c2a1b2c3d4e5f6789002"
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/RewardRedemption'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -219,9 +194,141 @@ router.get(
 router.get(
   '/',
   authenticate,
-  requireRole('admin', 'owner', 'staff'),
+  requireRole('admin'),
   ValidateJoi(Schemas.rewardRedemption.listQuery, 'query'),
   controller.readAll
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/customer/{customer_id}:
+ *   get:
+ *     summary: Get reward redemptions by customer
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/customer/:customer_id',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  controller.readByCustomer
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Get reward redemptions by restaurant
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/restaurant/:restaurant_id',
+  authenticate,
+  requireRestaurantAccess('restaurant_id'),
+  controller.readByRestaurant
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/employee/{employee_id}:
+ *   get:
+ *     summary: Get reward redemptions by employee
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/employee/:employee_id',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.readByEmployee
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/reward/{reward_id}:
+ *   get:
+ *     summary: Get reward redemptions by reward
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: reward_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/reward/:reward_id',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.readByReward
 );
 
 /**
