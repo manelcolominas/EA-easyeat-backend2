@@ -43,6 +43,30 @@ const getAllDeletedEmployees = async (skip: number, limit: number): Promise<{ em
     return { employees, total };
 }
 
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, isActive: true };
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find(query)
+            .skip(skip)
+            .limit(limit)
+            .lean<IEmployee[]>(),
+        EmployeeModel.countDocuments(query)
+    ]);
+    return { employees, total };
+};
+
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, isActive: false };
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find(query)
+            .skip(skip)
+            .limit(limit)
+            .lean<IEmployee[]>(),
+        EmployeeModel.countDocuments(query)
+    ]);
+    return { employees, total };
+};
+
 const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => {
     const employee = await EmployeeModel.findById(employee_id);
 
@@ -80,6 +104,8 @@ export default {
     getDeletedEmployee,
     getAllEmployees,
     getAllDeletedEmployees,
+    getByRestaurant,
+    getDeletedByRestaurant,
     updateEmployee,
     softDeleteEmployee,
     restoreEmployee,

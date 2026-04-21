@@ -35,7 +35,7 @@ const readDeletedDish = async (req: Request, res: Response, next: NextFunction) 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
-        const { dishes, total }= await DishService.getAllDishes(skip, limit);
+        const { dishes, total } = await DishService.getAllDishes(skip, limit);
         return res.status(200).json({
             data: dishes,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -49,6 +49,36 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { dishes, total } = await DishService.getAllDeletedDishes(skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await DishService.getByRestaurant(restaurant_id, skip, limit);
+
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await DishService.getDeletedByRestaurant(restaurant_id, skip, limit);
+
         return res.status(200).json({
             data: dishes,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -104,6 +134,8 @@ export default {
     readDeletedDish,
     readAll,
     readAllDeleted,
+    readByRestaurant,
+    readDeletedByRestaurant,
     updateDish,
     softDeleteDish,
     restoreDish,

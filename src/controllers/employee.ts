@@ -34,7 +34,7 @@ const readDeletedEmployee = async (req: Request, res: Response, next: NextFuncti
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
-        const { employees, total } = await EmployeeService.getAllEmployees(skip,limit);
+        const { employees, total } = await EmployeeService.getAllEmployees(skip, limit);
         return res.status(200).json({
             data: employees,
             meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -47,10 +47,40 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
-        const { employees, total } = await EmployeeService.getAllDeletedEmployees(skip,limit);
+        const { employees, total } = await EmployeeService.getAllDeletedEmployees(skip, limit);
         return res.status(200).json({
             data: employees,
             meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await EmployeeService.getByRestaurant(restaurant_id, skip, limit);
+
+        return res.status(200).json({
+            data: employees,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await EmployeeService.getDeletedByRestaurant(restaurant_id, skip, limit);
+
+        return res.status(200).json({
+            data: employees,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
         });
     } catch (error) {
         return res.status(500).json({ error });
@@ -103,6 +133,8 @@ export default {
     readDeletedEmployee,
     readAll,
     readAllDeleted,
+    readByRestaurant,
+    readDeletedByRestaurant,
     updateEmployee,
     softDeleteEmployee,
     restoreEmployee,
