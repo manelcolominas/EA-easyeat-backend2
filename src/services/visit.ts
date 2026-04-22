@@ -1,12 +1,10 @@
-import mongoose from 'mongoose';
 import { VisitModel, IVisit } from '../models/visit';
+import { pointsRedemption } from '../utils/pointsRedemption';
 
 const createVisit = async (data: Partial<IVisit>) => {
-    const visit = new VisitModel({
-        _id: new mongoose.Types.ObjectId(),
-        ...data
-    });
-    return await visit.save();
+    const { _id, pointsEarned, deletedAt, ...visitData } = data;
+
+    return await pointsRedemption(visitData);
 };
 
 const getVisit = async (visit_id: string) => {

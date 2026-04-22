@@ -250,8 +250,9 @@ export const Schemas = {
         create: Joi.object<IVisit>({
             customer_id:   objectId.required(),
             restaurant_id: objectId.required(),
+            employee_id:   objectId.required(),
             date:          Joi.date().default(() => new Date()),
-            pointsEarned:  Joi.number().min(0).default(0),
+            pointsEarned:  Joi.any().strip(),
             billAmount:    Joi.number().min(0).default(0),
             deletedAt:     Joi.any().strip(),
         }),
