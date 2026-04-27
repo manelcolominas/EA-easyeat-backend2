@@ -67,7 +67,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { restaurants, total } = await RestaurantService.getAllDeletedRestaurants(skip, limit);
         return res.status(200).json({
-            data:  restaurants,
+            data: restaurants,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
         });
     } catch (error) {
@@ -160,7 +160,7 @@ const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
 const getRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
-        const { customers, total } = await RestaurantService.getRestaurantCustomers( req.params.restaurantId, skip, limit);
+        const { customers, total } = await RestaurantService.getRestaurantCustomers(req.params.restaurantId, skip, limit);
         return res.status(200).json({
             data: customers,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -173,7 +173,7 @@ const getRestaurantCustomers = async (req: Request, res: Response, next: NextFun
 const getDeletedRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
-        const { customers, total } = await RestaurantService.getDeletedRestaurantCustomers( req.params.restaurantId, skip, limit);
+        const { customers, total } = await RestaurantService.getDeletedRestaurantCustomers(req.params.restaurantId, skip, limit);
         return res.status(200).json({
             data: customers,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -290,14 +290,14 @@ const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
         const { lng, lat, radiusMeters, categories, minGlobalRating, city, openNow, openAt } = req.query;
 
         const results = await RestaurantService.getFilteredRestaurants({
-            lng:            lng            ? parseFloat(lng            as string) : undefined,
-            lat:            lat            ? parseFloat(lat            as string) : undefined,
-            radiusMeters:   radiusMeters   ? parseFloat(radiusMeters   as string) : undefined,
-            categories:     categories     ? (categories as string).split(',')    : undefined,
+            lng: lng ? parseFloat(lng as string) : undefined,
+            lat: lat ? parseFloat(lat as string) : undefined,
+            radiusMeters: radiusMeters ? parseFloat(radiusMeters as string) : undefined,
+            categories: categories ? (categories as string).split(',') : undefined,
             minGlobalRating: minGlobalRating ? parseFloat(minGlobalRating as string) : undefined,
-            city:           city           ? (city as string)                     : undefined,
-            openNow:        openNow === 'true',
-            openAt:         openAt         ? (openAt as string)                   : undefined,
+            city: city ? (city as string) : undefined,
+            openNow: openNow === 'true',
+            openAt: openAt ? (openAt as string) : undefined,
         });
 
         return res.status(200).json(results);
@@ -322,7 +322,7 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
 const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
-        const { employees, total} = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId, skip, limit);
+        const { employees, total } = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId, skip, limit);
         return res.status(200).json({
             data: employees,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }

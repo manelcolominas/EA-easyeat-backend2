@@ -179,6 +179,64 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
 
 /**
  * @openapi
+ * /employees/restaurant/:restaurant_id:
+ *   get:
+ *     summary: List all employees for a specific restaurant (paginated)
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedEmployees'
+ */
+router.get('/restaurant/:restaurant_id', authenticate, requireRole('admin'), controller.readByRestaurant);
+
+/**
+ * @openapi
+ * /employees/restaurant/:restaurant_id/deleted:
+ *   get:
+ *     summary: List all deleted employees for a specific restaurant (paginated)
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedEmployees'
+ */
+router.get('/restaurant/:restaurant_id/deleted', authenticate, requireRole('admin'), controller.readDeletedByRestaurant);
+
+/**
+ * @openapi
  * /employees/{employee_id}:
  *   get:
  *     summary: Gets an employee by ID

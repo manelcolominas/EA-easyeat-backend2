@@ -39,7 +39,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { badges, total } = await BadgeService.getAllBadges(skip, limit);
-        
+
         return res.status(200).json({
             data: badges,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -53,7 +53,67 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { badges, total } = await BadgeService.getAllDeletedBadges(skip, limit);
-        
+
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getByRestaurant(restaurant_id, skip, limit);
+
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getDeletedByRestaurant(restaurant_id, skip, limit);
+
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customer_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getByCustomer(customer_id, skip, limit);
+
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customer_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getDeletedByCustomer(customer_id, skip, limit);
+
         return res.status(200).json({
             data: badges,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -107,37 +167,18 @@ const hardDeleteBadge = async (req: Request, res: Response, next: NextFunction) 
     }
 };
 
-const getBadgesByCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { customer_id } = req.params;
-
-        if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-            return res.status(400).json({ message: 'Invalid customer_id format' });
-        }
-
-        const customer = await CustomerModel.findById(customer_id)
-            .populate('badges')
-            .lean();
-
-        if (!customer) {
-            return res.status(404).json({ message: 'Customer not found' });
-        }
-
-        return res.status(200).json(customer.badges || []);
-    } catch (error) {
-        return next(error);
-    }
-};
-
 export default {
     createBadge,
     readBadge,
     readDeletedBadge,
     readAll,
     readAllDeleted,
+    readByRestaurant,
+    readDeletedByRestaurant,
+    readByCustomer,
+    readDeletedByCustomer,
     updateBadge,
     softDeleteBadge,
     restoreBadge,
     hardDeleteBadge,
-    getBadgesByCustomer
 };
