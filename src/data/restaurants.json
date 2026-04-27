@@ -4,7 +4,6 @@
     "profile": {
       "name": "La Bodega del Mar",
       "description": "Traditional Mediterranean seafood restaurant with a modern twist.",
-      "globalRating": 4.7,
       "category": ["Marisc", "Espanyol", "Wine Bar"],
       "timetable": {
         "monday":    [{ "open": "13:00", "close": "16:00" }, { "open": "20:00", "close": "23:30" }],
@@ -45,7 +44,6 @@
     "profile": {
       "name": "Tokyo Ramen House",
       "description": "Authentic Japanese ramen, crafted with 20-hour broth.",
-      "globalRating": 4.5,
       "category": ["Japonès", "Ramen", "Sushi"],
       "timetable": {
         "tuesday":   [{ "open": "12:00", "close": "15:00" }, { "open": "19:00", "close": "22:30" }],
@@ -84,7 +82,6 @@
     "profile": {
       "name": "El Rincón del Taco",
       "description": "Authentic street-style tacos and handmade margaritas in a vibrant atmosphere.",
-      "globalRating": 4.8,
       "category": ["Mexicà", "Street Food", "Taperia"],
       "timetable": {
         "tuesday":   [{ "open": "18:00", "close": "23:30" }],
@@ -124,7 +121,6 @@
     "profile": {
       "name": "Verd & Co",
       "description": "Fresh, locally sourced plant-based bowls and organic juices.",
-      "globalRating": 4.6,
       "category": ["Vegà", "Vegetarià", "Cafeteria", "Gluten Free"],
       "timetable": {
         "monday":    [{ "open": "09:00", "close": "20:00" }],
@@ -163,7 +159,6 @@
     "profile": {
       "name": "L'Art de la Pizza",
       "description": "Wood-fired neapolitan pizzas following traditional 18th-century recipes.",
-      "globalRating": 4.9,
       "category": ["Italià", "Pizzeria", "Gourmet"],
       "timetable": {
         "monday":    [{ "open": "19:30", "close": "23:30" }],

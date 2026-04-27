@@ -1,7 +1,14 @@
 import mongoose, { PipelineStage } from 'mongoose';
 import { RestaurantModel, IRestaurant } from '../models/restaurant';
-<<<<<<< HEAD
-import { DishRatingModel }              from '../models/dishRating';
+import { DishRatingModel, IDishRating }              from '../models/dishRating';
+import { CustomerModel, ICustomer } from '../models/customer';
+import { BadgeModel, IBadge } from '../models/badge';
+import { DishModel, IDish } from '../models/dish';
+import { EmployeeModel, IEmployee } from '../models/employee';
+import { RewardModel, IReward } from '../models/reward';
+import { ReviewModel, IReview } from '../models/review';
+import { StatisticsModel, IStatistics } from '../models/statistics';
+import { VisitModel, IVisit } from '../models/visit';
 
 interface TopDishByRestaurant {
     name: string;
@@ -9,17 +16,9 @@ interface TopDishByRestaurant {
     totalRatings: number;
 }
 
-=======
-import { DishRatingModel, IDishRating }              from '../models/dishRating';
-import { CustomerModel, ICustomer } from '../models/customer';
-import { BadgeModel, IBadge } from '../models/badge';
-import { DishModel, IDish } from '../models/dish';
-import { EmployeeModel, IEmployee } from '../models/employee';
-import {  RewardModel, IReward } from '../models/reward';
-import { ReviewModel, IReview } from '../models/review';
-import { StatisticsModel, IStatistics } from '../models/statistics';
-import { VisitModel, IVisit } from '../models/visit';
->>>>>>> fc942882708b5b255135fe271f5338dc74df5f11
+interface ReviewAverageResult {
+    averageRating?: number | null;
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
 // ─────────────────────────────────────────────────────────────────────────────
@@ -29,12 +28,50 @@ const createRestaurant = async (data: Partial<IRestaurant>): Promise<IRestaurant
     return restaurant.save();
 };
 
+const getRestaurantGlobalRating = async (restaurantId: string): Promise<number> => {
+    console.log('restaurantId:', restaurantId);
+
+    const restaurantIdCandidates: Array<string | mongoose.Types.ObjectId> = [restaurantId];
+    if (mongoose.Types.ObjectId.isValid(restaurantId)) {
+        restaurantIdCandidates.unshift(new mongoose.Types.ObjectId(restaurantId));
+    }
+
+    for (const restaurantIdMatch of restaurantIdCandidates) {
+        const ratingAgg = await ReviewModel.aggregate<ReviewAverageResult>([
+            {
+                $match: {
+                    restaurant_id: restaurantIdMatch,
+                    deleted: { $ne: true },
+                    globalRating: { $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: '$restaurant_id',
+                    averageRating: { $avg: '$globalRating' },
+                },
+            },
+        ]);
+
+        console.log('Aggregation result:', ratingAgg);
+
+        if (ratingAgg.length > 0 && ratingAgg[0].averageRating !== null && ratingAgg[0].averageRating !== undefined) {
+            return Number(ratingAgg[0].averageRating.toFixed(1));
+        }
+    }
+
+    return 0;
+};
+
 const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    const restaurant = await RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
-        .lean<IRestaurant>();
+    const [restaurant, globalRating] = await Promise.all([
+        RestaurantModel
+            .findById(restaurant_id)
+            .active()
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .lean<IRestaurant>(),
+        getRestaurantGlobalRating(restaurant_id),
+    ]);
 
     if (!restaurant) return null;
 
@@ -42,6 +79,7 @@ const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null>
         ...restaurant,
         profile: {
             ...restaurant.profile,
+            globalRating,
             image: restaurant.profile.image?.slice(0, 3)
         }
     };
@@ -52,25 +90,25 @@ const getDeletedRestaurant = async (restaurantId: string): Promise<IRestaurant |
 };
 
 const getAllRestaurants = async (skip: number, limit: number): Promise<{ restaurants: IRestaurant[]; total: number }> => {
-    const [restaurants, total] = await Promise.all([
-        RestaurantModel.find()
-            .active()
-            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
-            .skip(skip)
-            .limit(limit)
-            .lean<IRestaurant[]>(),
-        RestaurantModel.countDocuments({ deletedAt: null })
-    ]);
+        const [restaurants, total] = await Promise.all([
+                RestaurantModel.find()
+                        .active()
+                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+                        .skip(skip)
+                        .limit(limit)
+                        .lean<IRestaurant[]>(),
+                RestaurantModel.countDocuments({ deletedAt: null })
+        ]);
 
-    const formattedRestaurants = restaurants.map((r) => ({
-        ...r,
-        profile: {
-            ...r.profile,
-            image: r.profile.image?.slice(0, 3)
-        }
-    }));
+        const formattedRestaurants = restaurants.map((r) => ({
+                ...r,
+                profile: {
+                        ...r.profile,
+                        image: r.profile.image?.slice(0, 3)
+                }
+        }));
 
-    return { restaurants: formattedRestaurants, total };
+        return { restaurants: formattedRestaurants, total };
 };
 
 const getAllDeletedRestaurants = async ( skip: number, limit: number ): Promise<{ restaurants: IRestaurant[]; total: number }> => {
@@ -168,16 +206,29 @@ const getDeletedRestaurantCustomers = async (restaurant_id: string, skip: number
 };
 
 const getRestaurantFull = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id).active()
-        .populate('employees')
-        .populate('rewards')
-        .populate('badges')
-        .populate('statistics')
-        .populate('dishes')
-        .populate('visits')
-        .populate('reviews')
-        .lean<IRestaurant>();
+    const [restaurant, globalRating] = await Promise.all([
+        RestaurantModel
+            .findById(restaurant_id).active()
+            .populate('employees')
+            .populate('rewards')
+            .populate('badges')
+            .populate('statistics')
+            .populate('dishes')
+            .populate('visits')
+            .populate('reviews')
+            .lean<IRestaurant>(),
+        getRestaurantGlobalRating(restaurant_id),
+    ]);
+
+    if (!restaurant) return null;
+
+    return {
+        ...restaurant,
+        profile: {
+            ...restaurant.profile,
+            globalRating,
+        },
+    };
 };
 
 const getDeletedRestaurantFull = async (restaurantId: string): Promise<IRestaurant | null> => {
@@ -355,7 +406,7 @@ const getDeletedRestaurantRewards = async (restaurant_id: string, skip: number, 
 };
 
 const getVisits = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
     const [visits, total] = await Promise.all([
         VisitModel.find(filter).skip(skip).limit(limit).lean<IVisit[]>(),
         VisitModel.countDocuments(filter)
@@ -364,7 +415,7 @@ const getVisits = async (restaurant_id: string, skip: number, limit: number): Pr
 };
 
 const getDeletedRestaurantVisits = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
     const [visits, total] = await Promise.all([
         VisitModel.find(filter).skip(skip).limit(limit).lean<IVisit[]>(),
         VisitModel.countDocuments(filter)

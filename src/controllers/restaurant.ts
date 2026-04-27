@@ -271,8 +271,6 @@ const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurantId = req.params.restaurantId;
         const topDish = await RestaurantService.getTopDishByRestaurant(restaurantId);
-<<<<<<< HEAD
-
         if (!topDish) {
             return res.status(404).json({ message: 'No rated dishes found for this restaurant.' });
         }
@@ -282,9 +280,6 @@ const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
             averageRating: topDish.averageRating,
             totalRatings: topDish.totalRatings,
         });
-=======
-        return res.status(200).json(topDish)
->>>>>>> fc942882708b5b255135fe271f5338dc74df5f11
     } catch (error) {
         return res.status(500).json({ error });
     }

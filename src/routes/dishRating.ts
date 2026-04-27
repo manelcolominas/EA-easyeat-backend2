@@ -298,4 +298,27 @@ router.delete('/:id/soft', authenticate, requireRole('customer', 'admin'), contr
  */
 router.get('/top-dish/:restaurant_id', controller.getTopDishByRestaurant);
 
+// --- GET /dish-ratings/top-dishes/:restaurant_id -----------------------------
+
+/**
+ * @openapi
+ * /dish-ratings/top-dishes/{restaurant_id}:
+ *   get:
+ *     summary: Get ranked dishes for a restaurant by average rating
+ *     description: Returns all active dishes rated in the restaurant, sorted by avgRating DESC.
+ *     tags: [DishRatings]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Ranked dish list
+ *       500:
+ *         description: Server error
+ */
+router.get('/top-dishes/:restaurant_id', controller.getTopDishesByRestaurant);
+
 export default router;

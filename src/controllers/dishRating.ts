@@ -116,4 +116,23 @@ const getTopDishByRestaurant = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export default { rateOrUpdateDish, readByDish, readByCustomer, softDeleteRating, getRatingSummary, getTopDishByRestaurant };
+const getTopDishesByRestaurant = async (req: AuthRequest, res: Response) => {
+    const { restaurant_id } = req.params;
+
+    try {
+        const result = await DishRatingService.getTopDishesByRestaurant(restaurant_id);
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+export default {
+    rateOrUpdateDish,
+    readByDish,
+    readByCustomer,
+    softDeleteRating,
+    getRatingSummary,
+    getTopDishByRestaurant,
+    getTopDishesByRestaurant
+};

@@ -233,7 +233,7 @@ router.get('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff', 'c
  *       404:
  *         description: Not found
  */
-router.get('/:visit_id/deleted', authenticate, requireRole('admin'), controller.readDeletedVisit);
+router.get('/:visit_id/deleted', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.readDeletedVisit);
 
 /**
  * @openapi
@@ -283,7 +283,7 @@ router.put('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff'), V
  *       404:
  *         description: Visit not found
  */
-router.delete('/:visit_id/soft', authenticate, requireRole('admin'), controller.softDeleteVisit);
+router.delete('/:visit_id/soft', authenticate, requireRole('admin', 'owner', 'staff'), controller.softDeleteVisit);
 
 /**
  * @openapi
@@ -304,7 +304,7 @@ router.delete('/:visit_id/soft', authenticate, requireRole('admin'), controller.
  *       404:
  *         description: Visit not found
  */
-router.patch('/:visit_id/restore', authenticate, requireRole('admin'), controller.restoreVisit);
+router.patch('/:visit_id/restore', authenticate, requireRole('admin', 'owner', 'staff'), controller.restoreVisit);
 
 /**
  * @openapi
@@ -325,6 +325,6 @@ router.patch('/:visit_id/restore', authenticate, requireRole('admin'), controlle
  *       404:
  *         description: Visit not found
  */
-router.delete('/:visit_id/hard', authenticate, requireRole('admin'), controller.hardDeleteVisit);
+router.delete('/:visit_id/hard', authenticate, requireRole('admin', 'owner', 'staff'), controller.hardDeleteVisit);
 
 export default router;
