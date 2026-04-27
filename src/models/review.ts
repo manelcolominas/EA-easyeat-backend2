@@ -4,6 +4,7 @@ import { Schema, model, Types } from 'mongoose';
 export interface IReview {
   _id?: Types.ObjectId;
 
+  employee_id?: Types.ObjectId | null;
   customer_id: Types.ObjectId;
   restaurant_id: Types.ObjectId;
 
@@ -31,6 +32,7 @@ export interface IReview {
 // 2️⃣ Schema
 const reviewSchema = new Schema<IReview>(
   {
+    employee_id: { type: Schema.Types.ObjectId, ref: 'Employee', default: null },
     customer_id: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
     restaurant_id: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true },
     date: { type: Date, required: true, default: Date.now },
@@ -60,6 +62,7 @@ reviewSchema.index( { customer_id: 1, restaurant_id: 1 },
 // Para búsquedas rápidas (paginación/filtros)
 reviewSchema.index({ customer_id: 1, deleted: 1 });
 reviewSchema.index({ restaurant_id: 1, deleted: 1 });
+reviewSchema.index({ employee_id: 1, deleted: 1 });
 reviewSchema.index({ globalRating: -1 });
 reviewSchema.index({ likes: -1 });
 

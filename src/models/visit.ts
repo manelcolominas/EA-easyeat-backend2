@@ -4,6 +4,7 @@ import { Schema, model, Types, Query, Document, Model } from 'mongoose';
 
 export interface IVisit {
     _id?: Types.ObjectId;
+    employee_id?: Types.ObjectId | null;
     customer_id: Types.ObjectId;
     restaurant_id: Types.ObjectId;
     date: Date;
@@ -26,6 +27,11 @@ export type VisitModelType = Model<IVisit, VisitQueryHelpers>;
 
 const visitSchema = new Schema<IVisit, VisitModelType, {}, VisitQueryHelpers>(
     {
+        employee_id: {
+            type: Schema.Types.ObjectId,
+            ref: 'Employee',
+            default: null,
+        },
         customer_id: {
             type: Schema.Types.ObjectId, ref: 'Customer',
             required: [true, 'customer_id is required'],
@@ -48,6 +54,7 @@ const visitSchema = new Schema<IVisit, VisitModelType, {}, VisitQueryHelpers>(
 // ─── 5. Indexes ───────────────────────────────────────────────────────────────
 
 visitSchema.index({ date: -1 });
+visitSchema.index({ employee_id: 1, restaurant_id: 1, deletedAt: 1 });
 visitSchema.index({ customer_id: 1, restaurant_id: 1, deletedAt: 1 });
 
 // ─── 6. Query helper — .active() ─────────────────────────────────────────────

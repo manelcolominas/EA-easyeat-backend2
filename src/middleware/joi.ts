@@ -183,6 +183,7 @@ export const Schemas = {
 
     review: {
         create: Joi.object<IReview>({
+            employee_id:   objectId.allow(null),
             customer_id:   objectId,
             restaurant_id: objectId.required(),
             globalRating:  Joi.number().min(0).max(10),
@@ -197,6 +198,7 @@ export const Schemas = {
             likes:   Joi.number().min(0).default(0),
         }),
         update: Joi.object<IReview>({
+            employee_id:   objectId.allow(null),
             globalRating: Joi.number().min(0).max(10),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
@@ -248,6 +250,7 @@ export const Schemas = {
 
     visit: {
         create: Joi.object<IVisit>({
+            employee_id:   objectId.allow(null),
             customer_id:   objectId.required(),
             restaurant_id: objectId.required(),
             date:          Joi.date().default(() => new Date()),
@@ -256,6 +259,7 @@ export const Schemas = {
             deletedAt:     Joi.any().strip(),
         }),
         update: Joi.object<IVisit & { deletedAt?: any }>({
+            employee_id:  objectId.allow(null),
             date:         Joi.date(),
             pointsEarned: Joi.number().min(0),
             billAmount:   Joi.number().min(0),
