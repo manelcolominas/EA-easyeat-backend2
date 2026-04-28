@@ -35,7 +35,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { visits, total } = await VisitService.getAllVisits(skip, limit);
-
+        
         return res.status(200).json({
             data: visits,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -49,7 +49,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { visits, total } = await VisitService.getAllDeletedVisits(skip, limit);
-
+        
         return res.status(200).json({
             data: visits,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -64,7 +64,7 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
         const { customer_id } = req.params;
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { visits, total } = await VisitService.getByCustomer(customer_id, skip, limit);
-
+        
         return res.status(200).json({
             data: visits,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -94,11 +94,7 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
         const { restaurant_id } = req.params;
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { visits, total } = await VisitService.getByRestaurant(restaurant_id, skip, limit);
-        console.log('FILTER RESTAURANT:', restaurant_id);
-        console.log('RESULT VISITS:', visits.length);
-        console.log(visits);
-        
-
+     
         return res.status(200).json({
             data: visits,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }

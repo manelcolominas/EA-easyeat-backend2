@@ -91,6 +91,7 @@ const getByRestaurant = async (restaurant_id: string, skip: number, limit: numbe
         VisitModel.countDocuments(query)
     ]);
     return { visits, total };
+    
 };
 
 const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {

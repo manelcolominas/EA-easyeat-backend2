@@ -18,16 +18,11 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
         const cookieToken = (req as Request & { cookies?: { accessToken?: string } }).cookies?.accessToken;
         const token = bearerToken || cookieToken;
 
-        console.log('AUTH HEADER:', authHeader);
-        console.log('TOKEN:', token);
-
         if (!token) {
             return res.status(401).json({ message: 'Authentication required' });
         }
 
         const decoded = verifyAccessToken(token);
-
-        console.log('DECODED:', decoded);
 
         if (decoded.type !== 'access') {
             console.log('AUTH REJECTED: invalid token type', decoded.type);
@@ -120,11 +115,6 @@ export const requireRestaurantAccess = (paramName: string = 'restaurant_id') => 
         if (normalizeRole(req.user.role) === 'admin') return next();
 
         const targetrestaurant_id = req.params[paramName] || req.body[paramName] || req.query[paramName];
-
-        console.log('RESTAURANT ACCESS CHECK:', {
-            userRestaurantId: req.user.restaurant_id,
-            targetrestaurant_id
-        });
         
         if (!req.user.restaurant_id || String(req.user.restaurant_id) !== String(targetrestaurant_id)) {
             return res.status(403).json({ message: 'Access denied: You do not have access to this restaurant' });
