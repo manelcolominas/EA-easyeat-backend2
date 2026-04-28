@@ -6,7 +6,7 @@ import { RestaurantModel } from '../models/restaurant';
 const calculatePointsExponential = ( ownMoney90Days: number, otherMoney90Days: number, billAmount: number, meanMoneySpent90Days: number, maxPointsVisit: number): number => {
     // Si encara no hi ha prou dades de visites (mitjana de despesa és 0), assignem un 15% del màxim
     if (meanMoneySpent90Days <= 0) {
-        return Math.floor(maxPointsVisit * 0.15);
+        return Math.floor(maxPointsVisit * 0.35);
     }
 
     const moneySpent = ownMoney90Days * 0.375 + otherMoney90Days * 0.125 + billAmount * 0.5;
@@ -65,8 +65,6 @@ const calculateTotalSpentInOthersRestaurantsLasts90Days = async (customer_id: mo
 };
 
 const calculateAverageSpentInARestaurantLast90DaysByTheCustomers = async (restaurant_id: mongoose.Types.ObjectId): Promise<number> => {
-    // pot ser aixo s'hauria dividir pel numero de visites en el restaurant els últims 90 dies
-
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
@@ -88,6 +86,29 @@ const calculateAverageSpentInARestaurantLast90DaysByTheCustomers = async (restau
             $group: {
                 _id: null,
                 avgSpent: { $avg: '$totalPerCustomer' }
+            }
+        }
+    ]);
+
+    return result.length > 0 ? result[0].avgSpent : 0;
+};
+
+const calculateAverageSpentInARestaurantLast90DaysByVisits = async (restaurant_id: mongoose.Types.ObjectId): Promise<number> => {
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    const result = await VisitModel.aggregate([
+        {
+            $match: {
+                restaurant_id: new mongoose.Types.ObjectId(restaurant_id.toString()),
+                date: { $gte: ninetyDaysAgo },
+                deletedAt: null
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                avgSpent: { $avg: '$billAmount' }
             }
         }
     ]);
