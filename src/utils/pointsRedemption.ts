@@ -65,6 +65,8 @@ const calculateTotalSpentInOthersRestaurantsLasts90Days = async (customer_id: mo
 };
 
 const calculateAverageSpentInARestaurantLast90DaysByTheCustomers = async (restaurant_id: mongoose.Types.ObjectId): Promise<number> => {
+    // pot ser aixo s'hauria dividir pel numero de visites en el restaurant els últims 90 dies
+
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
