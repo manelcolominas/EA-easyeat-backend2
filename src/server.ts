@@ -19,7 +19,6 @@ import pointsWallets from './routes/pointsWallet';
 import rewardRedemption from './routes/rewardRedemption';
 import statistics from './routes/statistics';
 import dishRatingRoutes from './routes/dishRating';
-
 import authRoutes from './routes/auth';
 
 import swaggerUi from 'swagger-ui-express';

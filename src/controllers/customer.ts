@@ -152,6 +152,28 @@ const getCustomerAllPointsWallet = async (req: Request, res: Response, next: Nex
         return res.status(500).json({ error });
     }
 };
+const getCustomersByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    const { restaurant_id } = req.params;
+
+    try {
+        const { page, limit, skip } = getPaginationOptions(req.query);
+
+        const { customers, total } = await CustomerService.getCustomersByRestaurant(restaurant_id,skip,limit);      
+
+        return res.status(200).json({
+            data: customers,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
+
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
 
 // ─── Read (paginated list) ────────────────────────────────────────────────────
 
@@ -263,6 +285,7 @@ export default {
     getCustomerAllReviews,
     getCustomerAllVisits,
     getCustomerAllDeletedVisits,
+    getCustomersByRestaurant,
     readAll,
     readAllDeleted,
     updateCustomer,
