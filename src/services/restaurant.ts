@@ -18,7 +18,7 @@ const createRestaurant = async (data: Partial<IRestaurant>): Promise<IRestaurant
     return restaurant.save();
 };
 
-const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
+/*const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
     const restaurant = await RestaurantModel
         .findById(restaurant_id)
         .active()
@@ -34,6 +34,17 @@ const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null>
             image: restaurant.profile.image?.slice(0, 3)
         }
     };
+};*/
+
+const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
+    const restaurant = await RestaurantModel
+        .findById(restaurant_id)
+        .active()
+        .select('-employees -dishes -rewards -statistics -badges -visits -reviews')
+        .lean<IRestaurant>();
+    if (!restaurant) return null;
+
+    return restaurant
 };
 
 const getDeletedRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
@@ -169,6 +180,16 @@ const getRestaurantFull = async (restaurant_id: string): Promise<IRestaurant | n
         .lean<IRestaurant>();
 };
 
+const getRestaurantDetailedForCustomerFrontend = async (restaurant_id: string): Promise<IRestaurant | null> => {
+    return RestaurantModel
+        .findById(restaurant_id).active()
+        .populate('rewards')
+        .populate('badges')
+        .populate('dishes')
+        .populate('reviews')
+        .lean<IRestaurant>();
+};
+
 const getDeletedRestaurantFull = async (restaurantId: string): Promise<IRestaurant | null> => {
     return RestaurantModel
         .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
@@ -181,6 +202,8 @@ const getDeletedRestaurantFull = async (restaurantId: string): Promise<IRestaura
         .populate('reviews')
         .lean<IRestaurant>();
 };
+
+
 
 const getNearby = async ( lng: number, lat: number,
  maxDistance: number ): Promise<IRestaurant[]> => {
@@ -505,6 +528,7 @@ export default {
     getRestaurantCustomers,
     getDeletedRestaurantCustomers,
     getRestaurantFull,
+    getRestaurantDetailedForCustomerFrontend,
     getDeletedRestaurantFull,
     getNearby,
     getBadges,
