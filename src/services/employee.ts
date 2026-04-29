@@ -9,6 +9,7 @@ type EmployeeStatsResult = IEmployee & {
     stats?: {
         averageRating: number | null;
         totalVisits: number;
+        revenue: number;
     };
 };
 
@@ -132,13 +133,14 @@ const getByRestaurantWithStats = async (restaurant_id: string): Promise<Employee
             active: employee.isActive,
             stats: {
                 averageRating: null,
-                totalVisits: 0
+                totalVisits: 0,
+                revenue: 0
             }
         }));
     }
 
     const [visitsStats, reviewsStats] = await Promise.all([
-        VisitModel.aggregate<{ _id: mongoose.Types.ObjectId; totalVisits: number }>([
+        VisitModel.aggregate<{ _id: mongoose.Types.ObjectId; totalVisits: number; revenue: number }>([
             {
                 $match: {
                     restaurant_id: restaurantObjectId,
@@ -149,7 +151,8 @@ const getByRestaurantWithStats = async (restaurant_id: string): Promise<Employee
             {
                 $group: {
                     _id: '$employee_id',
-                    totalVisits: { $sum: 1 }
+                    totalVisits: { $sum: 1 },
+                    revenue: { $sum: '$billAmount' }
                 }
             }
         ]),
@@ -170,8 +173,10 @@ const getByRestaurantWithStats = async (restaurant_id: string): Promise<Employee
         ])
     ]);
 
-    const visitsMap = new Map<string, { totalVisits: number }>(
-        visitsStats.map((item) => [String(item._id), { totalVisits: item.totalVisits }])
+    console.log("Stats calculated:", { visitsStats, reviewsStats });
+
+    const visitsMap = new Map<string, { totalVisits: number; revenue: number }>(
+        visitsStats.map((item) => [String(item._id), { totalVisits: item.totalVisits, revenue: item.revenue }])
     );
 
     const reviewsMap = new Map<string, { averageRating: number | null }>(
@@ -182,13 +187,16 @@ const getByRestaurantWithStats = async (restaurant_id: string): Promise<Employee
         const visitStats = visitsMap.get(String(employee._id));
         const reviewStats = reviewsMap.get(String(employee._id));
 
+        const statsObj = {
+            averageRating: reviewStats?.averageRating ?? null,
+            totalVisits: visitStats?.totalVisits ?? 0,
+            revenue: visitStats?.revenue ?? 0
+        };
+
         return {
             ...employee,
             active: employee.isActive,
-            stats: {
-                averageRating: reviewStats?.averageRating ?? null,
-                totalVisits: visitStats?.totalVisits ?? 0
-            }
+            stats: statsObj
         };
     });
 };
