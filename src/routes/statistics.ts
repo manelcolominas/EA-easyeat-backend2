@@ -118,7 +118,7 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.statist
  *       200:
  *         description: OK
  */
-router.get('/', authenticate, requireRole('admin'), controller.readAll);
+router.get('/', authenticate, requireRole('admin', 'owner', 'staff'), controller.readAll);
 
 /**
  * @openapi
@@ -139,7 +139,7 @@ router.get('/', authenticate, requireRole('admin'), controller.readAll);
  *       404:
  *         description: Not found
  */
-router.get('/restaurant/:restaurant_id', authenticate, requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
+router.get('/restaurant/:restaurant_id', authenticate, requireRole('owner', 'staff'), requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
 
 /**
  * @openapi
@@ -213,3 +213,4 @@ router.put('/:statistics_id', authenticate, requireRole('admin'), ValidateJoi(Sc
 router.delete('/:statistics_id', authenticate, requireRole('admin'),controller.deleteStatistics);
 
 export default router;
+

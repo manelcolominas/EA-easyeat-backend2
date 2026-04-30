@@ -197,6 +197,20 @@ const getAllDeletedCustomers = async (skip: number, limit: number): Promise<{ da
     ]);
     return { data, total };
 };
+const getCustomersByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ customers: ICustomer[], total: number }> => {
+    const restaurantObjectId = new mongoose.Types.ObjectId(restaurant_id);
+    const filter = { favoriteRestaurants: restaurantObjectId, deletedAt: null };
+
+    const [customers, total] = await Promise.all([
+        CustomerModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+
+    return { customers, total };
+};
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 
@@ -239,6 +253,7 @@ export default {
     getCustomerAllReviews,
     getCustomerAllVisits,
     getCustomerAllDeletedVisits,
+    getCustomersByRestaurant,
     updateCustomer,
     softDeleteCustomer,
     restoreCustomer,

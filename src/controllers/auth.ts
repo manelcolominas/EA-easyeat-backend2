@@ -22,6 +22,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
             const accessToken = generateAccessToken(String(customer._id), customer.name, customer.email, 'customer');
             const refreshToken = generateRefreshToken(String(customer._id), customer.name, customer.email, 'customer');
 
+            res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
             res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 
             return res.status(200).json({
@@ -50,6 +51,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
             const accessToken = generateAccessToken(String(employee._id), name, empEmail, empRole, restaurantId);
             const refreshToken = generateRefreshToken(String(employee._id), name, empEmail, empRole, restaurantId);
 
+            res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
             res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 
             return res.status(200).json({
@@ -73,6 +75,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
 
         const { accessToken, refreshToken } = getTokens(admin);
 
+        res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
         res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 
         return res.status(200).json({

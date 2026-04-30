@@ -88,12 +88,42 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customer_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getDeletedByCustomer(customer_id, skip, limit);
+
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { restaurant_id } = req.params;
         const { page, limit, skip } = getPaginationOptions(req.query);
         const { visits, total } = await VisitService.getByRestaurant(restaurant_id, skip, limit);
-        
+     
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getDeletedByRestaurant(restaurant_id, skip, limit);
+
         return res.status(200).json({
             data: visits,
             meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -150,7 +180,9 @@ export default {
     readAll,
     readAllDeleted,
     readByCustomer,
+    readDeletedByCustomer,
     readByRestaurant,
+    readDeletedByRestaurant,
     updateVisit,
     softDeleteVisit,
     restoreVisit,

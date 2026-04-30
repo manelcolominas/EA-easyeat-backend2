@@ -43,6 +43,30 @@ const getAllDeletedDishes = async (skip: number, limit: number): Promise<{ dishe
     return { dishes, total };
 };
 
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, active: true };
+    const [dishes, total] = await Promise.all([
+        DishModel.find(query)
+            .skip(skip)
+            .limit(limit)
+            .lean<IDish[]>(),
+        DishModel.countDocuments(query)
+    ]);
+    return { dishes, total };
+};
+
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, active: false };
+    const [dishes, total] = await Promise.all([
+        DishModel.find(query)
+            .skip(skip)
+            .limit(limit)
+            .lean<IDish[]>(),
+        DishModel.countDocuments(query)
+    ]);
+    return { dishes, total };
+};
+
 const updateDish = async (dish_id: string, data: Partial<IDish>) => {
     const dish = await DishModel.findById(dish_id);
 
@@ -80,6 +104,8 @@ export default {
     getDeletedDish,
     getAllDishes,
     getAllDeletedDishes,
+    getByRestaurant,
+    getDeletedByRestaurant,
     updateDish,
     softDeleteDish,
     restoreDish,

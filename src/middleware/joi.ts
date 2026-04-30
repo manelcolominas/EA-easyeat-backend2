@@ -76,11 +76,13 @@ export const Schemas = {
             description: Joi.string().required(),
             type:        Joi.string().required(),
         }),
-        update: Joi.object<IBadge>({
+        update: Joi.object({
+            _id: objectId,
+            __v: Joi.number(),
             title:       Joi.string(),
             description: Joi.string(),
             type:        Joi.string(),
-        }),
+        }).unknown(true),
     },
 
     customer: {
@@ -96,7 +98,9 @@ export const Schemas = {
             badges:              Joi.array().items(objectId),
             reviews:             Joi.array().items(objectId),
         }),
-        update: Joi.object<ICustomer>({
+        update: Joi.object({
+            _id: objectId,
+            __v: Joi.number(),
             name:                Joi.string().min(2).max(100),           
             email:               Joi.string().email(),
             password:            passwordSchema,
@@ -107,7 +111,7 @@ export const Schemas = {
             favoriteRestaurants: Joi.array().items(objectId),
             badges:              Joi.array().items(objectId),
             reviews:             Joi.array().items(objectId),
-        }),
+        }).unknown(true),
     },
 
     employee: {
@@ -122,7 +126,10 @@ export const Schemas = {
             }).required(),
             isActive: Joi.boolean().default(true),
         }),
-        update: Joi.object<IEmployee>({
+        update: Joi.object({
+            _id: objectId,
+            __v: Joi.number(),
+            restaurant_id: objectId,
             profile: Joi.object({
                 name:     Joi.string(),
                 email:    Joi.string().email(),
@@ -131,7 +138,7 @@ export const Schemas = {
                 role:     Joi.string().valid('owner', 'staff'),
             }),
             isActive: Joi.boolean(),
-        }),
+        }).unknown(true),
     },
 
     pointsWallet: {
@@ -142,7 +149,7 @@ export const Schemas = {
         }),
         update: Joi.object<IPointsWallet>({
             points: Joi.number().min(0).required(),
-        }),
+        }).unknown(true),
     },
 
     rewardRedemption: {
@@ -163,7 +170,7 @@ export const Schemas = {
         status:      Joi.string().valid('pending', 'approved', 'redeemed', 'cancelled', 'expired'),
         redeemedAt:  Joi.date().allow(null),
         notes:       Joi.string().trim().allow('')
-    }),
+    }).unknown(true),
 
     redeem: Joi.object({
         customer_id: Joi.string().hex().length(24).required(),
@@ -183,6 +190,7 @@ export const Schemas = {
 
     review: {
         create: Joi.object<IReview>({
+            employee_id:   objectId.allow(null),
             customer_id:   objectId,
             restaurant_id: objectId.required(),
             globalRating:  Joi.number().min(0).max(10),
@@ -196,7 +204,10 @@ export const Schemas = {
             comment: Joi.string().allow(''),
             likes:   Joi.number().min(0).default(0),
         }),
-        update: Joi.object<IReview>({
+        update: Joi.object({
+            _id: objectId,
+            __v: Joi.number(),
+            employee_id:   objectId.allow(null),
             globalRating: Joi.number().min(0).max(10),
             ratings: Joi.object({
                 foodQuality:  Joi.number().min(0).max(10),
@@ -220,14 +231,17 @@ export const Schemas = {
             expiry:         Joi.date(),
             timesRedeemed:  Joi.number().min(0).default(0),
         }),
-        update: Joi.object<IReward>({
+        update: Joi.object({
+            _id: objectId,
+            __v: Joi.number(),
+            restaurant_id:  objectId,
             name:           Joi.string(),
             description:    Joi.string(),
             pointsRequired: Joi.number().min(0),
             active:         Joi.boolean(),
             expiry:         Joi.date(),
             timesRedeemed:  Joi.number().min(0),
-        }),
+        }).unknown(true),
     },
 
     statistics: {
@@ -243,11 +257,12 @@ export const Schemas = {
             loyalCustomers:        Joi.number().min(0),
             mostRequestedRewards:  Joi.array().items(objectId),
             averagePointsPerVisit: Joi.number().min(0),
-        }),
+        }).unknown(true),
     },
 
     visit: {
         create: Joi.object<IVisit>({
+            employee_id:   objectId.allow(null),
             customer_id:   objectId.required(),
             restaurant_id: objectId.required(),
             employee_id:   objectId.required(),
@@ -257,11 +272,12 @@ export const Schemas = {
             deletedAt:     Joi.any().strip(),
         }),
         update: Joi.object<IVisit & { deletedAt?: any }>({
+            employee_id:  objectId.allow(null),
             date:         Joi.date(),
             pointsEarned: Joi.number().min(0),
             billAmount:   Joi.number().min(0),
             deletedAt:    Joi.date().allow(null).optional(),
-        }),
+        }).unknown(true),
     },
 
     restaurant: {
@@ -295,7 +311,10 @@ export const Schemas = {
             badges:     Joi.array().items(objectId),
         }),
 
-        update: Joi.object<IRestaurant>({
+        update: Joi.object({
+            _id: objectId,
+            __v: Joi.number(),
+            restaurant_id: objectId,
             profile: Joi.object({
                 name:        Joi.string(),
                 description: Joi.string(),
@@ -322,7 +341,7 @@ export const Schemas = {
             rewards:    Joi.array().items(objectId),
             statistics: objectId,
             badges:     Joi.array().items(objectId),
-        }),
+        }).unknown(true),
     },
 
     dish: {
@@ -344,14 +363,17 @@ export const Schemas = {
             avgRating:     Joi.forbidden(),
             ratingsCount:  Joi.forbidden()
         }),
-        update: Joi.object<IDish>({
+        update: Joi.object({
+            _id: objectId,
+            __v: Joi.number(),
+            restaurant_id: objectId,
             name:          Joi.string(),
             description:   Joi.string(),
             section:       Joi.string().valid('Starters', 'Mains', 'Desserts', 'Drinks', 'Sides', 'Specials'),
             price:         Joi.number().min(0),
             images:         Joi.array().items(Joi.string().uri()),
             active:        Joi.boolean(),
-            availableAt:   Joi.array().items(Joi.string().valid('breakfast', 'brunch', 'lunch', 'happy-hour', 'dinner', 'all-day')).required(),
+            availableAt:   Joi.array().items(Joi.string().valid('breakfast', 'brunch', 'lunch', 'happy-hour', 'dinner', 'all-day')),
             ingredients:   Joi.array().items(Joi.string()),
             allergens:     Joi.array().items(Joi.string().valid('gluten', 'shellfish', 'nuts', 'dairy', 'eggs', 'soy', 'fish', 'sesame', 'mustard', 'celery', 'lupins', 'molluscs', 'sulphites')),
             dietaryFlags:  Joi.array().items(Joi.string().valid('vegan', 'vegetarian', 'gluten-free', 'halal', 'kosher', 'dairy-free', 'nut-free')),
@@ -360,7 +382,7 @@ export const Schemas = {
             portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing'),
             avgRating:     Joi.forbidden(),
             ratingsCount:  Joi.forbidden()
-        })
+        }).unknown(true)
     },
 
     dishRating: {

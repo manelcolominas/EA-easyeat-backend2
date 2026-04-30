@@ -59,6 +59,36 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RewardService.getByRestaurant(restaurant_id, skip, limit);
+
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RewardService.getDeletedByRestaurant(restaurant_id, skip, limit);
+
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const updateReward = async (req: Request, res: Response, next: NextFunction) => {
     const reward_id = req.params.reward_id;
     try {
@@ -105,6 +135,8 @@ export default {
     readDeletedReward,
     readAll,
     readAllDeleted,
+    readByRestaurant,
+    readDeletedByRestaurant,
     updateReward,
     softDeleteReward,
     restoreReward,

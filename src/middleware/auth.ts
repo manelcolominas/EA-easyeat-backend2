@@ -6,17 +6,18 @@ export interface AuthRequest extends Request {
     user?: IJwtPayload;
 }
 
+const normalizeRole = (role?: string) => (typeof role === 'string' ? role.trim().toLowerCase() : '');
+
 /**
  * Verifies the Bearer access token and attaches the decoded payload to `req.user`.
  */
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith('Bearer ')) {
-            return res.status(401).json({ message: 'Authentication required' });
-        }
+        const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
+        const cookieToken = (req as Request & { cookies?: { accessToken?: string } }).cookies?.accessToken;
+        const token = bearerToken || cookieToken;
 
-        const token = authHeader.split(' ')[1];
         if (!token) {
             return res.status(401).json({ message: 'Authentication required' });
         }
@@ -24,12 +25,21 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
         const decoded = verifyAccessToken(token);
 
         if (decoded.type !== 'access') {
+            console.log('AUTH REJECTED: invalid token type', decoded.type);
             return res.status(401).json({ message: 'Invalid token type' });
         }
+
+        if (!decoded?.id || !decoded?.email || !decoded?.role) {
+            console.log('AUTH REJECTED: invalid token payload', decoded);
+            return res.status(401).json({ message: 'Invalid token payload' });
+        }
+
+        decoded.role = normalizeRole(decoded.role);
 
         req.user = decoded;
         next();
     } catch {
+        console.log('AUTH VERIFY FAILED');
         return res.status(401).json({ message: 'Invalid or expired token' });
     }
 };
@@ -39,19 +49,31 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
  * Admins ALWAYS have access (Bypass).
  */
 export const requireRole = (...roles: string[]) => {
+    const normalizedAllowedRoles = roles.map(normalizeRole).filter(Boolean);
+
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user) {
             return res.status(401).json({ message: 'Authentication required' });
         }
 
+        if (!normalizedAllowedRoles.length) {
+            return res.status(500).json({ message: 'Role middleware misconfigured: no roles provided' });
+        }
+
+        const currentRole = normalizeRole(req.user.role);
+
+        if (!currentRole) {
+            return res.status(403).json({ message: 'Access denied: missing role in token payload' });
+        }
+
         // Admin bypass
-        if (req.user.role === 'admin') {
+        if (currentRole === 'admin') {
             return next();
         }
 
-        if (!roles.includes(req.user.role)) {
+        if (!normalizedAllowedRoles.includes(currentRole)) {
             return res.status(403).json({
-                message: `Access denied. Required role(s): ${roles.join(', ')}`
+                message: `Access denied. Required role(s): ${normalizedAllowedRoles.join(', ')}`
             });
         }
 
@@ -70,7 +92,7 @@ export const requireSelfOrAdmin = (paramName: string = 'userId') => {
 
         const resourceId = req.params[paramName];
         const isOwner = req.user.id === resourceId;
-        const isAdmin = req.user.role === 'admin';
+        const isAdmin = normalizeRole(req.user.role) === 'admin';
 
         if (isAdmin || isOwner) {
             return next();
@@ -90,11 +112,11 @@ export const requireRestaurantAccess = (paramName: string = 'restaurant_id') => 
         if (!req.user) return res.status(401).json({ message: 'Authentication required' });
 
         // Admin bypass
-        if (req.user.role === 'admin') return next();
+        if (normalizeRole(req.user.role) === 'admin') return next();
 
         const targetrestaurant_id = req.params[paramName] || req.body[paramName] || req.query[paramName];
         
-        if (!req.user.restaurant_id || req.user.restaurant_id !== targetrestaurant_id) {
+        if (!req.user.restaurant_id || String(req.user.restaurant_id) !== String(targetrestaurant_id)) {
             return res.status(403).json({ message: 'Access denied: You do not have access to this restaurant' });
         }
 

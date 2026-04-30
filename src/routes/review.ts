@@ -126,7 +126,7 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
 router.get(
   '/',
   authenticate,
-  requireRole('admin'),
+  requireRole('admin', 'owner', 'staff'),
   controller.readAll
 );
 
@@ -223,7 +223,7 @@ router.get(
 router.get(
   '/restaurant/:restaurant_id/deleted',
   authenticate,
-  requireRole('admin'),
+  requireRole('admin', 'owner', 'staff'),
   controller.readDeletedByRestaurant
 );
 
@@ -309,7 +309,7 @@ router.get(
 router.get(
   '/customer/:customer_id/deleted',
   authenticate,
-  requireRole('admin'),
+  requireRole('admin', 'owner', 'staff'),
   controller.readDeletedByCustomer
 );
 

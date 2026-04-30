@@ -51,6 +51,32 @@ const getAllDeletedRewards = async (skip: number, limit: number): Promise<{ rewa
     return { rewards, total };
 };
 
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, active: true };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IReward[]>(),
+        RewardModel.countDocuments(query)
+    ]);
+    return { rewards, total };
+};
+
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, active: false };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IReward[]>(),
+        RewardModel.countDocuments(query)
+    ]);
+    return { rewards, total };
+};
+
 const updateReward = async (reward_id: string, data: Partial<IReward>) => {
     const reward = await RewardModel.findById(reward_id);
 
@@ -87,6 +113,8 @@ export default {
     getDeletedReward,
     getAllRewards,
     getAllDeletedRewards,
+    getByRestaurant,
+    getDeletedByRestaurant,
     updateReward,
     softDeleteReward,
     restoreReward,

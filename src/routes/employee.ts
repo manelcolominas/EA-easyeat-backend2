@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/employee';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRestaurantAccess, requireRole, requireSelfOrAdmin } from '../middleware/auth';
+import { authenticate, requireRestaurantAccess, requireRole } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -117,7 +117,13 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', ValidateJoi(Schemas.employee.create), controller.createEmployee);
+router.post(
+  '/',
+  authenticate,
+  requireRole('owner', 'admin'),
+  ValidateJoi(Schemas.employee.create),
+  controller.createEmployee
+);
 
 /**
  * @openapi
@@ -125,28 +131,16 @@ router.post('/', ValidateJoi(Schemas.employee.create), controller.createEmployee
  *   get:
  *     summary: Lists all employees (paginated)
  *     tags: [Employees]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/PaginatedEmployees'
  */
-router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), controller.readAll);
+router.get(
+  '/',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.readAll
+);
 
 /**
  * @openapi
@@ -154,28 +148,70 @@ router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAc
  *   get:
  *     summary: List all deleted employees (paginated)
  *     tags: [Employees]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/PaginatedEmployees'
  */
-router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+router.get(
+  '/deleted',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.readAllDeleted
+);
+
+/**
+ * @openapi
+ * /employees/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: List all employees for a specific restaurant (paginated)
+ *     tags: [Employees]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/restaurant/:restaurant_id',
+  authenticate,
+  requireRole('owner', 'admin', 'staff'),
+  requireRestaurantAccess('restaurant_id'),
+  controller.readByRestaurant
+);
+
+/**
+ * @openapi
+ * /employees/restaurant/{restaurant_id}/stats:
+ *   get:
+ *     summary: List employees for a restaurant with calculated stats
+ *     tags: [Employees]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/restaurant/:restaurant_id/stats',
+  authenticate,
+  requireRole('owner', 'admin', 'staff'),
+  requireRestaurantAccess('restaurant_id'),
+  controller.readByRestaurantWithStats
+);
+
+/**
+ * @openapi
+ * /employees/restaurant/{restaurant_id}/deleted:
+ *   get:
+ *     summary: List all deleted employees for a specific restaurant (paginated)
+ *     tags: [Employees]
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/restaurant/:restaurant_id/deleted',
+  authenticate,
+  requireRole('owner', 'admin', 'staff'),
+  requireRestaurantAccess('restaurant_id'),
+  controller.readDeletedByRestaurant
+);
 
 /**
  * @openapi
@@ -183,56 +219,35 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
  *   get:
  *     summary: Gets an employee by ID
  *     tags: [Employees]
- *     parameters:
- *       - in: path
- *         name: employee_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The employee's ObjectId
  *     responses:
  *       200:
  *         description: OK
  *       404:
  *         description: Not found
  */
-router.get('/:employee_id', authenticate, requireSelfOrAdmin('employee_id'), controller.readEmployee);
+router.get(
+  '/:employee_id',
+  authenticate,
+  requireRole('owner', 'admin', 'staff'),
+  controller.readEmployee
+);
 
 /**
  * @openapi
  * /employees/{employee_id}/deleted:
  *   get:
  *     summary: Get a deleted employee by ID
- *     description: Returns a single deleted employee.
  *     tags: [Employees]
- *     parameters:
- *       - in: path
- *         name: employee_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The employee's ObjectId
  *     responses:
  *       200:
- *         description: Employee found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/EmployeeResponse'
- *       400:
- *         description: Invalid employee ID format
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       404:
- *         description: Employee not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: OK
  */
-router.get('/:employee_id/deleted', authenticate, requireRole('admin'), controller.readDeletedEmployee);
+router.get(
+  '/:employee_id/deleted',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.readDeletedEmployee
+);
 
 /**
  * @openapi
@@ -240,28 +255,17 @@ router.get('/:employee_id/deleted', authenticate, requireRole('admin'), controll
  *   put:
  *     summary: Updates an employee by ID
  *     tags: [Employees]
- *     parameters:
- *       - in: path
- *         name: employee_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The employee's ObjectId
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/EmployeeCreateUpdate'
  *     responses:
- *       201:
+ *       200:
  *         description: Updated
- *       404:
- *         description: Not found
- *       422:
- *         description: Validation failed (Joi)
  */
-router.put('/:employee_id', authenticate, requireSelfOrAdmin('employee_id'), ValidateJoi(Schemas.employee.update), controller.updateEmployee);
+router.put(
+  '/:employee_id',
+  authenticate,
+  requireRole('owner', 'admin'),
+  ValidateJoi(Schemas.employee.update),
+  controller.updateEmployee
+);
 
 /**
  * @openapi
@@ -269,111 +273,40 @@ router.put('/:employee_id', authenticate, requireSelfOrAdmin('employee_id'), Val
  *   delete:
  *     summary: Deletes an employee by ID
  *     tags: [Employees]
- *     parameters:
- *       - in: path
- *         name: employee_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The employee's ObjectId
- *     responses:
- *       200:
- *         description: OK
- *       404:
- *         description: Not found
  */
-router.delete('/:employee_id/soft', authenticate, requireRole('owner', 'admin'), requireRestaurantAccess('restaurant_id'), controller.softDeleteEmployee);
+router.delete(
+  '/:employee_id/soft',
+  authenticate,
+  requireRole('owner', 'admin'),
+  controller.softDeleteEmployee
+);
 
 /**
  * @openapi
  * /employees/{employee_id}/restore:
  *   patch:
  *     summary: Restore a soft-deleted employee by ID
- *     description: Restores a previously soft-deleted employee (marks as active). Requires admin or owner role with access to the target restaurant.
  *     tags: [Employees]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: employee_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The employee's ObjectId
- *     responses:
- *       200:
- *         description: Employee restored successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Employee restored successfully
- *       400:
- *         description: Invalid employee ID format
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: Unauthorized – missing or invalid token
- *       403:
- *         description: Forbidden – insufficient role or no restaurant access
- *       404:
- *         description: Employee not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.patch('/:employee_id/restore', authenticate, requireRole('admin'), controller.restoreEmployee);
+router.patch(
+  '/:employee_id/restore',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.restoreEmployee
+);
 
 /**
  * @openapi
  * /employees/{employee_id}/hard:
  *   delete:
  *     summary: Hard delete an employee by ID
- *     description: Permanently removes a soft-deleted employee from the database. Requires admin role.
  *     tags: [Employees]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: employee_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The employee's ObjectId
- *     responses:
- *       200:
- *         description: Employee permanently deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Employee permanently deleted successfully
- *       400:
- *         description: Invalid employee ID format
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: Unauthorized – missing or invalid token
- *       403:
- *         description: Forbidden – insufficient role (not admin)
- *       404:
- *         description: Employee not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:employee_id/hard', authenticate, requireRole('admin'), controller.hardDeleteEmployee);
+router.delete(
+  '/:employee_id/hard',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.hardDeleteEmployee
+);
 
 export default router;

@@ -282,6 +282,70 @@ router.get('/', controller.readAll);
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
+/**
+ * @openapi
+ * /dishes/restaurant/:restaurant_id:
+ *   get:
+ *     summary: List all dishes of a specific restaurant (paginated)
+ *     description: Returns all dishes of a specific restaurant.
+ *     tags: [Dishes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Max number of results to return
+ *     responses:
+ *       200:
+ *         description: List of dishes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedDishes'
+ */
+router.get('/restaurant/:restaurant_id', authenticate, requireRole('admin', 'owner'), controller.readByRestaurant);
+
+/**
+ * @openapi
+ * /dishes/restaurant/:restaurant_id/deleted:
+ *   get:
+ *     summary: List all deleted dishes of a specific restaurant (paginated)
+ *     description: Returns all deleted dishes of a specific restaurant.
+ *     tags: [Dishes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Max number of results to return
+ *     responses:
+ *       200:
+ *         description: List of deleted dishes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedDishes'
+ */
+router.get('/restaurant/:restaurant_id/deleted', authenticate, requireRole('admin', 'owner'), controller.readDeletedByRestaurant);
+
 // ─── Read one ─────────────────────────────────────────────────────────────────
 
 /**
