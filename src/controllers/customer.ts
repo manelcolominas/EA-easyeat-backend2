@@ -157,17 +157,11 @@ const getCustomersByRestaurant = async (req: Request, res: Response, next: NextF
 
     try {
         const { page, limit, skip } = getPaginationOptions(req.query);
-
-        const { customers, total } = await CustomerService.getCustomersByRestaurant(restaurant_id,skip,limit);      
+        const { customers, total } = await CustomerService.getCustomersByRestaurant(restaurant_id,skip,limit);
 
         return res.status(200).json({
             data: customers,
-            meta: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit)
-            }
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
         });
 
     } catch (error) {

@@ -262,7 +262,6 @@ export const Schemas = {
 
     visit: {
         create: Joi.object<IVisit>({
-            employee_id:   objectId.allow(null),
             customer_id:   objectId.required(),
             restaurant_id: objectId.required(),
             employee_id:   objectId.required(),
@@ -272,7 +271,7 @@ export const Schemas = {
             deletedAt:     Joi.any().strip(),
         }),
         update: Joi.object<IVisit & { deletedAt?: any }>({
-            employee_id:  objectId.allow(null),
+            employee_id:  objectId.forbidden(),
             date:         Joi.date(),
             pointsEarned: Joi.number().min(0),
             billAmount:   Joi.number().min(0),
