@@ -29,7 +29,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
                 message: 'Auth successful',
                 accessToken,
                 customer: {
-                    id:    customer._id,
+                    _id:    customer._id,
                     email: customer.email,
                     name:  customer.name,
                     role:  'customer',
@@ -58,7 +58,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
                 message: 'Auth successful',
                 accessToken,
                 employee: {
-                    id:            employee._id,
+                    _id:            employee._id,
                     name:          employee.profile.name,
                     email:         employee.profile.email,
                     role:          employee.profile.role,
@@ -82,7 +82,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
             message: 'Auth successful',
             accessToken,
             admin: {
-                id:    admin._id,
+                _id:    admin._id,
                 email: admin.email,
                 name:  admin.name,
                 role:  admin.role,
@@ -115,7 +115,7 @@ export const registerAdmin = async (req: Request, res: Response) => {
         return res.status(201).json({
             message: 'Admin created successfully',
             admin: {
-                id:    admin._id,
+                _id:    admin._id,
                 email: admin.email,
                 name:  admin.name,
                 role:  admin.role

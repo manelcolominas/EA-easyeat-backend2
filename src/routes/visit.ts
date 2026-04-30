@@ -24,18 +24,19 @@ const router = express.Router();
  *         customer_id:
  *           type: string
  *           description: Customer ObjectId
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *           example: "65f1c2a1b2c3d4e5f6789051"
  *         restaurant_id:
  *           type: string
  *           description: Restaurant ObjectId
  *           example: "65f1c2a1b2c3d4e5f6789014"
+ *         employee_id:
+ *          type: string
+ *          description: Employee ObjectId
+ *          example: "65f1c2a1b2c3d4e5f6783001"
  *         date:
  *           type: string
  *           format: date-time
  *           example: "2024-03-14T10:00:00.000Z"
- *         pointsEarned:
- *           type: number
- *           example: 10
  *         billAmount:
  *           type: number
  *           example: 31.00
@@ -44,20 +45,22 @@ const router = express.Router();
  *       required:
  *         - customer_id
  *         - restaurant_id
+ *         - date
+ *         - employee_id
  *       properties:
  *         customer_id:
  *           type: string
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *           example: "65f1c2a1b2c3d4e5f6789051"
  *         restaurant_id:
  *           type: string
- *           example: "65f1c2a1b2c3d4e5f6789014"
+ *           example: "65f1c2a1b2c3d4e5f6789001"
+ *         employee_id:
+ *          type: string
+ *          example: "65f1c2a1b2c3d4e5f6783001"
  *         date:
  *           type: string
  *           format: date-time
  *           example: "2024-03-14T10:00:00.000Z"
- *         pointsEarned:
- *           type: number
- *           example: 10
  *         billAmount:
  *           type: number
  *           example: 31.00

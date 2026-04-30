@@ -194,6 +194,17 @@ const getRestaurantFull = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+const getRestaurantDetailedForCustomerFrontend = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const restaurant = await RestaurantService.getRestaurantDetailedForCustomerFrontend(req.params.restaurantId);
+        return restaurant
+            ? res.status(200).json(restaurant)
+            : res.status(404).json({ message: 'Restaurant not found.' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const getDeletedRestaurantFull = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurant = await RestaurantService.getDeletedRestaurantFull(req.params.restaurantId);
@@ -455,6 +466,7 @@ export default {
     getRestaurantCustomers,
     getDeletedRestaurantCustomers,
     getRestaurantFull,
+    getRestaurantDetailedForCustomerFrontend,
     getDeletedRestaurantFull,
     getNearby,
     getBadges,

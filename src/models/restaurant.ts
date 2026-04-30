@@ -54,6 +54,7 @@ export interface IRestaurantProfile {
     name:        string;              // required, unique per city (compound index)
     description: string;             // required
     globalRating:      number;             // 0–10, default 0, updated from reviews
+    maxPointsVisit?:  number;
     category:    RestaurantCategory[]; // required, enum-validated
     timetable?:  ITimetable;
     image?:      string[];
@@ -170,6 +171,7 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
             globalRating: { type: Number, default: 0, min: [0,  'globalRating cannot be below 0.'],
                 max: [10, 'globalRating cannot exceed 10.'],
             },
+            maxPointsVisit: { type: Number, default: 0, min: [0,  'maxPoints cannot be below 0.'] },
             category: { type: [{ type: String, enum: RESTAURANT_CATEGORIES }],
                 required: [true, 'At least one category is required.'],
                 validate: { validator: (v: string[]) => v.length >= 1,

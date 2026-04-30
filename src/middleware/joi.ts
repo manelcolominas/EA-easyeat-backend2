@@ -265,8 +265,9 @@ export const Schemas = {
             employee_id:   objectId.allow(null),
             customer_id:   objectId.required(),
             restaurant_id: objectId.required(),
+            employee_id:   objectId.required(),
             date:          Joi.date().default(() => new Date()),
-            pointsEarned:  Joi.number().min(0).default(0),
+            pointsEarned:  Joi.any().strip(),
             billAmount:    Joi.number().min(0).default(0),
             deletedAt:     Joi.any().strip(),
         }),
@@ -286,6 +287,7 @@ export const Schemas = {
                 description: Joi.string().min(10).max(2000).required(),
                 category:    Joi.array().items(Joi.string().valid(...categoryEnum)).min(1).required(),
                 globalRating:      Joi.number().min(0).max(10),
+                maxPointsVisit:      Joi.number().min(1),
                 timetable:   timetableSchema,
                 image:       Joi.array().items(Joi.string()),
                 contact: Joi.object({

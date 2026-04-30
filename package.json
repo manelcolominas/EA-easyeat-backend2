@@ -5,7 +5,7 @@
   "main": "src/server.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node build/server.js",
+    "start": "node --enable-source-maps build/server.js",
     "postinstall": "tsc"
   },
   "author": "",

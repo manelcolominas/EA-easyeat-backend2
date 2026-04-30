@@ -1,4 +1,5 @@
 import { Schema, model, Types, Query, Document, Model } from 'mongoose';
+import { EmployeeModel } from './employee';
 
 // ─── 1. Interface ─────────────────────────────────────────────────────────────
 
@@ -7,6 +8,7 @@ export interface IVisit {
     employee_id?: Types.ObjectId | null;
     customer_id: Types.ObjectId;
     restaurant_id: Types.ObjectId;
+    employee_id: Types.ObjectId;
     date: Date;
     pointsEarned?: number;
     billAmount?: number;
@@ -39,6 +41,10 @@ const visitSchema = new Schema<IVisit, VisitModelType, {}, VisitQueryHelpers>(
         restaurant_id: {
             type: Schema.Types.ObjectId, ref: 'Restaurant',
             required: [true, 'restaurant_id is required'],
+        },
+        employee_id: {
+            type: Schema.Types.ObjectId, ref: 'Employee',
+            required: [true, 'employee_id is required'],
         },
         date: { type: Date, default: Date.now, required: true },
         pointsEarned: { type: Number, min: [0, 'pointsEarned must be ≥ 0'], default: 0 },
@@ -81,6 +87,13 @@ visitSchema.pre('save', async function (next) {
             const restaurantExists = await RestaurantModel.exists({ _id: this.restaurant_id });
             if (!restaurantExists) {
                 return next(new Error(`Restaurant with id ${this.restaurant_id} does not exist`));
+            }
+        }
+
+        if (this.isModified('employee_id') || this.isNew) {
+            const employeeExists = await EmployeeModel.exists({ _id: this.employee_id });
+            if (!employeeExists) {
+                return next(new Error(`Employee with id ${this.employee_id} does not exist`));
             }
         }
         next();

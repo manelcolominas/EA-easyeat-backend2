@@ -1,9 +1,20 @@
 classDiagram
+    class Admin {
+        +ObjectId _id
+        +String name
+        +String email
+        +String password
+        +String role
+    }
+
     class Customer {
         +ObjectId _id
         +String name
         +String email
-        +String passwordHash
+        +String password
+        +String refreshTokenHash
+        +Boolean isActive
+        +Date deletedAt
         +String[] profilePictures
         +ObjectId[] pointsWallet
         +ObjectId[] visitHistory
@@ -37,9 +48,10 @@ classDiagram
         +String profile.name
         +String profile.email
         +String profile.phone
-        +String profile.passwordHash
+        +String profile.password
         +String profile.role
-        +Boolean active
+        +String refreshTokenHash
+        +Boolean isActive
     }
 
     class Badge {
@@ -47,6 +59,7 @@ classDiagram
         +String title
         +String description
         +String type
+        +Date deletedAt
     }
 
     class Review {
@@ -54,23 +67,26 @@ classDiagram
         +ObjectId customer_id
         +ObjectId restaurant_id
         +Date date
+        +Number globalRating
         +Number ratings.foodQuality
         +Number ratings.staffService
         +Number ratings.cleanliness
         +Number ratings.environment
+        +String[] images
         +String comment
-        +String[] photos
         +Number likes
-        +Number extraPoints
+        +Boolean deleted
     }
 
     class Visit {
         +ObjectId _id
         +ObjectId customer_id
         +ObjectId restaurant_id
+        +ObjectId employee_id
         +Date date
         +Number pointsEarned
         +Number billAmount
+        +Date deletedAt
     }
 
     class PointsWallet {
@@ -112,19 +128,51 @@ classDiagram
         +Number averagePointsPerVisit
     }
 
+    class Dish {
+        +ObjectId _id
+        +ObjectId restaurant_id
+        +String name
+        +String description
+        +String section
+        +Number price
+        +String[] images
+        +Boolean active
+        +String[] availableAt
+        +String[] ingredients
+        +String[] allergens
+        +String[] dietaryFlags
+        +String[] flavorProfile
+        +String[] cuisineTags
+        +String portionSize
+        +Number avgRating
+        +Number ratingsCount
+    }
+
+    class DishRating {
+        +ObjectId _id
+        +ObjectId customer_id
+        +ObjectId dish_id
+        +ObjectId restaurant_id
+        +Number rating
+        +Date deletedAt
+    }
+
     Customer "1" --> "many" PointsWallet : has
     Customer "1" --> "many" Visit : has
     Customer "1" --> "many" Review : writes
     Customer "many" --> "many" Badge : earns
     Customer "many" --> "many" Restaurant : favorites
+    Customer "1" --> "many" DishRating : rates
 
     Restaurant "1" --> "many" Employee : employs
     Restaurant "1" --> "many" Reward : offers
     Restaurant "1" --> "1" Statistics : has
     Restaurant "many" --> "many" Badge : awarded
+    Restaurant "1" --> "many" Dish : serves
 
     PointsWallet "many" --> "1" Restaurant : belongs to
     Visit "many" --> "1" Restaurant : at
+    Visit "many" --> "1" Employee : registered by
     Review "many" --> "1" Restaurant : for
     Reward "many" --> "1" Restaurant : belongs to
 
@@ -134,3 +182,8 @@ classDiagram
     RewardRedemption "many" --> "1" Employee : approved by
 
     Statistics "1" --> "many" Reward : tracks
+
+    Dish "many" --> "1" Restaurant : belongs to
+    DishRating "many" --> "1" Dish : rates
+    DishRating "many" --> "1" Customer : by
+    DishRating "many" --> "1" Restaurant : at

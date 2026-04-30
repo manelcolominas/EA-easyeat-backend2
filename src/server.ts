@@ -83,7 +83,8 @@ const StartServer = () => {
         res.status(404).json({ message: 'Not found' });
     });
 
-    http.createServer(router).listen(config.server.port, () =>
+    //http.createServer(router).listen(config.server.port, '0.0.0.0', () => // per a que funcioni amb el mobil
+    http.createServer(router).listen(config.server.port, () => // en local
         Logging.info(`Server is running on port ${config.server.port}`)
     );
 };
