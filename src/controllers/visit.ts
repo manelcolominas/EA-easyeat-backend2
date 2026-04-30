@@ -5,9 +5,20 @@ import { getPaginationOptions } from '../utils/pagination';
 const createVisit = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const savedVisit = await VisitService.createVisit(req.body);
-        return res.status(201).json(savedVisit);
+
+        const response = {
+            _id: savedVisit._id,
+            customer_id: savedVisit.customer_id,
+            restaurant_id: savedVisit.restaurant_id,
+            employee_id: savedVisit.employee_id,
+            date: savedVisit.date,
+            pointsEarned: savedVisit.pointsEarned,
+            billAmount: savedVisit.billAmount
+        };
+
+        return res.status(201).json(response);
     } catch (error: any) {
-        return res.status(500).json({ 
+        return res.status(500).json({
             message: error.message || 'Internal Server Error',
             error: process.env.NODE_ENV === 'development' ? error : {}
         });
