@@ -1,0 +1,85 @@
+[
+  {
+    "_id": "65f1c2a1b2c3d4e5f6789015",
+    "profile": {
+      "name": "Hibou Sitges",
+      "description": "Intimate fine-dining restaurant with French-inspired Catalan cuisine. Seasonal, locally sourced produce elevated with creative technique. Outstanding wine list and a signature dessert wine pairing not to be missed.",
+      "globalRating": 4.8,
+      "maxPointsVisit": 100,
+      "category": [
+        "Francès",
+        "Gourmet",
+        "Wine Bar"
+      ],
+      "timetable": {
+        "monday": [
+          {
+            "open": "19:00",
+            "close": "22:30"
+          }
+        ],
+        "tuesday": [
+          {
+            "open": "19:00",
+            "close": "22:30"
+          }
+        ],
+        "wednesday": [
+          {
+            "open": "19:00",
+            "close": "22:30"
+          }
+        ],
+        "thursday": [
+          {
+            "open": "19:00",
+            "close": "22:30"
+          }
+        ],
+        "friday": [
+          {
+            "open": "19:00",
+            "close": "22:30"
+          }
+        ],
+        "saturday": [
+          {
+            "open": "19:00",
+            "close": "22:30"
+          }
+        ]
+      },
+      "image": [
+        "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=600&q=80",
+        "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg",
+        "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg",
+        "https://images.pexels.com/photos/1579253/pexels-photo-1579253.jpeg"
+      ],
+      "contact": {
+        "phone": "+34 651 38 91 02"
+      },
+      "location": {
+        "city": "Sitges",
+        "address": "Carrer de Santiago Rusiñol, 2, 08870 Sitges",
+        "googlePlaceId": "ChIJScLtNaSBoxIRjLl1EvMMSyc",
+        "coordinates": {
+          "type": "Point",
+          "coordinates": [
+            1.9859677274043068,
+            41.27677832720455
+          ]
+        }
+      }
+    },
+    "employees": [],
+    "rewards": [],
+    "visits": [],
+    "statistics": null,
+    "badges": [],
+    "dishes": [],
+    "reviews": [],
+    "deletedAt": null,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-06-15T00:00:00.000Z"
+  }
+]
