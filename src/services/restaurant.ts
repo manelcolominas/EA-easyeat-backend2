@@ -265,7 +265,9 @@ const getReestaurantsNearby = async (lng: number, lat: number, maxDistance: numb
                     $maxDistance: maxDistance,
                 }
             }
-        }).lean();
+        })
+        .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.coordinates')
+        .lean();
 };
 
 const getBadges = async (restaurant_id: string, skip: number, limit: number): Promise<{ badges: IBadge[]; total: number }> => {
