@@ -393,6 +393,6 @@ export const Schemas = {
         update: Joi.object<IDishRating>({
             rating:  Joi.number().min(0).max(10),
         }),
-    },
+    }
 
 }
