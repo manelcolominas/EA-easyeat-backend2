@@ -1,7 +1,8 @@
 import express from 'express';
 import controller from '../controllers/employee';
+import controllerEmployeeStatistics from '../controllers/employeeStats';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRestaurantAccess, requireRole } from '../middleware/auth';
+import { authenticate, requireRestaurantAccess, requireRole, requireSelfOrAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -179,20 +180,50 @@ router.get(
 
 /**
  * @openapi
- * /employees/restaurant/{restaurant_id}/stats:
+ * /employees/restaurant/{restaurant_id}/statistics:
  *   get:
  *     summary: List employees for a restaurant with calculated stats
  *     tags: [Employees]
+ *     parameters:
+ *       - name: restaurant_id
+ *         in: path
+ *         required: true
+ *         description: MongoDB ObjectId of the restaurant
+ *         schema:
+ *           type: string
+ *           example: 605c9b6f2f1e3b2a1c0d4f5e
  *     responses:
  *       200:
  *         description: OK
  */
 router.get(
-  '/restaurant/:restaurant_id/stats',
+    '/restaurant/:restaurant_id/statistics',
+    authenticate,
+    requireRole('owner', 'admin', 'staff'), requireSelfOrAdmin('employee_id'),requireRestaurantAccess('restaurant_id'), controllerEmployeeStatistics.getEmployeeStatistics
+);
+
+/**
+ * @openapi
+ * /employees/{employee_id}/statistics:
+ *   get:
+ *     summary: List employees for a restaurant with calculated stats
+ *     tags: [Employees]
+ *     parameters:
+ *       - name: employee_id
+ *         in: path
+ *         required: true
+ *         description: MongoDB ObjectId of the restaurant
+ *         schema:
+ *           type: string
+ *           example: 605c9b6f2f1e3b2a1c0d4f5e
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/:employee_id/statistics',
   authenticate,
-  requireRole('owner', 'admin', 'staff'),
-  requireRestaurantAccess('restaurant_id'),
-  controller.readByRestaurantWithStats
+  requireRole('owner', 'admin', 'staff'), requireSelfOrAdmin('employee_id'), requireRestaurantAccess('restaurant_id'), controllerEmployeeStatistics.getEmployeeStatistics
 );
 
 /**
@@ -230,6 +261,34 @@ router.get(
   authenticate,
   requireRole('owner', 'admin', 'staff'),
   controller.readEmployee
+);
+
+// ─── GET /employees/:employee_id/statistics ────────────────────────────────────
+/**
+ * @openapi
+ * /employees/{employee_id}/statistics:
+ *   get:
+ *     summary: Gets statistics for an employee
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Employee statistics
+ *       404:
+ *         description: Employee not found
+ *       500:
+ *         description: Server error
+ */
+router.get(
+  '/:employee_id/statistics',
+  authenticate,
+  requireRole('owner', 'admin', 'staff'),
+  controllerEmployeeStatistics.getEmployeeStatistics
 );
 
 /**

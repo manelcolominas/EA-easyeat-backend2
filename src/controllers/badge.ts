@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import mongoose from 'mongoose';
 import BadgeService from '../services/badge';
-import { CustomerModel } from '../models/customer';
 import { getPaginationOptions } from '../utils/pagination';
 
 const createBadge = async (req: Request, res: Response, next: NextFunction) => {
