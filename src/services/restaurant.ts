@@ -331,7 +331,7 @@ const getDeletedRestaurantEmployees = async (restaurant_id: string, skip: number
 };
 
 const getDishes = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), active: true };
     const [dishes, total] = await Promise.all([
         DishModel.find(filter)
             .skip(skip)
@@ -343,7 +343,7 @@ const getDishes = async (restaurant_id: string, skip: number, limit: number): Pr
 };
 
 const getDeletedRestaurantDishes = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), active: false };
     const [dishes, total] = await Promise.all([
         DishModel.find(filter)
             .skip(skip)
