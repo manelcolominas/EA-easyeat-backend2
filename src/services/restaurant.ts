@@ -404,7 +404,7 @@ const getTopDishByRestaurant = async (restaurantId: string): Promise<TopDishByRe
 };
 
 const getRewards = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), active: true };
     const [rewards, total] = await Promise.all([
         RewardModel.find(filter).skip(skip).limit(limit).lean<IReward[]>(),
         RewardModel.countDocuments(filter)
@@ -413,7 +413,7 @@ const getRewards = async (restaurant_id: string, skip: number, limit: number): P
 };
 
 const getDeletedRestaurantRewards = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), active: false };
     const [rewards, total] = await Promise.all([
         RewardModel.find(filter).skip(skip).limit(limit).lean<IReward[]>(),
         RewardModel.countDocuments(filter)
