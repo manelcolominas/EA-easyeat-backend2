@@ -223,7 +223,7 @@ router.get(
 router.get(
   '/:employee_id/statistics',
   authenticate,
-  requireRole('owner', 'admin', 'staff'), requireSelfOrAdmin('employee_id'), controllerEmployeeStatistics.getEmployeeStatistics
+  requireRole('owner', 'admin', 'staff'), requireSelfOrAdmin('employee_id'), requireRestaurantAccess('restaurant_id'), controllerEmployeeStatistics.getEmployeeStatistics
 );
 
 /**
