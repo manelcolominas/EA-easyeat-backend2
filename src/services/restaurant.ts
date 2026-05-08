@@ -256,8 +256,7 @@ const getDeletedRestaurantFull = async (restaurantId: string): Promise<IRestaura
         .lean<IRestaurant>();
 };
 
-const getNearby = async (lng: number, lat: number,
-    maxDistance: number): Promise<IRestaurant[]> => {
+const getReestaurantsNearby = async (lng: number, lat: number, maxDistance: number): Promise<IRestaurant[]> => {
     return RestaurantModel
         .find({
             deletedAt: null, 'profile.location.coordinates': {
@@ -597,7 +596,7 @@ export default {
     getRestaurantFull,
     getRestaurantDetailedForCustomerFrontend,
     getDeletedRestaurantFull,
-    getNearby,
+    getReestaurantsNearby,
     getBadges,
     getDeletedRestaurantBadges,
     getStatistics,

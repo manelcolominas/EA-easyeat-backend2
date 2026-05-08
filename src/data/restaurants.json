@@ -229,7 +229,7 @@
         "city": "Vilanova i la Geltrú",
         "address": "Carrer de Santa Madrona, 35, 08800 Vilanova i la Geltrú",
         "googlePlaceId": "ChIJfzCw4-KGoxIREUB-QTvSOZQ",
-        "coordinates": { "type": "Point", "coordinates": [1.7263, 41.2255] }
+        "coordinates": { "type": "Point", "coordinates": [1.989788516331793, 41.27317559672859] }
       }
     },
     "employees":  [],
@@ -269,7 +269,7 @@
         "city": "Vilanova i la Geltrú",
         "address": "Carrer de l'Arquebisbe Armanyà, 8, 08800 Vilanova i la Geltrú",
         "googlePlaceId": "ChIJOWCiZuKGoxIRSOAsiO_kW5g",
-        "coordinates": { "type": "Point", "coordinates": [1.7275, 41.2268] }
+        "coordinates": { "type": "Point", "coordinates": [1.9904704558868411, 41.27166333049305] }
       }
     },
     "employees":  [],
@@ -309,7 +309,7 @@
         "city": "Vilanova i la Geltrú",
         "address": "Carrer de Sant Gervasi, 41, 08800 Vilanova i la Geltrú",
         "googlePlaceId": "ChIJBf0pvq2HoxIRtL4maNVpAPM",
-        "coordinates": { "type": "Point", "coordinates": [1.7253, 41.2247] }
+        "coordinates": { "type": "Point", "coordinates": [1.9921451858340606, 41.277643252939434] }
       }
     },
     "employees":  [],
@@ -350,7 +350,7 @@
         "city": "Sitges",
         "address": "Passeig de la Ribera, 8, 08870 Sitges",
         "googlePlaceId": "ChIJSYvrkmOBoxIRCaaREHcF57I",
-        "coordinates": { "type": "Point", "coordinates": [1.8102, 41.2351] }
+        "coordinates": { "type": "Point", "coordinates": [1.9875297872052802, 41.27320669906986] }
       }
     },
     "employees":  [],
@@ -392,7 +392,7 @@
         "city": "Sitges",
         "address": "Carrer Sant Damià, 14, 08870 Sitges",
         "googlePlaceId": "ChIJG3fe_0eAoxIRJMSQTz9DPuI",
-        "coordinates": { "type": "Point", "coordinates": [1.8123, 41.2365] }
+        "coordinates": { "type": "Point", "coordinates": [1.986089082517462, 41.27258168399849] }
       }
     },
     "employees":  [],
@@ -433,7 +433,7 @@
         "city": "Sitges",
         "address": "Carrer de Santiago Rusiñol, 2, 08870 Sitges",
         "googlePlaceId": "ChIJScLtNaSBoxIRjLl1EvMMSyc",
-        "coordinates": { "type": "Point", "coordinates": [1.8119, 41.2363] }
+        "coordinates": { "type": "Point", "coordinates": [1.9859677274043068, 41.27677832720455] }
       }
     },
     "employees":  [],
