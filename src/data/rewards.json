@@ -6,7 +6,7 @@
     "description": "Enjoy a complimentary dessert of your choice on your next visit.",
     "pointsRequired": 200,
     "active": true,
-    "expiry": "2024-12-31T23:59:59.000Z",
+    "expiry": "2026-12-31T23:59:59.000Z",
     "timesRedeemed": 47,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-06-10T15:00:00.000Z"
@@ -23,13 +23,48 @@
     "updatedAt": "2024-05-30T09:00:00.000Z"
   },
   {
+    "_id": "65f1c2a1b2c3d4e5f6790001",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "name": "Free Glass of House Wine",
+    "description": "Enjoy a complimentary glass of our selected house wine with any main course.",
+    "pointsRequired": 150,
+    "active": true,
+    "expiry": "2026-12-31T23:59:59.000Z",
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790002",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "name": "Free Seafood Tapa",
+    "description": "Redeem for a free seasonal seafood tapa to share at the table.",
+    "pointsRequired": 300,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790003",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "name": "Priority Reservation",
+    "description": "Skip the waitlist and secure a guaranteed table for up to 4 people on your preferred date.",
+    "pointsRequired": 800,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
     "_id": "65f1c2a1b2c3d4e5f6789023",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
     "name": "Free Extra Toppings",
     "description": "Add any 3 extra toppings to your ramen for free.",
     "pointsRequired": 150,
     "active": true,
-    "expiry": "2025-03-01T00:00:00.000Z",
+    "expiry": "2026-03-01T00:00:00.000Z",
     "timesRedeemed": 88,
     "createdAt": "2023-11-15T10:00:00.000Z",
     "updatedAt": "2024-06-01T12:00:00.000Z"
@@ -47,13 +82,47 @@
     "updatedAt": "2024-04-01T00:00:00.000Z"
   },
   {
+    "_id": "65f1c2a1b2c3d4e5f6790004",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "name": "Free Gyoza (6 pcs)",
+    "description": "Get a free serving of 6 pan-fried gyoza as a starter on your next visit.",
+    "pointsRequired": 100,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790005",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "name": "Ramen Upgrade",
+    "description": "Upgrade your ramen to a premium broth (tonkotsu or miso black) at no extra cost.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790006",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "name": "Chef's Omakase Experience",
+    "description": "Enjoy a special 5-course omakase tasting menu curated by our head chef for two people.",
+    "pointsRequired": 1500,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
     "_id": "65f1c2a1b2c3d4e5f678f002",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
     "name": "Free Margarita",
     "description": "Enjoy a complimentary house margarita on your next visit.",
     "pointsRequired": 180,
     "active": true,
-    "expiry": "2025-01-31T23:59:59.000Z",
+    "expiry": "2026-01-31T23:59:59.000Z",
     "timesRedeemed": 31,
     "createdAt": "2024-01-10T11:00:00.000Z",
     "updatedAt": "2024-06-01T09:30:00.000Z"
@@ -70,13 +139,47 @@
     "updatedAt": "2024-05-15T10:00:00.000Z"
   },
   {
+    "_id": "65f1c2a1b2c3d4e5f6790007",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "name": "Free Nachos",
+    "description": "Redeem for a free basket of loaded nachos with guacamole, pico de gallo and sour cream.",
+    "pointsRequired": 120,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790008",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "name": "2-for-1 Cocktails",
+    "description": "Get two cocktails for the price of one — choose any from our signature menu.",
+    "pointsRequired": 400,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790009",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "name": "Street Food Feast for Two",
+    "description": "A sharing platter of 6 tacos, guacamole, nachos and two drinks — perfect for two.",
+    "pointsRequired": 700,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
     "_id": "65f1c2a1b2c3d4e5f678f004",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
     "name": "Free Green Juice",
     "description": "Redeem for a complimentary cold-pressed green juice.",
     "pointsRequired": 100,
     "active": true,
-    "expiry": "2025-06-30T23:59:59.000Z",
+    "expiry": "2026-06-30T23:59:59.000Z",
     "timesRedeemed": 19,
     "createdAt": "2024-02-14T08:30:00.000Z",
     "updatedAt": "2024-05-20T12:00:00.000Z"
@@ -93,6 +196,40 @@
     "updatedAt": "2024-05-01T09:00:00.000Z"
   },
   {
+    "_id": "65f1c2a1b2c3d4e5f6790010",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "name": "Free Energy Booster Shot",
+    "description": "Claim a free 60ml ginger, turmeric or wheatgrass wellness shot with any order.",
+    "pointsRequired": 50,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790011",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "name": "Free Avocado Toast",
+    "description": "Enjoy a complimentary sourdough avocado toast topped with microgreens and sesame.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790012",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "name": "Monthly Wellness Box",
+    "description": "A curated take-home box with 3 organic juices, 2 energy balls and a recipe card.",
+    "pointsRequired": 600,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
     "_id": "65f1c2a1b2c3d4e5f678f001",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
     "name": "Free Pizza Upgrade",
@@ -103,5 +240,385 @@
     "timesRedeemed": 34,
     "createdAt": "2023-09-05T17:00:00.000Z",
     "updatedAt": "2024-06-10T11:45:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790013",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "name": "Free Bruschetta",
+    "description": "Enjoy a free classic tomato and basil bruschetta as a starter on your next visit.",
+    "pointsRequired": 100,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790014",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "name": "Free Tiramisu",
+    "description": "Redeem for a homemade tiramisu dessert — the perfect end to your meal.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790015",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "name": "Two Pizzas for the Price of One",
+    "description": "Order any two pizzas and get the cheaper one free. Valid Sunday–Thursday.",
+    "pointsRequired": 600,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790016",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "name": "Pizza Masterclass for Two",
+    "description": "Attend a private 1-hour pizza-making class with our head pizzaiolo — take home your creation.",
+    "pointsRequired": 1200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790017",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789010",
+    "name": "Free Glass of Natural Wine",
+    "description": "Enjoy a complimentary glass of our rotating selection of natural wines.",
+    "pointsRequired": 150,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790018",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789010",
+    "name": "Free Anchovies Tapa",
+    "description": "A complimentary plate of premium Cantabrian anchovies on toast.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790019",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789010",
+    "name": "10% Off Your Bill",
+    "description": "Get a 10% discount off your entire bill on your next visit.",
+    "pointsRequired": 350,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790020",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789010",
+    "name": "Free Bottle of House Wine",
+    "description": "Redeem for a complimentary bottle of our house red or white wine for the table.",
+    "pointsRequired": 700,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790021",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789010",
+    "name": "Cellar Wine Tasting",
+    "description": "A private guided tasting of 5 curated wines with seasonal cold cuts and cheeses for two.",
+    "pointsRequired": 1000,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790022",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789011",
+    "name": "Free Charcuterie Selection",
+    "description": "Enjoy a complimentary plate of premium Catalan cured meats and artisan cheeses.",
+    "pointsRequired": 250,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790023",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789011",
+    "name": "Sommelier Wine Pairing",
+    "description": "Have our sommelier personally recommend and pour a paired wine for each course of your meal.",
+    "pointsRequired": 400,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790024",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789011",
+    "name": "Free Dessert",
+    "description": "Choose any dessert from the menu on the house at the end of your meal.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790025",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789011",
+    "name": "15% Off Your Bill",
+    "description": "Get a 15% discount off your entire bill — our way of thanking our most loyal guests.",
+    "pointsRequired": 600,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790026",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789011",
+    "name": "Private Chef's Table Experience",
+    "description": "Exclusive 6-course tasting menu for two at the chef's table, with wine pairings included.",
+    "pointsRequired": 2000,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790027",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789012",
+    "name": "Free Glass of Cava",
+    "description": "Start your meal with a complimentary glass of Catalan cava.",
+    "pointsRequired": 100,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790028",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789012",
+    "name": "Free Fried Ear Tapa",
+    "description": "Try our famous fried ear (orella fregida) — a beloved Catalan classic, on us.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790029",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789012",
+    "name": "Free Creative Dessert",
+    "description": "End your evening with a complimentary dessert from our signature dessert menu.",
+    "pointsRequired": 300,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790030",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789012",
+    "name": "10% Off Your Entire Bill",
+    "description": "A 10% discount applied to your full bill as a thank-you from La Singular.",
+    "pointsRequired": 500,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790031",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789012",
+    "name": "Open Kitchen Chef's Table",
+    "description": "Dine at the open kitchen chef's table for two with a personalised menu curated on the night.",
+    "pointsRequired": 1500,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790032",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789013",
+    "name": "Free Greek Mezze Plate",
+    "description": "A complimentary mezze selection with hummus, tzatziki, olives and warm pita bread.",
+    "pointsRequired": 150,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790033",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789013",
+    "name": "Free Glass of Greek Wine",
+    "description": "Enjoy a free glass of imported natural Greek wine with your meal.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790034",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789013",
+    "name": "Free Stuffed Eggplant",
+    "description": "Redeem for a complimentary portion of our signature stuffed eggplant — a chef's favourite.",
+    "pointsRequired": 300,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790035",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789013",
+    "name": "10% Off Your Bill",
+    "description": "A 10% discount on your total bill — our appreciation for your loyalty.",
+    "pointsRequired": 500,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790036",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789013",
+    "name": "Cretan Feast for Two",
+    "description": "A full sharing feast: mezze, two mains, a bottle of Greek wine and baklava dessert for two.",
+    "pointsRequired": 1200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790037",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789014",
+    "name": "Free Tuna Tartare",
+    "description": "Enjoy a complimentary portion of our signature tuna tartare as a starter.",
+    "pointsRequired": 200,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790038",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789014",
+    "name": "Free Glass of Cava",
+    "description": "Celebrate your visit with a complimentary glass of sparkling cava.",
+    "pointsRequired": 100,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790039",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789014",
+    "name": "Free Grilled Artichokes",
+    "description": "A complimentary serving of wood-grilled artichokes with romesco sauce — a crowd favourite.",
+    "pointsRequired": 250,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790040",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789014",
+    "name": "Courtyard Table Priority",
+    "description": "Guaranteed seating in our beautiful outdoor courtyard — the best seat in the house.",
+    "pointsRequired": 400,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790041",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789014",
+    "name": "Seasonal Tasting Menu for Two",
+    "description": "A curated 5-course seasonal tasting menu for two, with optional wine pairing add-on.",
+    "pointsRequired": 1000,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790042",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789015",
+    "name": "Free Amuse-Bouche",
+    "description": "Start your evening with a complimentary chef's amuse-bouche, a small seasonal bite to set the tone.",
+    "pointsRequired": 100,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790043",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789015",
+    "name": "Signature Dessert Wine Pairing",
+    "description": "Experience our famous dessert wine pairing — two desserts each matched with a glass of wine.",
+    "pointsRequired": 350,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790044",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789015",
+    "name": "Free Cheese Course",
+    "description": "Redeem for a complimentary selection of 3 French and Catalan cheeses with honey and walnuts.",
+    "pointsRequired": 300,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790045",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789015",
+    "name": "15% Off Your Bill",
+    "description": "A 15% discount on your full bill — our gratitude for your continued loyalty.",
+    "pointsRequired": 600,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6790046",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789015",
+    "name": "Chef's Tasting Menu for Two",
+    "description": "An exclusive 7-course French-Catalan tasting menu for two, with full wine pairing included.",
+    "pointsRequired": 2500,
+    "active": true,
+    "timesRedeemed": 0,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
   }
 ]
