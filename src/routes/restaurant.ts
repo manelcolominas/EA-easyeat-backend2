@@ -1053,7 +1053,7 @@ router.get('/:restaurantId/dishes/deleted', authenticate, requireRole('admin'), 
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/rewards',    controller.getRewards);
+router.get('/:restaurantId/rewards', controller.getRewards);
 
 /**
  * @openapi
