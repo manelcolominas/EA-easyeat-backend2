@@ -216,13 +216,13 @@ const getDeletedRestaurantFull = async (req: Request, res: Response, next: NextF
     }
 };
 
-const getNearby = async (req: Request, res: Response, next: NextFunction) => {
+const getRestaurantsNearby = async (req: Request, res: Response, next: NextFunction) => {
     const { lng, lat, maxDistance } = req.query;
     if (!lng || !lat)
         return res.status(400).json({ message: 'lng and lat query params are required.' });
 
     try {
-        const restaurants = await RestaurantService.getNearby(
+        const restaurants = await RestaurantService.getReestaurantsNearby(
             parseFloat(lng as string),
             parseFloat(lat as string),
             maxDistance ? parseFloat(maxDistance as string) : 5_000
@@ -468,7 +468,7 @@ export default {
     getRestaurantFull,
     getRestaurantDetailedForCustomerFrontend,
     getDeletedRestaurantFull,
-    getNearby,
+    getRestaurantsNearby,
     getBadges,
     getDeletedRestaurantBadges,
     getStatistics,
