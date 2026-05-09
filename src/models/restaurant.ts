@@ -48,6 +48,7 @@ export interface IRestaurantLocation {
 export interface IRestaurantContact {
     phone?: string;
     email?: string;
+    website?: string;
 }
 
 export interface IRestaurantProfile {
@@ -192,6 +193,7 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
                         message:   (p: { value: string }) => `"${p.value}" is not a valid e-mail address.`,
                     },
                 },
+                website: { type: String, trim: true },
             },
             location: {
                 city: { type: String, required:  [true, 'City is required.'], trim: true },

@@ -292,6 +292,7 @@ export const Schemas = {
                 contact: Joi.object({
                     phone: Joi.string(),
                     email: Joi.string().email(),
+                    website: Joi.string().uri().allow(''),
                 }),
                 location: Joi.object({
                     city:          Joi.string().required(),
@@ -324,6 +325,7 @@ export const Schemas = {
                 contact: Joi.object({
                     phone: Joi.string(),
                     email: Joi.string().email(),
+                    website: Joi.string().uri().allow(''),
                 }),
                 location: Joi.object({
                     city:          Joi.string(),

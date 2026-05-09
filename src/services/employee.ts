@@ -119,7 +119,7 @@ const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit
 const getByRestaurantWithStats = async (restaurant_id: string): Promise<EmployeeStatsResult[]> => {
     const restaurantObjectId = new mongoose.Types.ObjectId(restaurant_id);
 
-    const employees = await EmployeeModel.find({ restaurant_id: restaurantObjectId })
+    const employees = await EmployeeModel.find({ restaurant_id: restaurantObjectId, isActive: true })
         .select('-profile.password')
         .lean<IEmployee[]>();
 

@@ -70,7 +70,7 @@ const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null>
         RestaurantModel
             .findById(restaurant_id)
             .active()
-            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
             .lean<IRestaurant>(),
         getRestaurantGlobalRating(restaurant_id),
     ]);
@@ -95,7 +95,7 @@ const getAllRestaurants = async (skip: number, limit: number): Promise<{ restaur
         const [restaurants, total] = await Promise.all([
                 RestaurantModel.find()
                         .active()
-                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
                         .skip(skip)
                         .limit(limit)
                         .lean<IRestaurant[]>(),
@@ -117,7 +117,7 @@ const getAllDeletedRestaurants = async (skip: number, limit: number): Promise<{ 
     const filter = { deletedAt: { $ne: null } };
     const [restaurants, total] = await Promise.all([
         RestaurantModel.find(filter)
-            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
             .skip(skip)
             .limit(limit)
             .lean<IRestaurant[]>(),
