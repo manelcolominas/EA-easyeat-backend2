@@ -95,11 +95,7 @@ const getAllRestaurants = async (skip: number, limit: number): Promise<{ restaur
         const [restaurants, total] = await Promise.all([
                 RestaurantModel.find()
                         .active()
-<<<<<<< HEAD
-                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
-=======
-                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.coordinates')
->>>>>>> 8ab8414c88691b1583573c1361ca01ae707082cf
+                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable profile.location.coordinates')
                         .skip(skip)
                         .limit(limit)
                         .lean<IRestaurant[]>(),
@@ -121,11 +117,7 @@ const getAllDeletedRestaurants = async (skip: number, limit: number): Promise<{ 
     const filter = { deletedAt: { $ne: null } };
     const [restaurants, total] = await Promise.all([
         RestaurantModel.find(filter)
-<<<<<<< HEAD
-            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
-=======
-            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.coordinates')
->>>>>>> 8ab8414c88691b1583573c1361ca01ae707082cf
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable profile.location.coordinates')
             .skip(skip)
             .limit(limit)
             .lean<IRestaurant[]>(),

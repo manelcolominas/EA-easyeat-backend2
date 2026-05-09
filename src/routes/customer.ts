@@ -465,9 +465,6 @@ router.get(
   controller.readDeletedCustomerFull
 );
 
-<<<<<<< HEAD
-// ─── GET /customers/:customer_id/badges ───────────────────────────────────────
-=======
 // ─── GET /customers/:customer_id/statistics ─────────────────────────────────────
 /**
  * @openapi
@@ -494,7 +491,6 @@ router.get(
 router.get('/:customer_id/statistics', authenticate, requireSelfOrAdmin('customer_id'), controllerCustomerStatistics.getCustomerStatistics);
 
 // ─── GET /customers/:customer_id/badges ─────────────────────────────────────────
->>>>>>> 8ab8414c88691b1583573c1361ca01ae707082cf
 /**
  * @openapi
  * /customers/{customer_id}/badges:
