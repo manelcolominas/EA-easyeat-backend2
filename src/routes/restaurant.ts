@@ -255,6 +255,49 @@ router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestau
 
 /**
  * @openapi
+ * /restaurants/near-by:
+ *   get:
+ *     summary: Lists restaurants nearby based on coordinates and maximum distance
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: lng
+ *         schema:
+ *           type: number
+ *           format: float
+ *         required: true
+ *         description: Longitude of the user's current location.
+ *         example: 2.1734
+ *       - in: query
+ *         name: lat
+ *         schema:
+ *           type: number
+ *           format: float
+ *         required: true
+ *         description: Latitude of the user's current location.
+ *         example: 41.3851
+ *       - in: query
+ *         name: maxDistance
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         required: true
+ *         description: Maximum distance in meters from the user's location to search for restaurants.
+ *         example: 5000
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Restaurant'
+ */
+router.get('/near-by', controller.getRestaurantsNearby);
+
+/**
+ * @openapi
  * /restaurants:
  *   get:
  *     summary: Lists all restaurants (paginated)
@@ -1010,7 +1053,7 @@ router.get('/:restaurantId/dishes/deleted', authenticate, requireRole('admin'), 
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/rewards',    controller.getRewards);
+router.get('/:restaurantId/rewards', controller.getRewards);
 
 /**
  * @openapi

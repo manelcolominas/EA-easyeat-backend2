@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import controller from '../controllers/customer';
+import controllerCustomerStatistics from '../controllers/customerStats';
 import { Schemas, ValidateJoi } from '../middleware/joi';
 import {
   authenticate,
@@ -231,6 +232,25 @@ const requireCustomerSelfOrDashboardUser = (paramName: string) => {
  *               type: integer
  *             totalPages:
  *               type: integer
+ *
+ *     CustomerStatistics:
+ *       type: object
+ *       properties:
+ *         totalVisits:
+ *           type: integer
+ *           example: 15
+ *         totalReviews:
+ *           type: integer
+ *           example: 7
+ *         totalFavoriteRestaurants:
+ *           type: integer
+ *           example: 3
+ *         totalBadges:
+ *           type: integer
+ *           example: 5
+ *         totalPoints:
+ *           type: integer
+ *           example: 1200
  */
 
 // ─── POST /customers ──────────────────────────────────────────────────────────
@@ -445,7 +465,36 @@ router.get(
   controller.readDeletedCustomerFull
 );
 
+<<<<<<< HEAD
 // ─── GET /customers/:customer_id/badges ───────────────────────────────────────
+=======
+// ─── GET /customers/:customer_id/statistics ─────────────────────────────────────
+/**
+ * @openapi
+ * /customers/{customer_id}/statistics:
+ *   get:
+ *     summary: Gets statistics for a customer
+ *     tags: [Customer]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CustomerStatistics'
+ *       404:
+ *         description: Customer not found
+ */
+router.get('/:customer_id/statistics', authenticate, requireSelfOrAdmin('customer_id'), controllerCustomerStatistics.getCustomerStatistics);
+
+// ─── GET /customers/:customer_id/badges ─────────────────────────────────────────
+>>>>>>> 8ab8414c88691b1583573c1361ca01ae707082cf
 /**
  * @openapi
  * /customers/{customer_id}/badges:

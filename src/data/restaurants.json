@@ -201,5 +201,250 @@
     "deletedAt":  null,
     "createdAt":  "2023-09-05T17:00:00.000Z",
     "updatedAt":  "2024-06-10T11:45:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6789010",
+    "profile": {
+      "name": "Celler Cal Puput",
+      "description": "Local gem with warm, authentic atmosphere serving traditional Catalan cold cuts, preserved tomatoes, anchovies and an outstanding selection of wines. Perfect for sharing plates in a true cellar-style setting.",
+      "globalRating": 4.5,
+      "maxPointsVisit": 75,
+      "category": ["Espanyol", "Wine Bar", "Taperia"],
+      "timetable": {
+        "monday":    [{ "open": "18:00", "close": "01:00" }],
+        "tuesday":   [{ "open": "18:00", "close": "01:00" }],
+        "wednesday": [{ "open": "18:00", "close": "01:00" }],
+        "thursday":  [{ "open": "18:00", "close": "01:00" }],
+        "friday":    [{ "open": "18:00", "close": "01:00" }],
+        "saturday":  [{ "open": "12:00", "close": "15:00" }, { "open": "19:00", "close": "02:00" }]
+      },
+      "image": [
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80",
+        "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg",
+        "https://images.pexels.com/photos/696218/pexels-photo-696218.jpeg",
+        "https://images.pexels.com/photos/2291367/pexels-photo-2291367.jpeg"
+      ],
+      "contact": { "phone": "+34 938 93 67 58" },
+      "location": {
+        "city": "Vilanova i la Geltrú",
+        "address": "Carrer de Santa Madrona, 35, 08800 Vilanova i la Geltrú",
+        "googlePlaceId": "ChIJfzCw4-KGoxIREUB-QTvSOZQ",
+        "coordinates": { "type": "Point", "coordinates": [1.989788516331793, 41.27317559672859] }
+      }
+    },
+    "employees":  [],
+    "rewards":    [],
+    "visits":     [],
+    "statistics": null,
+    "badges":     [],
+    "dishes":     [],
+    "reviews":    [],
+    "deletedAt":  null,
+    "createdAt":  "2024-01-01T00:00:00.000Z",
+    "updatedAt":  "2024-06-15T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6789011",
+    "profile": {
+      "name": "Restaurant Cal Purgat",
+      "description": "One of Vilanova's finest gastronomic experiences. The owner guides you through an extensive wine selection until you find your perfect match, paired with exceptional Catalan cuisine including suckling pig and premium charcuterie.",
+      "globalRating": 4.7,
+      "maxPointsVisit": 100,
+      "category": ["Espanyol", "Gourmet", "Wine Bar"],
+      "timetable": {
+        "wednesday": [{ "open": "12:00", "close": "16:00" }, { "open": "20:00", "close": "00:00" }],
+        "thursday":  [{ "open": "12:00", "close": "16:00" }, { "open": "20:00", "close": "00:00" }],
+        "friday":    [{ "open": "12:00", "close": "16:00" }, { "open": "20:00", "close": "00:00" }],
+        "saturday":  [{ "open": "13:00", "close": "16:30" }, { "open": "20:00", "close": "01:00" }],
+        "sunday":    [{ "open": "13:30", "close": "17:00" }]
+      },
+      "image": [
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",
+        "https://images.pexels.com/photos/299347/pexels-photo-299347.jpeg",
+        "https://images.pexels.com/photos/3419419/pexels-photo-3419419.jpeg",
+        "https://images.pexels.com/photos/1579631/pexels-photo-1579631.jpeg"
+      ],
+      "contact": { "phone": "+34 938 14 21 45" },
+      "location": {
+        "city": "Vilanova i la Geltrú",
+        "address": "Carrer de l'Arquebisbe Armanyà, 8, 08800 Vilanova i la Geltrú",
+        "googlePlaceId": "ChIJOWCiZuKGoxIRSOAsiO_kW5g",
+        "coordinates": { "type": "Point", "coordinates": [1.9904704558868411, 41.27166333049305] }
+      }
+    },
+    "employees":  [],
+    "rewards":    [],
+    "visits":     [],
+    "statistics": null,
+    "badges":     [],
+    "dishes":     [],
+    "reviews":    [],
+    "deletedAt":  null,
+    "createdAt":  "2024-01-01T00:00:00.000Z",
+    "updatedAt":  "2024-06-15T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6789012",
+    "profile": {
+      "name": "Restaurant La Singular",
+      "description": "Vibrant modern Catalan restaurant with an open kitchen at its heart. Sharable dishes crafted from premium ingredients, with an exceptional wine list. Known for its fried ear, beef steak and creative desserts.",
+      "globalRating": 4.7,
+      "maxPointsVisit": 100,
+      "category": ["Espanyol", "Gourmet", "Taperia"],
+      "timetable": {
+        "tuesday":   [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:00" }],
+        "wednesday": [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:00" }],
+        "thursday":  [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:30" }],
+        "friday":    [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:30" }],
+        "saturday":  [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:30" }]
+      },
+      "image": [
+        "https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=600&q=80",
+        "https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg",
+        "https://images.pexels.com/photos/2313686/pexels-photo-2313686.jpeg",
+        "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg"
+      ],
+      "contact": { "phone": "+34 931 19 83 74" },
+      "location": {
+        "city": "Vilanova i la Geltrú",
+        "address": "Carrer de Sant Gervasi, 41, 08800 Vilanova i la Geltrú",
+        "googlePlaceId": "ChIJBf0pvq2HoxIRtL4maNVpAPM",
+        "coordinates": { "type": "Point", "coordinates": [1.9921451858340606, 41.277643252939434] }
+      }
+    },
+    "employees":  [],
+    "rewards":    [],
+    "visits":     [],
+    "statistics": null,
+    "badges":     [],
+    "dishes":     [],
+    "reviews":    [],
+    "deletedAt":  null,
+    "createdAt":  "2024-01-01T00:00:00.000Z",
+    "updatedAt":  "2024-06-15T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6789013",
+    "profile": {
+      "name": "Thalassa Sitges",
+      "description": "Greek restaurant run by chefs from Crete right on Sitges seafront. Fresh, authentic Mediterranean cuisine with standout dishes like stuffed eggplant and moussaka, paired with natural Greek wines.",
+      "globalRating": 4.8,
+      "maxPointsVisit": 75,
+      "category": ["Grec", "Marisc", "Gourmet"],
+      "timetable": {
+        "tuesday":   [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:00" }],
+        "wednesday": [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:00" }],
+        "thursday":  [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:00" }],
+        "friday":    [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:30" }],
+        "saturday":  [{ "open": "11:00", "close": "16:00" }, { "open": "19:00", "close": "22:30" }],
+        "sunday":    [{ "open": "12:00", "close": "16:00" }]
+      },
+      "image": [
+        "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80",
+        "https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg",
+        "https://images.pexels.com/photos/3535383/pexels-photo-3535383.jpeg",
+        "https://images.pexels.com/photos/357756/pexels-photo-357756.jpeg"
+      ],
+      "contact": { "phone": "+34 935 37 01 74" },
+      "location": {
+        "city": "Sitges",
+        "address": "Passeig de la Ribera, 8, 08870 Sitges",
+        "googlePlaceId": "ChIJSYvrkmOBoxIRCaaREHcF57I",
+        "coordinates": { "type": "Point", "coordinates": [1.9875297872052802, 41.27320669906986] }
+      }
+    },
+    "employees":  [],
+    "rewards":    [],
+    "visits":     [],
+    "statistics": null,
+    "badges":     [],
+    "dishes":     [],
+    "reviews":    [],
+    "deletedAt":  null,
+    "createdAt":  "2024-01-01T00:00:00.000Z",
+    "updatedAt":  "2024-06-15T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6789014",
+    "profile": {
+      "name": "LaPunta",
+      "description": "Elegant tapas restaurant hidden in a charming Sitges alley with a beautiful outdoor courtyard. Seasonal, high-quality Mediterranean dishes designed for sharing — tuna tartare, octopus and grilled artichokes are crowd favourites.",
+      "globalRating": 4.6,
+      "maxPointsVisit": 75,
+      "category": ["Espanyol", "Taperia", "Gourmet"],
+      "timetable": {
+        "monday":    [{ "open": "19:00", "close": "00:00" }],
+        "tuesday":   [{ "open": "19:00", "close": "00:00" }],
+        "wednesday": [{ "open": "19:00", "close": "00:00" }],
+        "thursday":  [{ "open": "19:00", "close": "00:00" }],
+        "friday":    [{ "open": "19:00", "close": "00:00" }],
+        "saturday":  [{ "open": "13:00", "close": "17:00" }, { "open": "19:00", "close": "00:00" }],
+        "sunday":    [{ "open": "13:00", "close": "17:00" }, { "open": "19:00", "close": "00:00" }]
+      },
+      "image": [
+        "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&q=80",
+        "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg",
+        "https://images.pexels.com/photos/2116094/pexels-photo-2116094.jpeg",
+        "https://images.pexels.com/photos/1307698/pexels-photo-1307698.jpeg"
+      ],
+      "contact": { "phone": "+34 640 15 25 65" },
+      "location": {
+        "city": "Sitges",
+        "address": "Carrer Sant Damià, 14, 08870 Sitges",
+        "googlePlaceId": "ChIJG3fe_0eAoxIRJMSQTz9DPuI",
+        "coordinates": { "type": "Point", "coordinates": [1.986089082517462, 41.27258168399849] }
+      }
+    },
+    "employees":  [],
+    "rewards":    [],
+    "visits":     [],
+    "statistics": null,
+    "badges":     [],
+    "dishes":     [],
+    "reviews":    [],
+    "deletedAt":  null,
+    "createdAt":  "2024-01-01T00:00:00.000Z",
+    "updatedAt":  "2024-06-15T00:00:00.000Z"
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f6789015",
+    "profile": {
+      "name": "Hibou Sitges",
+      "description": "Intimate fine-dining restaurant with French-inspired Catalan cuisine. Seasonal, locally sourced produce elevated with creative technique. Outstanding wine list and a signature dessert wine pairing not to be missed.",
+      "globalRating": 4.8,
+      "maxPointsVisit": 100,
+      "category": ["Francès", "Gourmet", "Wine Bar"],
+      "timetable": {
+        "monday":    [{ "open": "19:00", "close": "22:30" }],
+        "tuesday":   [{ "open": "19:00", "close": "22:30" }],
+        "wednesday": [{ "open": "19:00", "close": "22:30" }],
+        "thursday":  [{ "open": "19:00", "close": "22:30" }],
+        "friday":    [{ "open": "19:00", "close": "22:30" }],
+        "saturday":  [{ "open": "19:00", "close": "22:30" }]
+      },
+      "image": [
+        "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=600&q=80",
+        "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg",
+        "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg",
+        "https://images.pexels.com/photos/1579253/pexels-photo-1579253.jpeg"
+      ],
+      "contact": { "phone": "+34 651 38 91 02" },
+      "location": {
+        "city": "Sitges",
+        "address": "Carrer de Santiago Rusiñol, 2, 08870 Sitges",
+        "googlePlaceId": "ChIJScLtNaSBoxIRjLl1EvMMSyc",
+        "coordinates": { "type": "Point", "coordinates": [1.9859677274043068, 41.27677832720455] }
+      }
+    },
+    "employees":  [],
+    "rewards":    [],
+    "visits":     [],
+    "statistics": null,
+    "badges":     [],
+    "dishes":     [],
+    "reviews":    [],
+    "deletedAt":  null,
+    "createdAt":  "2024-01-01T00:00:00.000Z",
+    "updatedAt":  "2024-06-15T00:00:00.000Z"
   }
 ]

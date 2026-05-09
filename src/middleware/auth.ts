@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt';
+import { EmployeeModel } from '../models/employee';
+import mongoose from 'mongoose';
 import { IJwtPayload } from '../models/JWTPayload';
 import { CustomerModel } from '../models/customer';
 
@@ -167,6 +169,58 @@ export const requireRestaurantAccess = (paramName: string = 'restaurant_id') => 
 
         next();
     };
+};
+
+
+
+/**
+ * Allows access if:
+ *  - admin (bypass)
+ *  - owner and the requested employee belongs to the same restaurant as req.user.restaurant_id
+ *  - the employee themself (req.user.id === employee_id)
+ *
+ * Usage: requireEmployeeOwnerOrSelfOrAdmin('employee_id')
+ */
+export const requireEmployeeOwnerOrSelfOrAdmin = (paramName: string = 'employee_id') => {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) return res.status(401).json({ message: 'Authentication required' });
+
+    const currentRole = normalizeRole(req.user.role);
+    // Admin bypass
+    if (currentRole === 'admin') return next();
+
+    const employeeId = req.params[paramName];
+    if (!employeeId) return res.status(400).json({ message: 'Missing employee id' });
+
+    // Self check
+    if (String(req.user.id) === String(employeeId)) return next();
+
+    // Validate id format early
+    if (!mongoose.isValidObjectId(employeeId)) {
+      return res.status(400).json({ message: 'Invalid employee_id' });
+    }
+
+    try {
+      // Only need restaurant_id field
+      const employee = await EmployeeModel.findById(employeeId).select('restaurant_id').lean();
+      if (!employee) return res.status(404).json({ message: 'Employee not found' });
+
+      // Owner may access only employees of their restaurant
+      if (currentRole === 'owner') {
+        if (!req.user.restaurant_id) {
+          return res.status(403).json({ message: 'Access denied: owner has no restaurant_id in token' });
+        }
+        if (String(req.user.restaurant_id) === String(employee.restaurant_id)) return next();
+        return res.status(403).json({ message: 'Access denied: employee does not belong to your restaurant' });
+      }
+
+      // Staff / customer / others (not allowed)
+      return res.status(403).json({ message: 'Access denied' });
+    } catch (err) {
+      console.error('requireEmployeeOwnerOrSelfOrAdmin error:', err);
+      return res.status(500).json({ message: 'Server error while checking access' });
+    }
+  };
 };
 
 // Convenience shorthands
