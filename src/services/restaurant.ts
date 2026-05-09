@@ -70,7 +70,7 @@ const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null>
         RestaurantModel
             .findById(restaurant_id)
             .active()
-            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
             .lean<IRestaurant>(),
         getRestaurantGlobalRating(restaurant_id),
     ]);
@@ -95,7 +95,7 @@ const getAllRestaurants = async (skip: number, limit: number): Promise<{ restaur
         const [restaurants, total] = await Promise.all([
                 RestaurantModel.find()
                         .active()
-                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.coordinates')
+                        .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable profile.location.coordinates')
                         .skip(skip)
                         .limit(limit)
                         .lean<IRestaurant[]>(),
@@ -117,7 +117,7 @@ const getAllDeletedRestaurants = async (skip: number, limit: number): Promise<{ 
     const filter = { deletedAt: { $ne: null } };
     const [restaurants, total] = await Promise.all([
         RestaurantModel.find(filter)
-            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.coordinates')
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable profile.location.coordinates')
             .skip(skip)
             .limit(limit)
             .lean<IRestaurant[]>(),
@@ -271,27 +271,34 @@ const getReestaurantsNearby = async (lng: number, lat: number, maxDistance: numb
 };
 
 const getBadges = async (restaurant_id: string, skip: number, limit: number): Promise<{ badges: IBadge[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
-    const [badges, total] = await Promise.all([
-        BadgeModel.find(filter)
-            .skip(skip)
-            .limit(limit)
-            .lean<IBadge[]>(),
-        BadgeModel.countDocuments(filter)
-    ]);
-    return { badges, total };
+    const restaurant = await RestaurantModel.findById(restaurant_id).populate({
+        path: 'badges',
+        match: { deletedAt: null },
+        options: { skip, limit }
+    }).lean<IRestaurant>();
+
+    if (!restaurant) return { badges: [], total: 0 };
+    
+    const total = await RestaurantModel.findById(restaurant_id).lean<IRestaurant>().then(r => r?.badges?.length || 0);
+    return { badges: (restaurant.badges as unknown as IBadge[]) || [], total };
 };
 
 const getDeletedRestaurantBadges = async (restaurant_id: string, skip: number, limit: number): Promise<{ badges: IBadge[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
-    const [badges, total] = await Promise.all([
-        BadgeModel.find(filter)
-            .skip(skip)
-            .limit(limit)
-            .lean<IBadge[]>(),
-        BadgeModel.countDocuments(filter)
-    ]);
-    return { badges, total };
+    const restaurant = await RestaurantModel.findById(restaurant_id).populate({
+        path: 'badges',
+        match: { deletedAt: { $ne: null } },
+        options: { skip, limit }
+    }).lean<IRestaurant>();
+
+    if (!restaurant) return { badges: [], total: 0 };
+    
+    // We count only deleted badges in this restaurant
+    const total = await BadgeModel.countDocuments({
+        _id: { $in: restaurant.badges },
+        deletedAt: { $ne: null }
+    });
+    
+    return { badges: (restaurant.badges as unknown as IBadge[]) || [], total };
 };
 
 const getStatistics = async (restaurant_id: string): Promise<IStatistics> => {
@@ -307,7 +314,7 @@ const getDeletedRestaurantStatistics = async (restaurant_id: string): Promise<IS
 };
 
 const getEmployees = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), isActive: true };
     const [employees, total] = await Promise.all([
         EmployeeModel.find(filter)
             .skip(skip)
@@ -319,7 +326,7 @@ const getEmployees = async (restaurant_id: string, skip: number, limit: number):
 };
 
 const getDeletedRestaurantEmployees = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), isActive: false };
     const [employees, total] = await Promise.all([
         EmployeeModel.find(filter)
             .skip(skip)
@@ -440,19 +447,19 @@ const getDeletedRestaurantVisits = async (restaurant_id: string, skip: number, l
 };
 
 const getReviews = async (restaurant_id: string, skip: number, limit: number): Promise<{ reviews: IReview[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), deleted: false };
     const [reviews, total] = await Promise.all([
-        VisitModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
-        VisitModel.countDocuments(filter)
+        ReviewModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
+        ReviewModel.countDocuments(filter)
     ]);
     return { reviews, total };
 };
 
 const getDeletedRestaurantReviews = async (restaurant_id: string, skip: number, limit: number): Promise<{ reviews: IReview[]; total: number }> => {
-    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), deleted: true };
     const [reviews, total] = await Promise.all([
-        VisitModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
-        VisitModel.countDocuments(filter)
+        ReviewModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
+        ReviewModel.countDocuments(filter)
     ]);
     return { reviews, total };
 };

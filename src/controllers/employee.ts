@@ -87,12 +87,12 @@ const readDeletedByRestaurant = async (req: Request, res: Response) => {
     }
 };
 
-const readByRestaurantWithStats = async (req: Request, res: Response) => {
+const getEmployeesByRestaurantStats = async (req: Request, res: Response) => {
     try {
         const { restaurant_id } = req.params;
         const employees = await EmployeeService.getByRestaurantWithStats(restaurant_id);
 
-        return res.status(200).json({ data: employees });
+        return res.status(200).json(employees);
     } catch {
         return res.status(500).json({ message: 'Error fetching employees with stats' });
     }
@@ -142,7 +142,7 @@ export default {
     readAllDeleted,
     readByRestaurant,
     readDeletedByRestaurant,
-    readByRestaurantWithStats,
+    getEmployeesByRestaurantStats,
     updateEmployee,
     softDeleteEmployee,
     restoreEmployee,

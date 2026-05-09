@@ -3,6 +3,7 @@ import { verifyAccessToken } from '../utils/jwt';
 import { EmployeeModel } from '../models/employee';
 import mongoose from 'mongoose';
 import { IJwtPayload } from '../models/JWTPayload';
+import { CustomerModel } from '../models/customer';
 
 export interface AuthRequest extends Request {
     user?: IJwtPayload;
@@ -101,6 +102,50 @@ export const requireSelfOrAdmin = (paramName: string = 'userId') => {
         }
 
         return res.status(403).json({ message: 'Access denied: You can only access your own data' });
+    };
+};
+
+/**
+ * Access middleware: allows access if the user is an admin OR if the
+ * requested resource ID matches the authenticated user's ID.
+ * OR if the user is owner/staff of the restaurant the customer belongs to.
+ */
+export const requireCustomerAccess = (paramName: string = 'customer_id') => {
+    return async (req: AuthRequest, res: Response, next: NextFunction) => {
+        if (!req.user) return res.status(401).json({ message: 'Authentication required' });
+
+        const customerId = req.params[paramName];
+        const role = normalizeRole(req.user.role);
+        
+        // 1. Admin bypass
+        if (role === 'admin') return next();
+
+        // 2. Self access
+        if (req.user.id === customerId) return next();
+
+        // 3. Restaurant management access
+        if (['owner', 'staff'].includes(role) && req.user.restaurant_id) {
+            try {
+                // Fetch customer to check their favoriteRestaurants
+                const customer = await CustomerModel.findById(customerId).select('favoriteRestaurants').lean();
+                
+                if (!customer) {
+                    return res.status(404).json({ message: 'Customer not found' });
+                }
+
+                const restaurantId = String(req.user.restaurant_id);
+                const belongsToRestaurant = customer.favoriteRestaurants?.some(id => String(id) === restaurantId);
+
+                if (belongsToRestaurant) {
+                    return next();
+                }
+            } catch (error) {
+                console.error('Error in requireCustomerAccess:', error);
+                return res.status(500).json({ message: 'Internal server error during authorization' });
+            }
+        }
+
+        return res.status(403).json({ message: 'Access denied: You do not have permission to access this customer data' });
     };
 };
 

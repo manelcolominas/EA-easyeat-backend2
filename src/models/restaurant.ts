@@ -48,6 +48,13 @@ export interface IRestaurantLocation {
 export interface IRestaurantContact {
     phone?: string;
     email?: string;
+    website?: string;
+}
+
+export interface IPointsSystem {
+    method: 'simple' | 'exponential';
+    pointsPerEuro: number;
+    maxPointsVisit: number;
 }
 
 export interface IRestaurantProfile {
@@ -60,6 +67,7 @@ export interface IRestaurantProfile {
     image?:      string[];
     contact?:    IRestaurantContact;
     location:    IRestaurantLocation; // required
+    pointsSystem: IPointsSystem;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -192,6 +200,7 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
                         message:   (p: { value: string }) => `"${p.value}" is not a valid e-mail address.`,
                     },
                 },
+                website: { type: String, trim: true },
             },
             location: {
                 city: { type: String, required:  [true, 'City is required.'], trim: true },
@@ -199,6 +208,11 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
                 googlePlaceId: { type: String, required: false },
                 coordinates: { type: geoPointSchema, required: [true, 'GeoJSON coordinates are required.'] },
             },
+            pointsSystem: {
+                method: { type: String, enum: ['simple', 'exponential'], default: 'exponential' },
+                pointsPerEuro: { type: Number, default: 10 },
+                maxPointsVisit: { type: Number, default: 500 }
+            }
         },
         employees:  [{ type: Schema.Types.ObjectId, ref: 'Employee' }],
         dishes:     [{ type: Schema.Types.ObjectId, ref: 'Dish'     }],

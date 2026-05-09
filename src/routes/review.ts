@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/review';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin } from '../middleware/auth';
+import { authenticate, requireRole, requireSelfOrAdmin, requireCustomerAccess } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -268,7 +268,7 @@ router.get(
 router.get(
   '/customer/:customer_id',
   authenticate,
-  requireSelfOrAdmin('customer_id'),
+  requireCustomerAccess('customer_id'),
   controller.readByCustomer
 );
 

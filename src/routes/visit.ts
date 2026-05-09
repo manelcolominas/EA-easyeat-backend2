@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/visit';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
+import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess, requireCustomerAccess } from '../middleware/auth';
 
 
 const router = express.Router();
@@ -166,7 +166,7 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
  *       200:
  *         description: OK
  */
-router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readByCustomer);
+router.get('/customer/:customer_id', authenticate, requireCustomerAccess('customer_id'), controller.readByCustomer);
 
 /**
  * @openapi
