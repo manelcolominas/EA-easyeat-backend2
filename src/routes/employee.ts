@@ -180,6 +180,31 @@ router.get(
 
 /**
  * @openapi
+ * /employees/restaurant/{restaurant_id}/stats:
+ *   get:
+ *     summary: List employees for a restaurant with calculated stats
+ *     tags: [Employees]
+ *     parameters:
+ *       - name: restaurant_id
+ *         in: path
+ *         required: true
+ *         description: MongoDB ObjectId of the restaurant
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/restaurant/:restaurant_id/stats',
+  authenticate,
+  requireRole('admin', 'owner', 'employee', 'staff'),
+  requireRestaurantAccess('restaurant_id'),
+  controller.getEmployeesByRestaurantStats
+);
+
+/**
+ * @openapi
  * /employees/restaurant/{restaurant_id}/statistics:
  *   get:
  *     summary: List employees for a restaurant with calculated stats
