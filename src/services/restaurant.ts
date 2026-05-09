@@ -210,7 +210,7 @@ const getDeletedRestaurantCustomers = async (restaurant_id: string, skip: number
 const getRestaurantFull = async (restaurant_id: string): Promise<IRestaurant | null> => {
     const [restaurant, globalRating] = await Promise.all([
         RestaurantModel
-            .findById(restaurant_id).active()
+            .findById(restaurant_id)
             .populate('employees')
             .populate('rewards')
             .populate('badges')
