@@ -66,6 +66,12 @@ const passwordSchema = Joi.string().min(8).max(128).pattern(/[A-Z]/, 'uppercase 
         'string.min':          'Password must be at least 8 characters long',
     });
 
+const pointsSystemSchema = Joi.object({
+    method: Joi.string().valid('simple', 'exponential').required(),
+    pointsPerEuro: Joi.number().min(0).allow(null),
+    maxPointsVisit: Joi.number().min(0).allow(null),
+});
+
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 export const Schemas = {
@@ -292,7 +298,7 @@ export const Schemas = {
                 contact: Joi.object({
                     phone: Joi.string(),
                     email: Joi.string().email(),
-                    website: Joi.string().uri().allow(''),
+                    website: Joi.string().allow(''),
                 }),
                 location: Joi.object({
                     city:          Joi.string().required(),
@@ -303,6 +309,7 @@ export const Schemas = {
                         coordinates: Joi.array().items(Joi.number()).length(2),
                     }).optional(),
                 }).required(),
+                pointsSystem: pointsSystemSchema,
             }).required(),
             employees:  Joi.array().items(objectId),
             dishes:     Joi.array().items(objectId),
@@ -312,36 +319,37 @@ export const Schemas = {
         }),
 
         update: Joi.object({
-            _id: objectId,
-            __v: Joi.number(),
-            restaurant_id: objectId,
+            _id: Joi.any().strip(),
+            __v: Joi.any().strip(),
+            restaurant_id: Joi.any().strip(),
             profile: Joi.object({
-                name:        Joi.string(),
-                description: Joi.string(),
-                globalRating:      Joi.number().min(0).max(10),
-                category:    Joi.array().items(Joi.string().valid(...categoryEnum)),
-                timetable:   timetableSchema,
-                image:       Joi.array().items(Joi.string().uri()),
+                name:        Joi.string().allow('', null),
+                description: Joi.string().allow('', null),
+                globalRating: Joi.number().min(0).max(10).allow(null),
+                maxPointsVisit: Joi.number().min(0).allow(null),
+                category: Joi.alternatives().try(
+                    Joi.array().items(Joi.string()),
+                    Joi.string().allow('', null)
+                ),
+                timetable: Joi.any(),
+                image: Joi.array().items(Joi.string()),
                 contact: Joi.object({
-                    phone: Joi.string(),
-                    email: Joi.string().email(),
-                    website: Joi.string().uri().allow(''),
-                }),
+                    phone: Joi.string().allow('', null),
+                    email: Joi.string().email().allow('', null),
+                    website: Joi.string().allow('', null),
+                }).unknown(true),
                 location: Joi.object({
-                    city:          Joi.string(),
-                    address:       Joi.string(),
-                    googlePlaceId: Joi.string(),
-                    coordinates: Joi.object({
-                        type:        Joi.string().valid('Point'),
-                        coordinates: Joi.array().items(Joi.number()).length(2),
-                    }),
-                }),
-            }),
-            employees:  Joi.array().items(objectId),
-            dishes:     Joi.array().items(objectId),
-            rewards:    Joi.array().items(objectId),
-            statistics: objectId,
-            badges:     Joi.array().items(objectId),
+                    city: Joi.string().allow('', null),
+                    address: Joi.string().allow('', null),
+                    googlePlaceId: Joi.string().allow('', null),
+                    coordinates: Joi.any(),
+                }).unknown(true),
+                pointsSystem: Joi.object({
+                    method: Joi.string().valid('simple', 'exponential'),
+                    pointsPerEuro: Joi.number().min(0).allow(null),
+                    maxPointsVisit: Joi.number().min(0).allow(null),
+                }).unknown(true),
+            }).unknown(true),
         }).unknown(true),
     },
 

@@ -137,8 +137,26 @@ const pointsRedemption = async (data: Partial<IVisit>) => {
         throw new Error(`Restaurant not found for id: ${restaurant_id}`);
     }
 
-    const maxPointsVisit = restaurant.profile.maxPointsVisit ?? 0;
-    const pointsToAssign = calculatePointsExponential(totalSpentInTheRestaurantLast90Days,totalSpentInOthersRestaurantsLast90Days, billAmount ?? 0, averageSpentInARestaurantLast90DaysByTheCustomers, maxPointsVisit);
+    const pointsSystem = restaurant.profile.pointsSystem || {
+        method: 'exponential',
+        pointsPerEuro: 10,
+        maxPointsVisit: restaurant.profile.maxPointsVisit || 500
+    };
+
+    let pointsToAssign = 0;
+
+    if (pointsSystem.method === 'simple') {
+        pointsToAssign = Math.floor((billAmount ?? 0) * (pointsSystem.pointsPerEuro || 10));
+    } else {
+        const maxPointsVisit = pointsSystem.maxPointsVisit || restaurant.profile.maxPointsVisit || 500;
+        pointsToAssign = calculatePointsExponential(
+            totalSpentInTheRestaurantLast90Days,
+            totalSpentInOthersRestaurantsLast90Days,
+            billAmount ?? 0,
+            averageSpentInARestaurantLast90DaysByTheCustomers,
+            maxPointsVisit
+        );
+    }
 
     const visit = new VisitModel({
         _id: new mongoose.Types.ObjectId(),
