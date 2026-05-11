@@ -1,7 +1,8 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { verifyAccessToken } from './utils/jwt';
-import { ConversationModel, MessageModel } from './models/chat';
+import MessageModel from './models/chat';
+import ConversationModel from './models/conversation';
 import Logging from './library/logging';
 import { IJwtPayload } from './models/JWTPayload';
 
@@ -73,30 +74,30 @@ export class SocketManager {
                 const { conversationId, content, restaurantId } = data;
 
                 try {
+                    // 0. Fetch conversation to get customer and restaurant IDs
+                    const conversation = await ConversationModel.findById(conversationId);
+                    if (!conversation) {
+                        throw new Error('Conversation not found');
+                    }
+
                     // 1. Create and save the message
                     const message = new MessageModel({
-                        conversationId,
-                        senderId: user.id,
-                        senderModel: (user.role === 'owner' || user.role === 'staff') ? 'Employee' : 'Customer',
-                        content,
-                        isRead: false
+                        conversation: conversationId,
+                        customer: conversation.customer,
+                        restaurant: conversation.restaurant,
+                        sender: user.id,
+                        senderRole: (user.role === 'owner' || user.role === 'staff') ? 'employee' : 'customer',
+                        contenido: content,
+                        readBy: [user.id]
                     });
 
                     await message.save();
 
                     // 2. Update conversation with last message info
-                    // If employee sends, reset unread count (or handle differently)
-                    // If customer sends, increment unread count for the restaurant
-                    const updateData: any = {
-                        lastMessage: content,
+                    await ConversationModel.findByIdAndUpdate(conversationId, {
+                        lastMessage: message._id,
                         lastMessageAt: new Date()
-                    };
-
-                    if (user.role === 'customer') {
-                        updateData.$inc = { unreadCount: 1 };
-                    }
-
-                    await ConversationModel.findByIdAndUpdate(conversationId, updateData);
+                    });
 
                     // 3. Emit message to everyone in the conversation room
                     this.io.to(conversationId).emit('receive_message', message);
