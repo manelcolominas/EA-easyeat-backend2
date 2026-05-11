@@ -13,6 +13,12 @@ export interface RateResult {
     isNew: boolean;
 }
 
+export interface TopDishItem {
+    dish_id: string;
+    name: string;
+    avgRating: number;
+}
+
 // ─── Create or Update ─────────────────────────────────────────────────────────
 
 /**
@@ -117,6 +123,92 @@ const getDishRatingSummary = async (dish_id: string): Promise<RateSummary> => {
     };
 };
 
+const getTopDishByRestaurant = async (restaurant_id: string) => {
+    if (!mongoose.Types.ObjectId.isValid(restaurant_id)) return null;
+
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
+                deletedAt: null
+            }
+        },
+        {
+            $group: {
+                _id: "$dish_id",
+                averageRating: { $avg: "$rating" },
+                totalRatings: { $sum: 1 }
+            }
+        },
+        {
+            $sort: { averageRating: -1 }
+        },
+        {
+            $limit: 1
+        }
+    ];
+
+    const [topDish] = await DishRatingModel.aggregate(pipeline);
+
+    if (!topDish) return null;
+
+    const dish = await DishModel.findOne({ _id: topDish._id, active: true });
+
+    if (!dish) return null;
+
+    return {
+        name: dish.name,
+        averageRating: Math.round(topDish.averageRating * 10) / 10,
+        totalRatings: topDish.totalRatings
+    };
+};
+
+const getTopDishesByRestaurant = async (restaurant_id: string): Promise<TopDishItem[]> => {
+    if (!mongoose.Types.ObjectId.isValid(restaurant_id)) return [];
+
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
+                deletedAt: null
+            }
+        },
+        {
+            $group: {
+                _id: '$dish_id',
+                avgRating: { $avg: '$rating' }
+            }
+        },
+        {
+            $sort: { avgRating: -1 }
+        },
+        {
+            $lookup: {
+                from: 'dishes',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'dish'
+            }
+        },
+        {
+            $unwind: '$dish'
+        },
+        {
+            $match: { 'dish.active': true }
+        },
+        {
+            $project: {
+                _id: 0,
+                dish_id: { $toString: '$_id' },
+                name: '$dish.name',
+                avgRating: { $round: ['$avgRating', 1] }
+            }
+        }
+    ];
+
+    return DishRatingModel.aggregate<TopDishItem>(pipeline);
+};
+
 // ─── Exports ──────────────────────────────────────────────────────────────────
 
 export default {
@@ -125,4 +217,6 @@ export default {
     getRatingsByCustomer,
     softDeleteRating,
     getDishRatingSummary,
+    getTopDishByRestaurant,
+    getTopDishesByRestaurant
 };

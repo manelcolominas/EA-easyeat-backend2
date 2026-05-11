@@ -22,13 +22,14 @@ export const loginAdmin = async (req: Request, res: Response) => {
             const accessToken = generateAccessToken(String(customer._id), customer.name, customer.email, 'customer');
             const refreshToken = generateRefreshToken(String(customer._id), customer.name, customer.email, 'customer');
 
+            res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
             res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 
             return res.status(200).json({
                 message: 'Auth successful',
                 accessToken,
                 customer: {
-                    id:    customer._id,
+                    _id:    customer._id,
                     email: customer.email,
                     name:  customer.name,
                     role:  'customer',
@@ -50,13 +51,14 @@ export const loginAdmin = async (req: Request, res: Response) => {
             const accessToken = generateAccessToken(String(employee._id), name, empEmail, empRole, restaurantId);
             const refreshToken = generateRefreshToken(String(employee._id), name, empEmail, empRole, restaurantId);
 
+            res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
             res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 
             return res.status(200).json({
                 message: 'Auth successful',
                 accessToken,
                 employee: {
-                    id:            employee._id,
+                    _id:            employee._id,
                     name:          employee.profile.name,
                     email:         employee.profile.email,
                     role:          employee.profile.role,
@@ -73,13 +75,14 @@ export const loginAdmin = async (req: Request, res: Response) => {
 
         const { accessToken, refreshToken } = getTokens(admin);
 
+        res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
         res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
 
         return res.status(200).json({
             message: 'Auth successful',
             accessToken,
             admin: {
-                id:    admin._id,
+                _id:    admin._id,
                 email: admin.email,
                 name:  admin.name,
                 role:  admin.role,
@@ -112,7 +115,7 @@ export const registerAdmin = async (req: Request, res: Response) => {
         return res.status(201).json({
             message: 'Admin created successfully',
             admin: {
-                id:    admin._id,
+                _id:    admin._id,
                 email: admin.email,
                 name:  admin.name,
                 role:  admin.role

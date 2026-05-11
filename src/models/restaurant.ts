@@ -48,17 +48,26 @@ export interface IRestaurantLocation {
 export interface IRestaurantContact {
     phone?: string;
     email?: string;
+    website?: string;
+}
+
+export interface IPointsSystem {
+    method: 'simple' | 'exponential';
+    pointsPerEuro: number;
+    maxPointsVisit: number;
 }
 
 export interface IRestaurantProfile {
     name:        string;              // required, unique per city (compound index)
     description: string;             // required
     globalRating:      number;             // 0–10, default 0, updated from reviews
+    maxPointsVisit?:  number;
     category:    RestaurantCategory[]; // required, enum-validated
     timetable?:  ITimetable;
     image?:      string[];
     contact?:    IRestaurantContact;
     location:    IRestaurantLocation; // required
+    pointsSystem: IPointsSystem;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -170,6 +179,7 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
             globalRating: { type: Number, default: 0, min: [0,  'globalRating cannot be below 0.'],
                 max: [10, 'globalRating cannot exceed 10.'],
             },
+            maxPointsVisit: { type: Number, default: 0, min: [0,  'maxPoints cannot be below 0.'] },
             category: { type: [{ type: String, enum: RESTAURANT_CATEGORIES }],
                 required: [true, 'At least one category is required.'],
                 validate: { validator: (v: string[]) => v.length >= 1,
@@ -190,6 +200,7 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
                         message:   (p: { value: string }) => `"${p.value}" is not a valid e-mail address.`,
                     },
                 },
+                website: { type: String, trim: true },
             },
             location: {
                 city: { type: String, required:  [true, 'City is required.'], trim: true },
@@ -197,6 +208,11 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
                 googlePlaceId: { type: String, required: false },
                 coordinates: { type: geoPointSchema, required: [true, 'GeoJSON coordinates are required.'] },
             },
+            pointsSystem: {
+                method: { type: String, enum: ['simple', 'exponential'], default: 'exponential' },
+                pointsPerEuro: { type: Number, default: 10 },
+                maxPointsVisit: { type: Number, default: 500 }
+            }
         },
         employees:  [{ type: Schema.Types.ObjectId, ref: 'Employee' }],
         dishes:     [{ type: Schema.Types.ObjectId, ref: 'Dish'     }],

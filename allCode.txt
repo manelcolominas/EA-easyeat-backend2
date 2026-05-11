@@ -19,7 +19,7 @@ export const config = {
     jwt: {
         accessSecret:     process.env.JWT_SECRET         || 'cce788eebd26d18a40e2f414c69692bb9bdedd9fc3438d92e52915359abe8d59',
         refreshSecret:    process.env.JWT_REFRESH_SECRET || '9a23ae4899d12aa77c66240a3b4a058f935e3634d06a72a4311e7d290274c121',
-        accessExpiresIn:  process.env.JWT_ACCESS_EXPIRES_IN  || '15m',
+        accessExpiresIn:  process.env.JWT_ACCESS_EXPIRES_IN  || '1d',
         refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     },
     cookies: {
@@ -214,6 +214,7 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import BadgeService from '../services/badge';
 import { CustomerModel } from '../models/customer';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createBadge = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -248,8 +249,13 @@ const readDeletedBadge = async (req: Request, res: Response, next: NextFunction)
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const badges = await BadgeService.getAllBadges();
-        return res.status(200).json(badges);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getAllBadges(skip, limit);
+        
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -257,8 +263,13 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const badges = await BadgeService.getAllDeletedBadges();
-        return res.status(200).json(badges);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await BadgeService.getAllDeletedBadges(skip, limit);
+        
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -350,7 +361,7 @@ export default {
 
 import { NextFunction, Request, Response } from 'express';
 import CustomerService from '../services/customer';
-import Logging from '../library/logging';
+import { getPaginationOptions } from '../utils/pagination';
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -414,12 +425,15 @@ const readDeletedCustomerFull = async (req: Request, res: Response, next: NextFu
 };
 
 const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
-    const customer_id = req.params.customer_id;
+    const { customer_id } = req.params;
     try {
-        const badges = await CustomerService.getCustomerAllBadges(customer_id);
-        return badges
-            ? res.status(200).json(badges)
-            : res.status(404).json({ message: 'Customer not found' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await CustomerService.getCustomerAllBadges(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -428,8 +442,13 @@ const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunct
 const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const restaurants = await CustomerService.getCustomerAllFavouriteRestaurants(customer_id);
-        return res.status(200).json(restaurants);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { favoriteRestaurants, total } = await CustomerService.getCustomerAllFavouriteRestaurants(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: favoriteRestaurants,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -438,8 +457,13 @@ const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, n
 const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const reviews = await CustomerService.getCustomerAllReviews(customer_id);
-        return res.status(200).json(reviews);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await CustomerService.getCustomerAllReviews(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -448,8 +472,13 @@ const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunc
 const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const visits = await CustomerService.getCustomerAllVisits(customer_id);
-        return res.status(200).json(visits);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await CustomerService.getCustomerAllVisits(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -458,8 +487,13 @@ const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunct
 const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const visits = await CustomerService.getCustomerAllDeletedVisits(customer_id);
-        return res.status(200).json(visits);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await CustomerService.getCustomerAllDeletedVisits(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -468,8 +502,13 @@ const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: Ne
 const getCustomerAllPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
     try {
-        const pointsWallet = await CustomerService.getCustomerAllPointsWallet(customer_id);
-        return res.status(200).json(pointsWallet);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { pointsWallet, total } = await CustomerService.getCustomerAllPointsWallet(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: pointsWallet,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -478,26 +517,28 @@ const getCustomerAllPointsWallet = async (req: Request, res: Response, next: Nex
 // ─── Read (paginated list) ────────────────────────────────────────────────────
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
-    // Accept ?page=1&limit=20 query params
-    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
-    const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
-
     try {
-        const result = await CustomerService.getAllCustomers({ page, limit });
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { data, total } = await CustomerService.getAllCustomers(skip, limit);
+        
+        return res.status(200).json({
+            data,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
-    // Accept ?page=1&limit=20 query params
-    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
-    const limit = Math.min(100, parseInt(req.query.limit as string, 10) || 20);
-
     try {
-        const result = await CustomerService.getAllDeletedCustomers({ page, limit });
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { data, total } = await CustomerService.getAllDeletedCustomers(skip, limit);
+        
+        return res.status(200).json({
+            data,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -598,6 +639,8 @@ export default {
 
 import { NextFunction, Request, Response } from 'express';
 import DishService from '../services/dish';
+import { getPaginationOptions } from '../utils/pagination';
+
 
 const createDish = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -630,8 +673,12 @@ const readDeletedDish = async (req: Request, res: Response, next: NextFunction) 
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dishes = await DishService.getAllDishes();
-        return res.status(200).json(dishes);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total }= await DishService.getAllDishes(skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -639,8 +686,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dishes = await DishService.getAllDeletedDishes();
-        return res.status(200).json(dishes);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await DishService.getAllDeletedDishes(skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -706,6 +757,7 @@ export default {
 import { Response, NextFunction } from 'express';
 import DishRatingService from '../services/dishRating';
 import { AuthRequest } from '../middleware/auth';
+import { getPaginationOptions } from '../utils/pagination';
 
 // ─── Create or update a rating ────────────────────────────────────────────────
 
@@ -742,10 +794,13 @@ const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunct
 
 const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { dish_id } = req.params;
-
     try {
-        const ratings = await DishRatingService.getRatingsByDish(dish_id);
-        return res.status(200).json(ratings);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishRatings, total } = await DishRatingService.getRatingsByDish(dish_id, skip, limit);
+        return res.status(200).json({
+            data: dishRatings,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -755,10 +810,13 @@ const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) =
 
 const readByCustomer = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { customer_id } = req.params;
-
     try {
-        const ratings = await DishRatingService.getRatingsByCustomer(customer_id);
-        return res.status(200).json(ratings);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishRatings, total } = await DishRatingService.getRatingsByCustomer(customer_id, skip, limit);
+        return res.status(200).json({
+            data: dishRatings,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -807,6 +865,7 @@ export default { rateOrUpdateDish, readByDish, readByCustomer, softDeleteRating,
 
 import { NextFunction, Request, Response } from 'express';
 import EmployeeService from '../services/employee';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -839,8 +898,12 @@ const readDeletedEmployee = async (req: Request, res: Response, next: NextFuncti
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employees = await EmployeeService.getAllEmployees();
-        return res.status(200).json(employees);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await EmployeeService.getAllEmployees(skip,limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -848,8 +911,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employees = await EmployeeService.getAllDeletedEmployees();
-        return res.status(200).json(employees);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await EmployeeService.getAllDeletedEmployees(skip,limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -914,6 +981,8 @@ export default {
 
 import { NextFunction, Request, Response } from 'express';
 import PointsWalletService from '../services/pointsWallet';
+import { getPaginationOptions } from '../utils/pagination';
+
 
 const createPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -936,8 +1005,12 @@ const readPointsWallet = async (req: Request, res: Response, next: NextFunction)
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const wallets = await PointsWalletService.getAllPointsWallets();
-        return res.status(200).json(wallets);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { wallets, total } = await PointsWalletService.getAllPointsWallets(skip, limit);
+        return res.status(200).json({
+            data: wallets,
+            meta: { total: total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -972,6 +1045,7 @@ export default { createPointsWallet, readPointsWallet, readAll, updatePointsWall
 
 import { NextFunction, Request, Response } from 'express';
 import RestaurantService from '../services/restaurant.js';
+import { getPaginationOptions } from '../utils/pagination';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
@@ -1022,8 +1096,12 @@ const readDeletedRestaurant = async (req: Request, res: Response, next: NextFunc
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurants = await RestaurantService.getAllRestaurants();
-        return res.status(200).json(restaurants);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { restaurants, total } = await RestaurantService.getAllRestaurants(skip, limit);
+        return res.status(200).json({
+            data: restaurants,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1031,8 +1109,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurants = await RestaurantService.getAllDeletedRestaurants();
-        return res.status(200).json(restaurants);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { restaurants, total } = await RestaurantService.getAllDeletedRestaurants(skip, limit);
+        return res.status(200).json({
+            data:  restaurants,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1120,27 +1202,27 @@ const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
 // Read variants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const getRestaurantWithCustomers = async (req: Request, res: Response, next: NextFunction) => {
+const getRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getRestaurantWithCustomers(
-            req.params.restaurantId
-        );
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { customers, total } = await RestaurantService.getRestaurantCustomers( req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: customers,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
-const getDeletedRestaurantWithCustomers = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantWithCustomers(
-            req.params.restaurantId
-        );
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { customers, total } = await RestaurantService.getDeletedRestaurantCustomers( req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: customers,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1187,10 +1269,12 @@ const getNearby = async (req: Request, res: Response, next: NextFunction) => {
 
 const getBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const badges = await RestaurantService.getBadges(req.params.restaurantId);
-        return badges
-            ? res.status(200).json(badges)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await RestaurantService.getBadges(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: badges,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1198,10 +1282,13 @@ const getBadges = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantBadges(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { badges, total } = await RestaurantService.getDeletedRestaurantBadges(req.params.restaurantId, skip, limit);
+        return res.status(200).json(
+            {
+                data: badges,
+                meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+            })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1210,9 +1297,7 @@ const getDeletedRestaurantBadges = async (req: Request, res: Response, next: Nex
 const getStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const statistics = await RestaurantService.getStatistics(req.params.restaurantId);
-        return statistics
-            ? res.status(200).json(statistics)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        return res.status(200).json(statistics);
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1220,10 +1305,8 @@ const getStatistics = async (req: Request, res: Response, next: NextFunction) =>
 
 const getDeletedRestaurantStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantStatistics(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const statistics = await RestaurantService.getDeletedRestaurantStatistics(req.params.restaurantId);
+        return res.status(200).json(statistics)
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1233,9 +1316,7 @@ const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const restaurantId = req.params.restaurantId;
         const topDish = await RestaurantService.getTopDishByRestaurant(restaurantId);
-        return topDish
-            ? res.status(200).json(topDish)
-            : res.status(404).json({ message: 'No rated dishes found for this restaurant.' });
+        return res.status(200).json(topDish)
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1264,10 +1345,12 @@ const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
 
 const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getEmployees(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total } = await RestaurantService.getEmployees(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1275,10 +1358,12 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
 
 const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { employees, total} = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: employees,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1286,10 +1371,12 @@ const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: 
 
 const getDishes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDishes(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await RestaurantService.getDishes(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1297,10 +1384,12 @@ const getDishes = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantDishes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantDishes(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { dishes, total } = await RestaurantService.getDeletedRestaurantDishes(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: dishes,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1308,10 +1397,12 @@ const getDeletedRestaurantDishes = async (req: Request, res: Response, next: Nex
 
 const getRewards = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getRewards(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RestaurantService.getRewards(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1319,10 +1410,12 @@ const getRewards = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantRewards = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantRewards(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RestaurantService.getDeletedRestaurantRewards(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1331,10 +1424,12 @@ const getDeletedRestaurantRewards = async (req: Request, res: Response, next: Ne
 
 const getVisits = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getVisits(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await RestaurantService.getVisits(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1342,10 +1437,12 @@ const getVisits = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantVisits = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantVisits(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await RestaurantService.getDeletedRestaurantVisits(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1354,10 +1451,12 @@ const getDeletedRestaurantVisits = async (req: Request, res: Response, next: Nex
 
 const getReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getReviews(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await RestaurantService.getReviews(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1365,10 +1464,12 @@ const getReviews = async (req: Request, res: Response, next: NextFunction) => {
 
 const getDeletedRestaurantReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const restaurant = await RestaurantService.getDeletedRestaurantReviews(req.params.restaurantId);
-        return restaurant
-            ? res.status(200).json(restaurant)
-            : res.status(404).json({ message: 'Deleted restaurant not found.' });
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await RestaurantService.getDeletedRestaurantReviews(req.params.restaurantId, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        })
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1388,8 +1489,8 @@ export default {
     softDelete,
     restore,
     hardDelete,
-    getRestaurantWithCustomers,
-    getDeletedRestaurantWithCustomers,
+    getRestaurantCustomers,
+    getDeletedRestaurantCustomers,
     getRestaurantFull,
     getDeletedRestaurantFull,
     getNearby,
@@ -1413,17 +1514,18 @@ export default {
 
 
 
+
 ==================== src\controllers\review.ts ====================
 
 import { NextFunction, Request, Response } from 'express';
 import ReviewService from '../services/review';
+import { getPaginationOptions } from '../utils/pagination';
 
 // Create review
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const savedReview = await ReviewService.createReview(req.body);
         return res.status(201).json(savedReview);
-
     } catch (error) {
         return next(error);
     }
@@ -1433,7 +1535,6 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
 const readReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.getReview(req.params.review_id);
-
         return review
             ? res.status(200).json(review)
             : res.status(404).json({ message: 'Review not found' });
@@ -1446,11 +1547,9 @@ const readReview = async (req: Request, res: Response, next: NextFunction) => {
 const readDeletedReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.getDeletedReview(req.params.review_id);
-
         return review
             ? res.status(200).json(review)
             : res.status(404).json({ message: 'Review not found' });
-
     } catch (error) {
         return next(error);
     }
@@ -1459,9 +1558,12 @@ const readDeletedReview = async (req: Request, res: Response, next: NextFunction
 // Obtain all reviews
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getAllReviews();
-        return res.status(200).json(reviews);
-
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getAllReviews(skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -1469,9 +1571,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getAllDeletedReviews();
-        return res.status(200).json(reviews);
-
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getAllDeletedReviews(skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -1484,7 +1589,6 @@ const updateReview = async (req: Request, res: Response, next: NextFunction) => 
             req.params.review_id,
             req.body
         );
-
         return updatedReview
             ? res.status(200).json(updatedReview)
             : res.status(404).json({ message: 'Review not found' });
@@ -1537,9 +1641,12 @@ const hardDeleteReview = async (req: Request, res: Response, next: NextFunction)
 // Obtain reviews by restaurant
 const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getReviewsByRestaurant(req.params.restaurant_id);
-        return res.status(200).json(reviews);
-
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getReviewsByRestaurant(req.params.restaurant_id, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -1547,8 +1654,12 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
 
 const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await ReviewService.getDeletedReviewsByRestaurant(req.params.restaurant_id);
-        return res.status(200).json(reviews);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total } = await ReviewService.getDeletedReviewsByRestaurant(req.params.restaurant_id, skip, limit);
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
 
     } catch (error) {
         return next(error);
@@ -1559,18 +1670,17 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
 const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { customer_id } = req.params;
-
-        const result = await ReviewService.getReviewsByCustomer(customer_id, {
-            limit:           Number(req.query.limit)           || 5,
-            skip:            Number(req.query.skip)            || 0,
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const {reviews, total} = await ReviewService.getReviewsByCustomer(customer_id, skip, limit, {
             minGlobalRating: req.query.minGlobalRating !== undefined
                 ? Number(req.query.minGlobalRating)
                 : undefined,
             sortByLikes: req.query.sortByLikes === 'true',
         });
-
-        return res.status(200).json(result);
-
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -1579,18 +1689,17 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
 const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { customer_id } = req.params;
-
-        const result = await ReviewService.getDeletedReviewsByCustomer(customer_id, {
-            limit:           Number(req.query.limit)           || 5,
-            skip:            Number(req.query.skip)            || 0,
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { reviews, total} = await ReviewService.getDeletedReviewsByCustomer(customer_id, skip, limit, {
             minGlobalRating: req.query.minGlobalRating !== undefined
                 ? Number(req.query.minGlobalRating)
                 : undefined,
             sortByLikes: req.query.sortByLikes === 'true',
         });
-
-        return res.status(200).json(result);
-
+        return res.status(200).json({
+            data: reviews,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return next(error);
     }
@@ -1600,11 +1709,7 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
 const likeReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await ReviewService.likeReview(req.params.review_id);
-
-        return review
-            ? res.status(200).json(review)
-            : res.status(404).json({ message: 'Review not found' });
-
+        return res.status(200).json(review)
     } catch (error) {
         return next(error);
     }
@@ -1634,6 +1739,7 @@ export default {
 
 import { NextFunction, Request, Response } from 'express';
 import RewardService from '../services/reward';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createReward = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -1668,11 +1774,12 @@ const readDeletedReward = async (req: Request, res: Response, next: NextFunction
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
-
-        const rewards = await RewardService.getAllRewards(page, limit);
-        return res.status(200).json(rewards);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RewardService.getAllRewards(skip, limit);
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1680,11 +1787,12 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
-
-        const rewards = await RewardService.getAllDeletedRewards(page, limit);
-        return res.status(200).json(rewards);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { rewards, total } = await RewardService.getAllDeletedRewards(skip, limit);
+        return res.status(200).json({
+            data: rewards,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1692,7 +1800,6 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
 
 const updateReward = async (req: Request, res: Response, next: NextFunction) => {
     const reward_id = req.params.reward_id;
-
     try {
         const updatedReward = await RewardService.updateReward(reward_id, req.body);
         return updatedReward ? res.status(201).json(updatedReward) : res.status(404).json({ message: 'not found' });
@@ -1703,7 +1810,6 @@ const updateReward = async (req: Request, res: Response, next: NextFunction) => 
 
 const softDeleteReward = async (req: Request, res: Response, next: NextFunction) => {
     const reward_id = req.params.reward_id;
-
     try {
         const reward = await RewardService.softDeleteReward(reward_id);
         return reward ? res.status(201).json(reward) : res.status(404).json({ message: 'not found' });
@@ -1714,7 +1820,6 @@ const softDeleteReward = async (req: Request, res: Response, next: NextFunction)
 
 const restoreReward = async (req: Request, res: Response, next: NextFunction) => {
     const reward_id = req.params.reward_id;
-
     try {
         const reward = await RewardService.restoreReward(reward_id);
         return reward ? res.status(201).json(reward) : res.status(404).json({ message: 'not found' });
@@ -1725,7 +1830,6 @@ const restoreReward = async (req: Request, res: Response, next: NextFunction) =>
 
 const hardDeleteReward = async (req: Request, res: Response, next: NextFunction) => {
     const reward_id = req.params.reward_id;
-
     try {
         const reward = await RewardService.hardDeleteReward(reward_id);
         return reward ? res.status(201).json(reward) : res.status(404).json({ message: 'not found' });
@@ -1753,6 +1857,7 @@ export default {
 
 import { NextFunction, Request, Response } from 'express';
 import RewardRedemptionService from '../services/rewardRedemption';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -1776,7 +1881,6 @@ const redeemReward = async (req: Request, res: Response, next: NextFunction) => 
 
 const readRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   const { redemptionId } = req.params;
-
   try {
     const redemption = await RewardRedemptionService.getRewardRedemption(redemptionId);
     return redemption
@@ -1789,18 +1893,73 @@ const readRewardRedemption = async (req: Request, res: Response, next: NextFunct
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filters = {
-      status: req.query.status as string | undefined,
-      restaurant_id: req.query.restaurant_id as string | undefined,
-      customer_id: req.query.customer_id as string | undefined,
-      reward_id: req.query.reward_id as string | undefined
-    };
-
-    const redemptions = await RewardRedemptionService.getAllRewardRedemptions(filters);
-    return res.status(200).json(redemptions);
+    const { page, limit, skip } = getPaginationOptions(req.query);
+    const { redemptions, total } = await RewardRedemptionService.getAllRewardRedemptions(skip, limit);
+    
+    return res.status(200).json({
+        data: redemptions,
+        meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+    });
   } catch (error) {
     return res.status(500).json({ error });
   }
+};
+
+const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customer_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByCustomer(customer_id,skip, limit);
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByRestaurant(restaurant_id, skip, limit);
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { employee_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByEmployee(employee_id,skip, limit);
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByReward = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { reward_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { redemptions, total } = await RewardRedemptionService.getByReward(reward_id, skip, limit);
+        
+        return res.status(200).json({
+            data: redemptions,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
 };
 
 const updateStatus = async (req: Request, res: Response, next: NextFunction) => {
@@ -1813,7 +1972,6 @@ const updateStatus = async (req: Request, res: Response, next: NextFunction) => 
       employee_id,
       notes
     });
-
     return updated
       ? res.status(200).json(updated)
       : res.status(404).json({ message: 'not found' });
@@ -1824,7 +1982,6 @@ const updateStatus = async (req: Request, res: Response, next: NextFunction) => 
 
 const updateRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   const { redemptionId } = req.params;
-
   try {
     const updated = await RewardRedemptionService.updateRewardRedemption(redemptionId, req.body);
     return updated
@@ -1853,6 +2010,10 @@ export default {
   redeemReward,
   readRewardRedemption,
   readAll,
+  readByCustomer,
+  readByRestaurant,
+  readByEmployee,
+  readByReward,
   updateStatus,
   updateRewardRedemption,
   deleteRewardRedemption
@@ -1864,6 +2025,7 @@ export default {
 
 import { NextFunction, Request, Response } from 'express';
 import StatisticsService from '../services/statistics';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createStatistics = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -1886,8 +2048,22 @@ const readStatistics = async (req: Request, res: Response, next: NextFunction) =
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const statistics = await StatisticsService.getAllStatistics();
-        return res.status(200).json(statistics);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { statistics , total } = await StatisticsService.getAllStatistics(skip, limit);
+        return res.status(200).json({
+            data: statistics,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+    const { restaurant_id } = req.params;
+    try {
+        const statistics = await StatisticsService.getByRestaurant(restaurant_id);
+        return statistics ? res.status(200).json(statistics) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -1913,7 +2089,7 @@ const deleteStatistics = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-export default { createStatistics, readStatistics, readAll, updateStatistics, deleteStatistics };
+export default { createStatistics, readStatistics, readAll, readByRestaurant, updateStatistics, deleteStatistics };
 
 
 
@@ -1922,6 +2098,7 @@ export default { createStatistics, readStatistics, readAll, updateStatistics, de
 
 import { NextFunction, Request, Response } from 'express';
 import VisitService from '../services/visit';
+import { getPaginationOptions } from '../utils/pagination';
 
 const createVisit = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -1936,8 +2113,6 @@ const readVisit = async (req: Request, res: Response, next: NextFunction) => {
     const visit_id = req.params.visit_id;
     try {
         const visit = await VisitService.getVisit(visit_id);
-        // Filter soft delete: if it has deletedAt, return 404
-        if (visit && (visit as any).deletedAt) return res.status(404).json({ message: 'not found' });
         return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
     } catch (error) {
         return res.status(500).json({ error });
@@ -1955,57 +2130,58 @@ const readDeletedVisit = async (req: Request, res: Response, next: NextFunction)
 };
 
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
-    const { customer_id, restaurant_id } = req.query;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-
     try {
-        const filter = {
-            customer_id: customer_id as string | undefined,
-            restaurant_id: restaurant_id as string | undefined,
-            deletedAt: null // only active visits
-        };
-
-        const result = await VisitService.getAllVisits(filter, page, limit);
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getAllVisits(skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
 const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
-    const { customer_id, restaurant_id } = req.query;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-
     try {
-        const filter = {
-            customer_id: customer_id as string | undefined,
-            restaurant_id: restaurant_id as string | undefined,
-        };
-
-        const result = await VisitService.getAllVisits(filter, page, limit);
-        return res.status(200).json(result);
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getAllDeletedVisits(skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
-const getVisitFull = async (req: Request, res: Response, next: NextFunction) => {
-    const visit_id = req.params.visit_id;
+const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const visit = await VisitService.getVisitFull(visit_id);
-        return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
+        const { customer_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getByCustomer(customer_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
 };
 
-const getDeletedVisitFull = async (req: Request, res: Response, next: NextFunction) => {
-    const visit_id = req.params.visit_id;
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const visit = await VisitService.getDeletedVisitFull(visit_id);
-        return visit ? res.status(200).json(visit) : res.status(404).json({ message: 'not found' });
+        const { restaurant_id } = req.params;
+        const { page, limit, skip } = getPaginationOptions(req.query);
+        const { visits, total } = await VisitService.getByRestaurant(restaurant_id, skip, limit);
+        
+        return res.status(200).json({
+            data: visits,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
+        });
     } catch (error) {
         return res.status(500).json({ error });
     }
@@ -2057,14 +2233,13 @@ export default {
     readDeletedVisit,
     readAll,
     readAllDeleted,
-    getVisitFull,
-    getDeletedVisitFull,
+    readByCustomer,
+    readByRestaurant,
     updateVisit,
     softDeleteVisit,
     restoreVisit,
     hardDeleteVisit
 };
-
 
 
 
@@ -3935,15 +4110,6 @@ export const Schemas = {
         employee_id: Joi.string().hex().length(24).optional().allow(null, ''),
         notes: Joi.string().trim().optional().allow('')
     }),
-
-    listQuery: Joi.object({
-        status: Joi.string()
-            .valid('pending', 'approved', 'redeemed', 'cancelled', 'expired')
-            .optional(),
-        restaurant_id: Joi.string().hex().length(24).optional(),
-        customer_id: Joi.string().hex().length(24).optional(),
-        reward_id: Joi.string().hex().length(24).optional()
-    })
 },
 
     review: {
@@ -4095,7 +4261,7 @@ export const Schemas = {
             description:   Joi.string().required(),
             section:       Joi.string().valid('Starters', 'Mains', 'Desserts', 'Drinks', 'Sides', 'Specials').required(),
             price:         Joi.number().min(0).required(),
-            images:         Joi.array().items(Joi.string().uri()),
+            images:        Joi.array().items(Joi.string().uri()),
             active:        Joi.boolean().default(true),
             availableAt:   Joi.array().items(Joi.string().valid('breakfast', 'brunch', 'lunch', 'happy-hour', 'dinner', 'all-day')).required(),
             ingredients:   Joi.array().items(Joi.string()),
@@ -4103,7 +4269,9 @@ export const Schemas = {
             dietaryFlags:  Joi.array().items(Joi.string().valid('vegan', 'vegetarian', 'gluten-free', 'halal', 'kosher', 'dairy-free', 'nut-free')),
             flavorProfile: Joi.array().items(Joi.string().valid('spicy', 'mild', 'sweet', 'sour', 'salty', 'bitter', 'umami', 'smoky', 'rich', 'light', 'creamy', 'tangy', 'fresh', 'hearty', 'nutty')),
             cuisineTags:   Joi.array().items(Joi.string().valid(...categoryEnum)),
-            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing')
+            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing'),
+            avgRating:     Joi.forbidden(),
+            ratingsCount:  Joi.forbidden()
         }),
         update: Joi.object<IDish>({
             name:          Joi.string(),
@@ -4118,10 +4286,11 @@ export const Schemas = {
             dietaryFlags:  Joi.array().items(Joi.string().valid('vegan', 'vegetarian', 'gluten-free', 'halal', 'kosher', 'dairy-free', 'nut-free')),
             flavorProfile: Joi.array().items(Joi.string().valid('spicy', 'mild', 'sweet', 'sour', 'salty', 'bitter', 'umami', 'smoky', 'rich', 'light', 'creamy', 'tangy', 'fresh', 'hearty', 'nutty')),
             cuisineTags:   Joi.array().items(Joi.string().valid(...categoryEnum)),
-            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing')
+            portionSize:   Joi.string().valid('small', 'medium', 'large', 'sharing'),
+            avgRating:     Joi.forbidden(),
+            ratingsCount:  Joi.forbidden()
         })
     },
-
 
     dishRating: {
         create: Joi.object<IDishRating>({
@@ -4412,6 +4581,8 @@ export interface IDish {
     flavorProfile?: ('spicy' | 'mild' | 'sweet' | 'sour' | 'salty' | 'bitter' | 'umami' | 'smoky' | 'rich' | 'light' | 'creamy' | 'tangy' | 'fresh' | 'hearty' | 'nutty' )[];
     cuisineTags?: string[];
     portionSize?: 'small' | 'medium' | 'large' | 'sharing';
+    avgRating?: number;
+    ratingsCount?: number;
 }
 
 // Schema
@@ -4439,6 +4610,8 @@ const dishSchema = new Schema<IDish>({
         ]
     }],
     portionSize: { type: String, enum: ['small', 'medium', 'large', 'sharing'] },
+    avgRating: { type: Number, min: 0, max: 10, default: 0 },
+    ratingsCount : { type: Number, default: 0 }
 }, { timestamps: true });
 
 // Indexes
@@ -4502,6 +4675,48 @@ dishRatingSchema.index(
         name:                     'unique_active_customer_dish',
     }
 );
+
+dishRatingSchema.statics.calculateAvgRating = async function(dishId: Types.ObjectId) {
+    const stats = await this.aggregate([
+        {
+            $match: { dish_id: dishId, deletedAt: null }
+        },
+        {
+            $group: {
+                _id: '$dish_id',
+                avgRating: { $avg: '$rating' },
+                ratingsCount: { $sum: 1 }
+            }
+        }
+    ]);
+
+    if (stats.length > 0) {
+        await model('Dish').findByIdAndUpdate(dishId, {
+            avgRating: Math.round(stats[0].avgRating * 10) / 10, // Round to 1 decimal
+            ratingsCount: stats[0].ratingsCount
+        });
+    }
+    else {
+        await model('Dish').findByIdAndUpdate(dishId, {
+            avgRating: 0,
+            ratingsCount: 0
+        });
+    }
+};
+
+// Post-save hook (handles creation and updates)
+dishRatingSchema.post('save', async function() {
+    // 'this' refers to the document being saved
+    await (this.constructor as any).calculateAvgRating(this.dish_id);
+});
+
+// If you use findOneAndUpdate for soft deletes, add a post hook for that too
+dishRatingSchema.post(/^findOneAnd/, async function(doc) {
+    if (doc) {
+        await (doc.constructor as any).calculateAvgRating(doc.dish_id);
+    }
+});
+
 
 // Fast lookup by dish (listing + analytics)
 dishRatingSchema.index({ dish_id: 1, deletedAt: 1, createdAt: -1 });
@@ -5294,7 +5509,7 @@ export default router;
 import express from 'express';
 import controller from '../controllers/badge';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
+import { authenticate, requireRole } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -5339,6 +5554,25 @@ const router = express.Router();
  *         type:
  *           type: string
  *           example: "visit_milestone"
+ * 
+ *     PaginatedBadges:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Badge'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -5367,9 +5601,26 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.badge.c
  *   get:
  *     summary: Lists all badges
  *     tags: [Badges]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedBadges'
  */
 router.get('/', controller.readAll);
 
@@ -5379,9 +5630,26 @@ router.get('/', controller.readAll);
  *   get:
  *     summary: Lists all deleted badges
  *     tags: [Badges]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedBadges'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
@@ -5632,15 +5900,112 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/Customer'
- *         total:
- *           type: number
- *           example: 42
- *         page:
- *           type: number
- *           example: 1
- *         totalPages:
- *           type: number
- *           example: 3
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedBadges:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedRestaurants:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedPointsWallet:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedReviews:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ *
+ *     PaginatedVisits:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 // ─── POST /customers ──────────────────────────────────────────────────────────
@@ -5815,7 +6180,7 @@ router.get('/:customer_id/full/deleted', authenticate, requireRole('admin'), con
  * @openapi
  * /customers/{customer_id}/badges:
  *   get:
- *     summary: Gets all badges earned by the customer
+ *     summary: Gets all badges earned by the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -5823,9 +6188,23 @@ router.get('/:customer_id/full/deleted', authenticate, requireRole('admin'), con
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of badges
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedBadges'
  *       404:
  *         description: Customer not found
  */
@@ -5836,7 +6215,7 @@ router.get('/:customer_id/badges', authenticate, requireSelfOrAdmin('customer_id
  * @openapi
  * /customers/{customer_id}/favouriteRestaurants:
  *   get:
- *     summary: Gets all favourite restaurants for the customer
+ *     summary: Gets all favourite restaurants for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -5844,9 +6223,23 @@ router.get('/:customer_id/badges', authenticate, requireSelfOrAdmin('customer_id
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of favourite restaurants
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedRestaurants'
  *       404:
  *         description: Customer not found
  */
@@ -5857,7 +6250,7 @@ router.get('/:customer_id/favouriteRestaurants', authenticate, requireSelfOrAdmi
  * @openapi
  * /customers/{customer_id}/pointsWallet:
  *   get:
- *     summary: Gets all points wallet entries for the customer
+ *     summary: Gets all points wallet entries for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -5865,9 +6258,23 @@ router.get('/:customer_id/favouriteRestaurants', authenticate, requireSelfOrAdmi
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of points wallet entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedPointsWallet'
  *       404:
  *         description: Customer not found
  */
@@ -5878,7 +6285,7 @@ router.get('/:customer_id/pointsWallet', authenticate, requireSelfOrAdmin('custo
  * @openapi
  * /customers/{customer_id}/reviews:
  *   get:
- *     summary: Gets all reviews written by the customer
+ *     summary: Gets all reviews written by the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -5886,9 +6293,23 @@ router.get('/:customer_id/pointsWallet', authenticate, requireSelfOrAdmin('custo
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of reviews
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedReviews'
  *       404:
  *         description: Customer not found
  */
@@ -5899,7 +6320,7 @@ router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_i
  * @openapi
  * /customers/{customer_id}/visits:
  *   get:
- *     summary: Gets all visits for the customer
+ *     summary: Gets all visits for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -5907,9 +6328,23 @@ router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_i
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of visits
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedVisits'
  *       404:
  *         description: Customer not found
  */
@@ -5919,7 +6354,7 @@ router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id
  * @openapi
  * /customers/{customer_id}/visits/deleted:
  *   get:
- *     summary: Gets all visits for the customer
+ *     summary: Gets all visits for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -5927,9 +6362,23 @@ router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of visits
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedVisits'
  *       404:
  *         description: Customer not found
  */
@@ -6127,6 +6576,25 @@ const router = express.Router();
  *             updatedAt:
  *               type: string
  *               format: date-time
+ * 
+ *     PaginatedDishes:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DishResponse'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  *
  *     Error:
  *       type: object
@@ -6219,7 +6687,7 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
  * @openapi
  * /dishes:
  *   get:
- *     summary: List all dishes
+ *     summary: List all dishes (paginated)
  *     description: Returns all dishes across all restaurants. Supports optional query filters.
  *     tags: [Dishes]
  *     parameters:
@@ -6246,26 +6714,24 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
  *           enum: [breakfast, brunch, lunch, happy-hour, dinner, all-day]
  *         description: Filter by service period
  *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *         description: Max number of results to return
- *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
  *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Max number of results to return
  *     responses:
  *       200:
  *         description: List of dishes
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishResponse'
+ *               $ref: '#/components/schemas/PaginatedDishes'
  */
 router.get('/', controller.readAll);
 
@@ -6273,33 +6739,31 @@ router.get('/', controller.readAll);
  * @openapi
  * /dishes/deleted:
  *   get:
- *     summary: List all deleted dishes
+ *     summary: List all deleted dishes (paginated)
  *     description: Returns all deleted dishes across all restaurants.
  *     tags: [Dishes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *         description: Max number of results to return
- *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
  *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Max number of results to return
  *     responses:
  *       200:
  *         description: List of deleted dishes
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishResponse'
+ *               $ref: '#/components/schemas/PaginatedDishes'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
@@ -6630,6 +7094,25 @@ const router = express.Router();
  *         avgRating:
  *           type: number
  *           example: 7.8
+ *
+ *     PaginatedDishRatings:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DishRating'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 // ─── POST /dish-ratings ───────────────────────────────────────────────────────
@@ -6682,7 +7165,7 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  * @openapi
  * /dish-ratings/dish/{dish_id}:
  *   get:
- *     summary: List all ratings for a dish
+ *     summary: List all ratings for a dish (paginated)
  *     tags: [DishRatings]
  *     parameters:
  *       - in: path
@@ -6690,15 +7173,25 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of ratings
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishRating'
+ *               $ref: '#/components/schemas/PaginatedDishRatings'
  */
 router.get('/dish/:dish_id', controller.readByDish);
 
@@ -6732,7 +7225,7 @@ router.get('/dish/:dish_id/summary', controller.getRatingSummary);
  * @openapi
  * /dish-ratings/customer/{customer_id}:
  *   get:
- *     summary: List all ratings for a customer (self or admin)
+ *     summary: List all ratings for a customer (self or admin, paginated)
  *     tags: [DishRatings]
  *     security:
  *       - bearerAuth: []
@@ -6742,15 +7235,25 @@ router.get('/dish/:dish_id/summary', controller.getRatingSummary);
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of ratings
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DishRating'
+ *               $ref: '#/components/schemas/PaginatedDishRatings'
  *       401:
  *         description: Authentication required
  *       403:
@@ -6875,6 +7378,25 @@ const router = express.Router();
  *         isActive:
  *           type: boolean
  *           example: true
+ * 
+ *     PaginatedEmployees:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Employee'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -6901,11 +7423,28 @@ router.post('/', ValidateJoi(Schemas.employee.create), controller.createEmployee
  * @openapi
  * /employees:
  *   get:
- *     summary: Lists all employees
+ *     summary: Lists all employees (paginated)
  *     tags: [Employees]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedEmployees'
  */
 router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), controller.readAll);
 
@@ -6913,11 +7452,28 @@ router.get('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAc
  * @openapi
  * /employees/deleted:
  *   get:
- *     summary: List all deleted employees
+ *     summary: List all deleted employees (paginated)
  *     tags: [Employees]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedEmployees'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
@@ -7038,7 +7594,12 @@ router.delete('/:employee_id/soft', authenticate, requireRole('owner', 'admin'),
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/components/parameters/employee_id'
+ *       - in: path
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The employee's ObjectId
  *     responses:
  *       200:
  *         description: Employee restored successfully
@@ -7079,7 +7640,12 @@ router.patch('/:employee_id/restore', authenticate, requireRole('admin'), contro
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/components/parameters/employee_id'
+ *       - in: path
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The employee's ObjectId
  *     responses:
  *       200:
  *         description: Employee permanently deleted successfully
@@ -7120,7 +7686,7 @@ export default router;
 import express from 'express';
 import controller from '../controllers/pointsWallet';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireRestaurantAccess, requireSelfOrAdmin} from '../middleware/auth';
+import { authenticate, requireRole, requireRestaurantAccess } from '../middleware/auth';
 
 
 const router = express.Router();
@@ -7170,6 +7736,25 @@ const router = express.Router();
  *           minimum: 0
  *           default: 0
  *           example: 150
+ * 
+ *     PaginatedPointsWallets:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/PointsWallet'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -7196,11 +7781,28 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  * @openapi
  * /pointsWallets:
  *   get:
- *     summary: Lists all points wallets
+ *     summary: Lists all points wallets (paginated)
  *     tags: [PointsWallets]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedPointsWallets'
  */
 router.get('/', authenticate, requireRole('admin'),controller.readAll);
 
@@ -7444,6 +8046,44 @@ const router = express.Router();
  *         updatedAt:
  *           type: string
  *           format: date-time
+ * 
+ *     PaginatedRestaurants:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Restaurant'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
+ * 
+ *     PaginatedCustomers:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             type: object
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: integer
+ *             page:
+ *               type: integer
+ *             limit:
+ *               type: integer
+ *             totalPages:
+ *               type: integer
  */
 
 /**
@@ -7504,17 +8144,26 @@ router.post('/', ValidateJoi(Schemas.restaurant.create), controller.createRestau
  * @openapi
  * /restaurants:
  *   get:
- *     summary: Lists all restaurants
+ *     summary: Lists all restaurants (paginated)
  *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Restaurant'
+ *               $ref: '#/components/schemas/PaginatedRestaurants'
  */
 router.get('/', controller.readAll);
 
@@ -7522,17 +8171,26 @@ router.get('/', controller.readAll);
  * @openapi
  * /restaurants/deleted:
  *   get:
- *     summary: Lists all deleted restaurants
+ *     summary: Lists all deleted restaurants (paginated)
  *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Restaurant'
+ *               $ref: '#/components/schemas/PaginatedRestaurants'
  */
 router.get('/deleted', authenticate, requireRole('admin'),controller.readAllDeleted);
 
@@ -7616,48 +8274,6 @@ router.get('/deleted', authenticate, requireRole('admin'),controller.readAllDele
  *         description: Internal server error
  */
 router.get('/filter', controller.getFiltered);
-
-
-// /**
-//  * @openapi
-//  * /restaurants/nearby:
-//  *   get:
-//  *     summary: Gets restaurants near a location (geospatial query)
-//  *     tags: [Restaurants]
-//  *     parameters:
-//  *       - in: query
-//  *         name: lng
-//  *         required: true
-//  *         schema:
-//  *           type: number
-//  *         description: Longitude
-//  *         example: 2.1734
-//  *       - in: query
-//  *         name: lat
-//  *         required: true
-//  *         schema:
-//  *           type: number
-//  *         description: Latitude
-//  *         example: 41.3851
-//  *       - in: query
-//  *         name: maxDistance
-//  *         schema:
-//  *           type: number
-//  *         description: Max distance in meters (default 5000)
-//  *         example: 2000
-//  *     responses:
-//  *       200:
-//  *         description: List of nearby restaurants
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: array
-//  *               items:
-//  *                 $ref: '#/components/schemas/Restaurant'
-//  *       400:
-//  *         description: Missing or invalid coordinates
-//  */
-// router.get('/nearby', controller.getNearby);
 
 /**
  * @openapi
@@ -8385,6 +9001,74 @@ router.get('/:restaurantId/reviews/deleted', authenticate, requireRole('admin'),
 
 /**
  * @openapi
+ * /restaurants/{restaurantId}/customers:
+ *   get:
+ *     summary: Gets the customers of a restaurant (paginated)
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: List of customers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedCustomers'
+ *       404:
+ *         description: Restaurant not found
+ */
+router.get('/:restaurantId/customers', controller.getRestaurantCustomers);
+
+/**
+ * @openapi
+ * /restaurants/{restaurantId}/customers/deleted:
+ *   get:
+ *     summary: Gets the customers of a deleted restaurant (paginated)
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: List of customers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedCustomers'
+ *       404:
+ *         description: Restaurant not found
+ */
+router.get('/:restaurantId/customers/deleted', authenticate, requireRole('admin'), controller.getDeletedRestaurantCustomers);
+
+/**
+ * @openapi
  * /restaurants/{restaurantId}/top-dish:
  *   get:
  *     summary: Gets the top-rated dish for a restaurant
@@ -8521,6 +9205,17 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  *   get:
  *     summary: Lists all reviews
  *     tags: [Reviews]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of reviews
@@ -8538,6 +9233,17 @@ router.get(
  *   get:
  *     summary: Lists all deleted reviews
  *     tags: [Reviews]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of deleted reviews
@@ -8565,6 +9271,16 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of reviews
@@ -8587,6 +9303,16 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of deleted reviews
@@ -8618,12 +9344,14 @@ router.get(
  *         name: limit
  *         schema:
  *           type: integer
+ *           default: 5
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
+ *           default: 0
  *       - in: query
- *         name: minglobalRating
+ *         name: minGlobalRating
  *         schema:
  *           type: number
  *       - in: query
@@ -8657,12 +9385,14 @@ router.get(
  *         name: limit
  *         schema:
  *           type: integer
+ *           default: 5
  *       - in: query
- *         name: skip
+ *         name: page
  *         schema:
  *           type: integer
+ *           default: 0
  *       - in: query
- *         name: minglobalRating
+ *         name: minGlobalRating
  *         schema:
  *           type: number
  *       - in: query
@@ -8955,6 +9685,17 @@ router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantA
  *   get:
  *     summary: Lists all rewards
  *     tags: [Rewards]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
@@ -8967,6 +9708,17 @@ router.get('/', controller.readAll);
  *   get:
  *     summary: Lists all deleted rewards
  *     tags: [Rewards]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
@@ -9117,7 +9869,7 @@ export default router;
 import express from 'express';
 import controller from '../controllers/rewardRedemption';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRestaurantAccess, requireRole } from '../middleware/auth';
+import { authenticate, requireRestaurantAccess, requireRole, requireSelfOrAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -9284,47 +10036,22 @@ router.get(
  * @openapi
  * /rewardRedemptions:
  *   get:
- *     summary: Lists reward redemptions with optional filters
+ *     summary: Lists reward redemptions with pagination
  *     tags: [RewardRedemptions]
  *     parameters:
  *       - in: query
- *         name: status
- *         required: false
+ *         name: page
  *         schema:
- *           type: string
- *           enum: [pending, approved, redeemed, cancelled, expired]
- *         description: Filter redemptions by status
- *         example: pending
+ *           type: integer
+ *           default: 1
  *       - in: query
- *         name: restaurant_id
- *         required: false
+ *         name: limit
  *         schema:
- *           type: string
- *         description: Filter redemptions by restaurant ObjectId
- *         example: "65f1c2a1b2c3d4e5f6789000"
- *       - in: query
- *         name: customer_id
- *         required: false
- *         schema:
- *           type: string
- *         description: Filter redemptions by customer ObjectId
- *         example: "65f1c2a1b2c3d4e5f6789001"
- *       - in: query
- *         name: reward_id
- *         required: false
- *         schema:
- *           type: string
- *         description: Filter redemptions by reward ObjectId
- *         example: "65f1c2a1b2c3d4e5f6789002"
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/RewardRedemption'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -9335,9 +10062,140 @@ router.get(
 router.get(
   '/',
   authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  ValidateJoi(Schemas.rewardRedemption.listQuery, 'query'),
+  requireRole('admin'),
   controller.readAll
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/customer/{customer_id}:
+ *   get:
+ *     summary: Get reward redemptions by customer
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/customer/:customer_id',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  controller.readByCustomer
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Get reward redemptions by restaurant
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/restaurant/:restaurant_id',
+  authenticate,
+  requireRestaurantAccess('restaurant_id'),
+  controller.readByRestaurant
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/employee/{employee_id}:
+ *   get:
+ *     summary: Get reward redemptions by employee
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/employee/:employee_id',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.readByEmployee
+);
+
+/**
+ * @openapi
+ * /rewardRedemptions/reward/{reward_id}:
+ *   get:
+ *     summary: Get reward redemptions by reward
+ *     tags: [RewardRedemptions]
+ *     parameters:
+ *       - in: path
+ *         name: reward_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get(
+  '/reward/:reward_id',
+  authenticate,
+  requireRole('admin', 'owner', 'staff'),
+  controller.readByReward
 );
 
 /**
@@ -9560,13 +10418,45 @@ router.post('/', authenticate, requireRole('admin'), ValidateJoi(Schemas.statist
  * @openapi
  * /statistics:
  *   get:
- *     summary: Lists all statistics records
+ *     summary: Lists all statistics records with pagination
  *     tags: [Statistics]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
  */
 router.get('/', authenticate, requireRole('admin'), controller.readAll);
+
+/**
+ * @openapi
+ * /statistics/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Gets statistics record by restaurant ID
+ *     tags: [Statistics]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant's ObjectId
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Not found
+ */
+router.get('/restaurant/:restaurant_id', authenticate, requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
 
 /**
  * @openapi
@@ -9736,12 +10626,6 @@ const router = express.Router();
  *     responses:
  *       201:
  *         description: Created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
- *       422:
- *         description: Validation failed (Joi)
  */
 router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.visit.create), controller.createVisit);
 
@@ -9749,59 +10633,103 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  * @openapi
  * /visits:
  *   get:
- *     summary: Lists all visits
+ *     summary: Lists all visits with pagination
  *     tags: [Visits]
  *     parameters:
  *       - in: query
- *         name: customer_id
+ *         name: page
  *         schema:
- *           type: string
- *         description: Filter by customer ObjectId
+ *           type: integer
+ *           default: 1
  *       - in: query
- *         name: restaurant_id
+ *         name: limit
  *         schema:
- *           type: string
- *         description: Filter by restaurant ObjectId
+ *           type: integer
+ *           default: 5
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Visit'
  */
-router.get('/', controller.readAll);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
  * /visits/deleted:
  *   get:
- *     summary: Lists all deleted visits
+ *     summary: Lists all deleted visits with pagination
  *     tags: [Visits]
  *     parameters:
  *       - in: query
- *         name: customer_id
+ *         name: page
  *         schema:
- *           type: string
- *         description: Filter by customer ObjectId
+ *           type: integer
+ *           default: 1
  *       - in: query
- *         name: restaurant_id
+ *         name: limit
  *         schema:
- *           type: string
- *         description: Filter by restaurant ObjectId
+ *           type: integer
+ *           default: 5
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Visit'
  */
 router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+
+/**
+ * @openapi
+ * /visits/customer/{customer_id}:
+ *   get:
+ *     summary: Lists all visits for a specific customer
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readByCustomer);
+
+/**
+ * @openapi
+ * /visits/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Lists all visits for a specific restaurant
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/restaurant/:restaurant_id', authenticate, requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
 
 /**
  * @openapi
@@ -9819,10 +10747,6 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
  *       404:
  *         description: Visit not found
  */
@@ -9851,56 +10775,6 @@ router.get('/:visit_id/deleted', authenticate, requireRole('admin'), controller.
 
 /**
  * @openapi
- * /visits/{visit_id}/full:
- *   get:
- *     summary: Gets a visit with all populated fields (customer, restaurant)
- *     tags: [Visits]
- *     parameters:
- *       - in: path
- *         name: visit_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The visit's ObjectId
- *     responses:
- *       200:
- *         description: Visit with populated relations
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
- *       404:
- *         description: Visit not found
- */
-router.get('/:visit_id/full', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.getVisitFull);
-
-/**
- * @openapi
- * /visits/{visit_id}/full/deleted:
- *   get:
- *     summary: Gets a deleted visit with all populated fields (customer, restaurant)
- *     tags: [Visits]
- *     parameters:
- *       - in: path
- *         name: visit_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The visit's ObjectId
- *     responses:
- *       200:
- *         description: Visit with populated relations
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
- *       404:
- *         description: Visit not found
- */
-router.get('/:visit_id/full/deleted', authenticate, requireRole('admin'), controller.getDeletedVisitFull);
-
-/**
- * @openapi
  * /visits/{visit_id}:
  *   put:
  *     summary: Updates a visit by ID
@@ -9921,10 +10795,6 @@ router.get('/:visit_id/full/deleted', authenticate, requireRole('admin'), contro
  *     responses:
  *       200:
  *         description: Updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Visit'
  *       404:
  *         description: Visit not found
  *       422:
@@ -10055,7 +10925,13 @@ const StartServer = () => {
     router.use(cors());
 
     /** Swagger — public */
-    router.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    router.use('/api', swaggerUi.serve,
+        swaggerUi.setup(swaggerSpec, {
+            swaggerOptions: {
+                persistAuthorization: true
+            }
+        })
+    );
 
     /** Public Routes */
     router.use('/auth', authRoutes);
@@ -10176,12 +11052,20 @@ const getDeletedBadge = async (badge_id: string) => {
     return await BadgeModel.findOne({ _id: badge_id, deletedAt: { $ne: null } });
 };
 
-const getAllBadges = async (): Promise<IBadge[]> => {
-    return await BadgeModel.find()
+const getAllBadges = async (skip: number, limit: number): Promise<{ badges: IBadge[], total: number}> => {
+    const [badges, total] = await Promise.all([
+        BadgeModel.find({ deletedAt: null }).skip(skip).limit(limit), 
+        BadgeModel.countDocuments({ deletedAt: null })
+    ]);
+    return { badges, total };
 };
 
-const getAllDeletedBadges = async (): Promise<IBadge[]> => {
-    return await BadgeModel.find({ deletedAt: { $ne: null } });
+const getAllDeletedBadges = async (skip: number, limit: number): Promise<{ badges: IBadge[], total: number}> => {
+    const [badges, total] = await Promise.all([
+        BadgeModel.find({ deletedAt: { $ne: null } }).skip(skip).limit(limit),
+        BadgeModel.countDocuments({ deletedAt: { $ne: null } })
+    ]);
+    return { badges, total };
 };
 
 const updateBadge = async (badge_id: string, data: Partial<IBadge>) => {
@@ -10229,22 +11113,9 @@ import { CustomerModel, ICustomer } from '../models/customer';
 import { softDeleteDocument, restoreDocument } from '../utils/softDelete';
 import { PointsWalletModel, IPointsWallet } from '../models/pointsWallet';
 import { VisitModel, IVisit } from '../models/visit';
-import { RestaurantModel } from '../models/restaurant';
+import { RestaurantModel, IRestaurant } from '../models/restaurant';
 import { BadgeModel, IBadge } from '../models/badge';
 import { ReviewModel, IReview } from '../models/review';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface PaginationOptions {
-    page?: number;   // 1-based, default 1
-    limit?: number;   // default 20
-}
-
-export interface PaginatedResult<T> {
-    data: T[]; total: number;
-    page: number;
-    totalPages: number;
-}
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
@@ -10304,189 +11175,137 @@ const getDeletedCustomerFull = async (customer_id: string) => {
 
 // ─── Get all points wallets for a customer ────────────────────────────────────
 
-const getCustomerAllPointsWallet = async (customer_id: string): Promise<IPointsWallet[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
+const getCustomerAllPointsWallet = async (customer_id: string, skip: number, limit: number): Promise<{ pointsWallet: IPointsWallet[], total: number }> => {
+    const filter = { customer_id: customer_id };
+    const [pointsWallet, total] = await Promise.all([
+        PointsWalletModel.find(filter)
+            .populate('restaurant_id', 'profile.name profile.location')
+            .skip(skip)
+            .limit(limit)
+            .lean<IPointsWallet[]>(),
+        PointsWalletModel.countDocuments(filter)
+    ]);
 
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id).active();
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all points wallets for this customer
-        return await PointsWalletModel.find({ customer_id: customer_id }).populate('restaurant_id', 'profile.name profile.location')
-            .lean();
-    }
-    catch (error) {
-        console.error(`Error fetching points wallets for customer ${customer_id}:`, error);
-        return [];
-    }
+    return { pointsWallet, total };
 };
 
 // ─── Get all visits for a customer ────────────────────────────────────────────
 
-const getCustomerAllVisits = async (customer_id: string): Promise<IVisit[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
-
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id).active();
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all visits for this customer, excluding soft-deleted ones
-        return await VisitModel.find({
-            customer_id: customer_id,
-            deletedAt: null,
-        })
+const getCustomerAllVisits = async (customer_id: string, skip: number, limit: number): Promise<{ visits: IVisit[], total: number }> => {
+    const filter = { customer_id: customer_id, deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter)
             .populate('restaurant_id', 'profile.name profile.rating profile.location.city')
-            .sort({ createdAt: -1 })  // Most recent first
-            .lean();
-    } catch (error) {
-        console.error(`Error fetching visits for customer ${customer_id}:`, error);
-        return [];
-    }
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
-const getCustomerAllDeletedVisits = async (customer_id: string): Promise<IVisit[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
-
-    try {
-        const customer = await CustomerModel.findOne({ _id: customer_id, deletedAt: { $ne: null } });
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all visits for this customer
-        return await VisitModel.findById(customer_id)
+const getCustomerAllDeletedVisits = async (customer_id: string, skip: number, limit: number): Promise<{ visits: IVisit[], total: number }> => {
+    const filter = { customer_id: customer_id, deletedAt: { $ne: null } };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter)
             .populate('restaurant_id', 'profile.name profile.rating profile.location.city')
-            .sort({ createdAt: -1 })  // Most recent first
-            .lean();
-    } catch (error) {
-        console.error(`Error fetching visits for customer ${customer_id}:`, error);
-        return [];
-    }
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
 // ─── Get all favourite restaurants for a customer ────────────────────────────
 
-const getCustomerAllFavouriteRestaurants = async (customer_id: string) => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
+const getCustomerAllFavouriteRestaurants = async ( customer_id: string, skip: number, limit: number ): Promise<{ favoriteRestaurants: IRestaurant[]; total: number }> => {
+    const customer = await CustomerModel.findById(customer_id).active().select('favoriteRestaurants').lean();
+
+    if (!customer || !customer.favoriteRestaurants || customer.favoriteRestaurants.length === 0) {
+        return { favoriteRestaurants: [], total: 0 };
     }
 
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id)
-            .active()
-            .populate({
-                path: 'favoriteRestaurants',
-                select: 'profile.name profile.description profile.globalRating profile.category profile.image profile.location.city',
-                transform: (doc) => {
-                    if (doc && doc.profile && doc.profile.image && Array.isArray(doc.profile.image)) {
-                        doc.profile.image = doc.profile.image.slice(0, 3);
-                    }
-                    return doc;
-                }
-            });
+    const filter = { _id: { $in: customer.favoriteRestaurants }, deletedAt: null };
 
-        if (!customer || !customer.favoriteRestaurants) {
-            return [];
+    const [restaurants, total] = await Promise.all([
+        RestaurantModel.find(filter)
+            .select('profile.name profile.description profile.globalRating profile.category profile.image profile.location.city')
+            .skip(skip)
+            .limit(limit)
+            .lean<IRestaurant[]>(),
+        RestaurantModel.countDocuments(filter)
+    ]);
+
+    const favoriteRestaurants = restaurants.map((doc) => {
+        if (doc?.profile?.image && Array.isArray(doc.profile.image)) {
+            doc.profile.image = doc.profile.image.slice(0, 3);
         }
+        return doc;
+    });
 
-        return customer.favoriteRestaurants;
-    }
-    catch (error) {
-        console.error(`Error fetching favourite restaurants for customer ${customer_id}:`, error);
-        return [];
-    }
+    return { favoriteRestaurants, total };
 };
 
 // ─── Get all badges earned by a customer ──────────────────────────────────────
 
-const getCustomerAllBadges = async (customer_id: string): Promise<IBadge[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
+const getCustomerAllBadges = async (customer_id: string, skip: number, limit: number): Promise<{ badges: IBadge[], total: number }> => {
+    const customer = await CustomerModel.findById(customer_id).active().select('badges').lean();
+
+    if (!customer || !customer.badges || customer.badges.length === 0) {
+        return { badges: [], total: 0 };
     }
 
-    try {
-        // Fetch customer with populated badges
-        const customer = await CustomerModel.findById(customer_id)
-            .active()
-            .populate<{ badges: IBadge[] }>({
-                path: 'badges',
-                select: 'title description type',
-            })
-            .lean();
+    const filter = { _id: { $in: customer.badges }, deletedAt: null };
 
-        if (!customer || !customer.badges) {
-            return [];
-        }
+    const [badges, total] = await Promise.all([
+        BadgeModel.find(filter)
+            .select('title description type')
+            .skip(skip)
+            .limit(limit)
+            .lean<IBadge[]>(),
+        BadgeModel.countDocuments(filter)
+    ]);
 
-        return customer.badges;
-    } catch (error) {
-        console.error(`Error fetching badges for customer ${customer_id}:`, error);
-        return [];
-    }
+    return { badges, total };
 };
 
 // ─── Get all reviews written by a customer ────────────────────────────────────
 
-const getCustomerAllReviews = async (customer_id: string): Promise<IReview[]> => {
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
-
-    try {
-        // Check if customer exists and is active
-        const customer = await CustomerModel.findById(customer_id).active();
-        if (!customer) {
-            return [];
-        }
-
-        // Fetch all reviews by this customer, excluding soft-deleted ones
-        return await ReviewModel.find({
-            customer_id: customer_id,
-            deletedAt: null,
-            deleted: { $ne: true },
-        })
+const getCustomerAllReviews = async (customer_id: string, skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const filter = { customer_id: customer_id, deletedAt: null, deleted: { $ne: true } };
+    const [reviews, total] = await Promise.all([
+        ReviewModel.find(filter)
             .populate('restaurant_id', 'profile.name profile.rating')
-            .sort({ createdAt: -1 })  // Most recent first
-            .lean();
-    } catch (error) {
-        console.error(`Error fetching reviews for customer ${customer_id}:`, error);
-        return [];
-    }
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IReview[]>(),
+        ReviewModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
-// ─── Read (paginated list — active only) ──────────────────────────────────────
+// ─── Read (paginated list) ────────────────────────────────────────────────────
 
-const getAllCustomers = async ({ page = 1, limit = 20 }: PaginationOptions = {}): Promise<PaginatedResult<ICustomer>> => {
-    const skip = (page - 1) * limit;
+const getAllCustomers = async (skip: number, limit: number): Promise<{ data: ICustomer[], total: number }> => {
     const filter = { deletedAt: null };
-    const [data, total] = await Promise.all([CustomerModel.find(filter).skip(skip).limit(limit).lean(), CustomerModel.countDocuments(filter)]);
-    return { data, total, page, totalPages: Math.ceil(total / limit) };
+    const [data, total] = await Promise.all([
+        CustomerModel.find(filter).skip(skip).limit(limit).lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+    return { data, total };
 };
 
-const getAllDeletedCustomers = async ({ page = 1, limit = 20 }: PaginationOptions = {}): Promise<PaginatedResult<ICustomer>> => {
-    const skip = (page - 1) * limit;
+const getAllDeletedCustomers = async (skip: number, limit: number): Promise<{ data: ICustomer[], total: number }> => {
     const filter = { deletedAt: { $ne: null } };
-    const [data, total] = await Promise.all([CustomerModel.find(filter).skip(skip).limit(limit).lean(), CustomerModel.countDocuments(filter)]);
-    return { data, total, page, totalPages: Math.ceil(total / limit) };
+    const [data, total] = await Promise.all([
+        CustomerModel.find(filter).skip(skip).limit(limit).lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+    return { data, total };
 };
 
 // ─── Update ───────────────────────────────────────────────────────────────────
@@ -10510,7 +11329,7 @@ const restoreCustomer = async (customer_id: string) => {
     return restoreDocument(CustomerModel, customer_id);
 };
 
-// ─── Hard Delete ─────────────────────────────────────────────────────────────
+// ─── Hard Delete (admin only) ─────────────────────────────────────────────────
 
 const hardDeleteCustomer = async (customer_id: string) => {
     return CustomerModel.findByIdAndDelete(customer_id);
@@ -10535,6 +11354,7 @@ export default {
     restoreCustomer,
     hardDeleteCustomer,
 };
+
 
 
 
@@ -10569,12 +11389,20 @@ const getDeletedDish = async (dish_id: string) => {
     return await DishModel.findOne({ _id: dish_id, active: false }).lean();
 };
 
-const getAllDishes = async (): Promise<IDish[]> => {
-    return await DishModel.find();
+const getAllDishes = async (skip: number, limit: number): Promise<{ dishes: IDish[], total: number }> => {
+    const [dishes, total] = await Promise.all([
+        DishModel.find({ active: true }).lean().skip(skip).limit(limit),
+        DishModel.countDocuments({ active: true })
+    ]);
+    return { dishes, total };
 };
 
-const getAllDeletedDishes = async (): Promise<IDish[]> => {
-    return await DishModel.find({ active: false }).lean();
+const getAllDeletedDishes = async (skip: number, limit: number): Promise<{ dishes: IDish[], total: number }> => {
+    const [dishes, total] = await Promise.all([
+        DishModel.find({ active: false }).lean().skip(skip).limit(limit),
+        DishModel.countDocuments({ active: false })
+    ]);
+    return { dishes, total };
 };
 
 const updateDish = async (dish_id: string, data: Partial<IDish>) => {
@@ -10628,8 +11456,6 @@ export default {
 import mongoose, { PipelineStage } from 'mongoose';
 import { DishRatingModel, IDishRating } from '../models/dishRating';
 import { DishModel } from '../models/dish';
-import { CustomerModel } from '../models/customer';
-import { PointsWalletModel } from '../models/pointsWallet';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -10649,14 +11475,6 @@ export interface RateResult {
  * Returns null when the dish is not found or is inactive.
  */
 const rateOrUpdateDish = async ( customer_id: string, dish_id: string, rating: number ): Promise<RateResult | null> => {
-    if (
-        !mongoose.Types.ObjectId.isValid(customer_id) ||
-        !mongoose.Types.ObjectId.isValid(dish_id)
-    )
-    {
-        return null;
-    }
-    // Validate dish exists and is active
     const dish = await DishModel.findOne({ _id: dish_id, active: true });
     if (!dish) return null;
 
@@ -10688,29 +11506,31 @@ const rateOrUpdateDish = async ( customer_id: string, dish_id: string, rating: n
 
 // ─── Read ratings for a dish ─────────────────────────────────────────────────
 
-const getRatingsByDish = async (dish_id: string): Promise<any[]> => {
-    if (!mongoose.Types.ObjectId.isValid(dish_id)) {
-        return [];
-    }
-
-    const dishRatings = await DishRatingModel.find({ dish_id: dish_id });
-    return dishRatings;
+const getRatingsByDish = async (dish_id: string, skip: number, limit: number): Promise<{ dishRatings: IDishRating[], total: number }> => {
+    const [ dishRatings, total ]= await Promise.all([
+        DishRatingModel.find({ dish_id: dish_id }).skip(skip).limit(limit).lean(),
+        DishRatingModel.countDocuments({ dish_id: dish_id })
+    ]);
+    return { dishRatings, total };
 };
 
 // ─── Read ratings for a customer ─────────────────────────────────────────────
 
-const getRatingsByCustomer = async ( customer_id: string ): Promise<any[]> => {
-    if (!mongoose.Types.ObjectId.isValid(customer_id)) {
-        return [];
-    }
+const getRatingsByCustomer = async ( customer_id: string, skip: number, limit: number ): Promise<{ dishRatings: IDishRating[], total: number}> => {
 
     const filter = { customer_id: new mongoose.Types.ObjectId(customer_id), deletedAt: null };
+    const [ dishRatings, total ] = await Promise.all([
+        DishRatingModel.find(filter)
+            .sort({ createdAt: -1 })
+            .populate('dish_id', 'name section price')
+            .lean()
+            .skip(skip)
+            .limit(limit),
+        DishRatingModel.countDocuments(filter)
+    ]);
 
-    return DishRatingModel.find(filter)
-        .sort({ createdAt: -1 })
-        .populate('dish_id', 'name section price')
-        .lean();
-};
+    return { dishRatings, total };
+}
 
 // ─── Soft Delete ──────────────────────────────────────────────────────────────
 
@@ -10735,10 +11555,6 @@ const softDeleteRating = async ( rating_id: string, customer_id?: string ): Prom
 // ─── Rating summary (aggregation) ────────────────────────────────────────────
 
 const getDishRatingSummary = async (dish_id: string): Promise<RateSummary> => {
-    if (!mongoose.Types.ObjectId.isValid(dish_id)) {
-        return { avgRating: 0 };
-    }
-
     const pipeline: PipelineStage[] = [
         { $match: { dish_id: new mongoose.Types.ObjectId(dish_id), deletedAt: null } },
         {
@@ -10750,10 +11566,6 @@ const getDishRatingSummary = async (dish_id: string): Promise<RateSummary> => {
     ];
 
     const [result] = await DishRatingModel.aggregate(pipeline);
-
-    if (!result) {
-        return { avgRating: 0 };
-    }
 
     return {
         avgRating: Math.round(result.avgRating * 10) / 10,
@@ -10804,13 +11616,21 @@ const getDeletedEmployee = async (employee_id: string) => {
     return await EmployeeModel.findOne({ _id: employee_id, isActive: false }).lean();
 };
 
-const getAllEmployees = async (): Promise<IEmployee[]> => {
-    return await EmployeeModel.find();
+const getAllEmployees = async (skip: number, limit: number): Promise<{ employees: IEmployee[], total: number }> => {
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find({ isActive: true }).lean().skip(skip).limit(limit),
+        EmployeeModel.countDocuments({ isActive: true })
+    ]);
+    return { employees, total };
 };
 
-const getAllDeletedEmployees = async (): Promise<IEmployee[]> => {
-    return await EmployeeModel.find({ isActive: false }).lean();
-};
+const getAllDeletedEmployees = async (skip: number, limit: number): Promise<{ employees: IEmployee[], total: number }> => {
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find({ isActive: false }).lean().skip(skip).limit(limit),
+        EmployeeModel.countDocuments({ isActive: false })
+    ]);
+    return { employees, total };
+}
 
 const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => {
     const employee = await EmployeeModel.findById(employee_id);
@@ -10885,9 +11705,13 @@ const getPointsWallet = async (walletId: string) => {
     return await PointsWalletModel.findById(walletId);
 };
 
-const getAllPointsWallets = async (): Promise<IPointsWallet[]> => {
-    return await PointsWalletModel.find();
-};
+const getAllPointsWallets = async (skip: number, limit: number): Promise<{ wallets:IPointsWallet[], total: number }> => {
+    const [wallets, total] = await Promise.all([
+        PointsWalletModel.find().lean().skip(skip).limit(limit),
+        PointsWalletModel.countDocuments()
+    ]);
+    return { wallets, total };
+}
 
 const updatePointsWallet = async (walletId: string, data: Partial<IPointsWallet>) => {
     const wallet = await PointsWalletModel.findById(walletId);
@@ -10921,9 +11745,15 @@ export default { createPointsWallet, getPointsWallet, getAllPointsWallets, updat
 
 import mongoose, { PipelineStage } from 'mongoose';
 import { RestaurantModel, IRestaurant } from '../models/restaurant';
-import { DishRatingModel }              from '../models/dishRating';
-import { IDish }                        from '../models/dish';
-
+import { DishRatingModel, IDishRating }              from '../models/dishRating';
+import { CustomerModel, ICustomer } from '../models/customer';
+import { BadgeModel, IBadge } from '../models/badge';
+import { DishModel, IDish } from '../models/dish';
+import { EmployeeModel, IEmployee } from '../models/employee';
+import {  RewardModel, IReward } from '../models/reward';
+import { ReviewModel, IReview } from '../models/review';
+import { StatisticsModel, IStatistics } from '../models/statistics';
+import { VisitModel, IVisit } from '../models/visit';
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
 // ─────────────────────────────────────────────────────────────────────────────
@@ -10937,34 +11767,66 @@ const getRestaurant = async (restaurant_id: string): Promise<IRestaurant | null>
     const restaurant = await RestaurantModel
         .findById(restaurant_id)
         .active()
-        .select('profile rewards badges')
-        .populate('rewards', 'name description pointsRequired active expiry')
-        .populate('badges', 'title description')
+        .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
         .lean<IRestaurant>();
-    return restaurant;
-        
+
+    if (!restaurant) return null;
+
+    return {
+        ...restaurant,
+        profile: {
+            ...restaurant.profile,
+            image: restaurant.profile.image?.slice(0, 3)
+        }
+    };
 };
 
 const getDeletedRestaurant = async (restaurantId: string): Promise<IRestaurant | null> => {
     return RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } }).lean();
 };
 
-const getAllRestaurants = async (): Promise<IRestaurant[]> => {
-    const restaurants = await RestaurantModel
-        .find()
-        .active()
-        .sort({ 'profile.globalRating': -1 })
-        .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
-        .lean<IRestaurant[]>();
+const getAllRestaurants = async (skip: number, limit: number): Promise<{ restaurants: IRestaurant[]; total: number }> => {
+    const [restaurants, total] = await Promise.all([
+        RestaurantModel.find()
+            .active()
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .skip(skip)
+            .limit(limit)
+            .lean<IRestaurant[]>(),
+        RestaurantModel.countDocuments({ deletedAt: null })
+    ]);
 
-    return restaurants.map((r: IRestaurant) => ({
+    const formattedRestaurants = restaurants.map((r) => ({
         ...r,
-        profile: { ...r.profile, image: r.profile.image?.slice(0, 3) }
+        profile: {
+            ...r.profile,
+            image: r.profile.image?.slice(0, 3)
+        }
     }));
+
+    return { restaurants: formattedRestaurants, total };
 };
 
-const getAllDeletedRestaurants = async (): Promise<IRestaurant[]> => {
-    return RestaurantModel.find({ deletedAt: { $ne: null } }).lean();
+const getAllDeletedRestaurants = async ( skip: number, limit: number ): Promise<{ restaurants: IRestaurant[]; total: number }> => {
+    const filter = { deletedAt: { $ne: null } };
+    const [restaurants, total] = await Promise.all([
+        RestaurantModel.find(filter)
+            .select('profile.name profile.globalRating profile.category profile.image profile.location.city')
+            .skip(skip)
+            .limit(limit)
+            .lean<IRestaurant[]>(),
+        RestaurantModel.countDocuments(filter)
+    ]);
+
+    const formattedRestaurants = restaurants.map((r) => ({
+        ...r,
+        profile: {
+            ...r.profile,
+            image: r.profile.image?.slice(0, 3)
+        }
+    }));
+
+    return { restaurants: formattedRestaurants, total };
 };
 
 const updateRestaurant = async ( restaurant_id: string, data: Partial<IRestaurant> ): Promise<IRestaurant | null> => {
@@ -11014,17 +11876,29 @@ const hardDeleteRestaurant = async (restaurant_id: string): Promise<IRestaurant 
 // Read variants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const getRestaurantWithCustomers = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id).active().populate({ path: 'visits', populate: { path: 'customer_id' } })
-        .lean();
+const getRestaurantCustomers = async (restaurant_id: string, skip: number, limit: number ): Promise<{ customers: ICustomer[]; total: number }> => {
+    const filter = { favoriteRestaurants: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [customers, total] = await Promise.all([
+        CustomerModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+    return { customers, total };
 };
 
-const getDeletedRestaurantWithCustomers = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .populate({ path: 'visits', populate: { path: 'customer_id' } })
-        .lean();
+const getDeletedRestaurantCustomers = async (restaurant_id: string, skip: number, limit: number): Promise<{ customers: ICustomer[]; total: number }> => {
+    const filter = { favoriteRestaurants: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [customers, total] = await Promise.all([
+        CustomerModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+
+    return { customers, total };
 };
 
 const getRestaurantFull = async (restaurant_id: string): Promise<IRestaurant | null> => {
@@ -11063,62 +11937,88 @@ const getNearby = async ( lng: number, lat: number,
                 } } }).lean();
 };
 
-const getBadges = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel.findById(restaurant_id)
-        .active().select('badges').populate('badges').lean<IRestaurant>();
+const getBadges = async (restaurant_id: string, skip: number, limit: number): Promise<{badges: IBadge[]; total: number}> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [badges, total] = await Promise.all([
+        BadgeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IBadge[]>(),
+        BadgeModel.countDocuments(filter)
+    ]);
+    return { badges, total };
 };
 
-const getDeletedRestaurantBadges = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('badges').populate('badges').lean<IRestaurant>();
+const getDeletedRestaurantBadges = async (restaurant_id: string, skip: number, limit: number): Promise<{badges: IBadge[]; total: number}> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [badges, total] = await Promise.all([
+        BadgeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IBadge[]>(),
+        BadgeModel.countDocuments(filter)
+    ]);
+    return { badges, total };
 };
 
-const getStatistics = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id).active().select('statistics').populate('statistics')
-        .lean<IRestaurant>();
+const getStatistics = async (restaurant_id: string): Promise<IStatistics> => {
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id) };
+    const stats = await StatisticsModel.findOne(filter).lean<IStatistics>();
+    return stats;
 };
 
-const getDeletedRestaurantStatistics = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('statistics')
-        .populate('statistics')
-        .lean<IRestaurant>();
+const getDeletedRestaurantStatistics = async (restaurant_id: string): Promise<IStatistics> => {
+    const filter = { restaurant_id: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const stats = await StatisticsModel.findOne(filter).select('statistics').populate('statistics').lean<IStatistics>();
+    return stats;
 };
 
-const getEmployees = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('employees')
-        .populate('employees')
-        .lean<IRestaurant>();
+const getEmployees = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IEmployee[]>(),
+        EmployeeModel.countDocuments(filter)
+    ]);
+    return { employees, total };
 };
 
-const getDeletedRestaurantEmployees = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('employees')
-        .populate('employees')
-        .lean<IRestaurant>();
+const getDeletedRestaurantEmployees = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [employees, total] = await Promise.all([
+        EmployeeModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IEmployee[]>(),
+        EmployeeModel.countDocuments(filter)
+    ]);
+    return { employees, total };
 };
 
-const getDishes = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('dishes')
-        .populate('dishes')
-        .lean<IRestaurant>();
+const getDishes = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [dishes, total] = await Promise.all([
+        DishModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IDish[]>(),
+        DishModel.countDocuments(filter)
+    ]);
+    return { dishes, total };
 };
 
-const getDeletedRestaurantDishes = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('dishes')
-        .populate('dishes')
-        .lean<IRestaurant>();
+const getDeletedRestaurantDishes = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [dishes, total] = await Promise.all([
+        DishModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<IDish[]>(),
+        DishModel.countDocuments(filter)
+    ]);
+    return { dishes, total };
 };
 
 const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | null> => {
@@ -11157,55 +12057,58 @@ const getTopDishByRestaurant = async (restaurantId: string): Promise<IDish | nul
     return topDish ?? null;
 };
 
-const getRewards = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('rewards')
-        .populate('rewards', 'name description pointsRequired active expiry')
-        .lean<IRestaurant>();
+const getRewards = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(filter).skip(skip).limit(limit).lean<IReward[]>(),
+        RewardModel.countDocuments(filter)
+        ]);
+    return { rewards, total };
 };
 
-const getDeletedRestaurantRewards = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('rewards')
-        .populate('rewards', 'name description pointsRequired active expiry')
-        .lean<IRestaurant>();
+const getDeletedRestaurantRewards = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(filter).skip(skip).limit(limit).lean<IReward[]>(),
+        RewardModel.countDocuments(filter)
+    ]);
+    return { rewards, total };
 };
 
-const getVisits = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('visits')
-        .populate('visits')
-        .lean<IRestaurant>();
+const getVisits = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
-const getDeletedRestaurantVisits = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('visits')
-        .populate('visits')
-        .lean<IRestaurant>();
+const getDeletedRestaurantVisits = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null } };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IVisit[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { visits, total };
 };
 
-const getReviews = async (restaurant_id: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findById(restaurant_id)
-        .active()
-        .select('reviews')
-        .populate('reviews')
-        .lean<IRestaurant>();
+const getReviews = async (restaurant_id: string, skip: number, limit: number): Promise<{ reviews: IReview[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: null };
+    const [reviews, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
-const getDeletedRestaurantReviews = async (restaurantId: string): Promise<IRestaurant | null> => {
-    return RestaurantModel
-        .findOne({ _id: restaurantId, deletedAt: { $ne: null } })
-        .select('reviews')
-        .populate('reviews')
-        .lean<IRestaurant>();
+const getDeletedRestaurantReviews = async (restaurant_id: string, skip: number, limit: number): Promise<{ reviews: IReview[]; total: number }> => {
+    const filter = { badges: new mongoose.Types.ObjectId(restaurant_id), deletedAt: { $ne: null} };
+    const [reviews, total] = await Promise.all([
+        VisitModel.find(filter).skip(skip).limit(limit).lean<IReview[]>(),
+        VisitModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -11288,9 +12191,7 @@ function buildOpenAtStages(date: Date): PipelineStage[] {
     ];
 }
 
-const getFilteredRestaurants = async (
-    params: RestaurantFilterParams
-): Promise<RestaurantWithDistance[]> => {
+const getFilteredRestaurants = async ( params: RestaurantFilterParams ): Promise<RestaurantWithDistance[]> => {
     const { lng, lat, radiusMeters = 5_000, categories, minGlobalRating, city, openNow, openAt } = params;
 
     const hasGeo = lng !== undefined && lat !== undefined && isFinite(lng) && isFinite(lat);
@@ -11346,8 +12247,8 @@ export default {
     softDeleteRestaurant,
     restoreRestaurant,
     hardDeleteRestaurant,
-    getRestaurantWithCustomers,
-    getDeletedRestaurantWithCustomers,
+    getRestaurantCustomers,
+    getDeletedRestaurantCustomers,
     getRestaurantFull,
     getDeletedRestaurantFull,
     getNearby,
@@ -11372,6 +12273,7 @@ export default {
 
 
 
+
 ==================== src\services\review.ts ====================
 
 import mongoose from 'mongoose';
@@ -11379,14 +12281,7 @@ import { ReviewModel, IReview } from '../models/review';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface ICustomerReviewListResponse {
-    data: IReview[];
-    total: number;
-}
-
 export interface ReviewListOptions {
-    limit?: number;
-    skip?: number;
     minGlobalRating?: number;
     sortByLikes?: boolean;
 }
@@ -11407,8 +12302,7 @@ const createReview = async (data: Partial<IReview>): Promise<IReview> => {
     return review.save();
 };
 
-const getReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const getReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOne({ _id: reviewId, ...ACTIVE_REVIEW_FILTER })
         .populate('customer_id', 'name profilePictures')
@@ -11416,8 +12310,7 @@ const getReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const getDeletedReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const getDeletedReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOne({ _id: reviewId, ...DELETED_REVIEW_FILTER })
         .populate('customer_id', 'name profilePictures')
@@ -11425,24 +12318,34 @@ const getDeletedReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const getAllReviews = async (): Promise<IReview[]> => {
-    return ReviewModel
-        .find(ACTIVE_REVIEW_FILTER)
+const getAllReviews = async (skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const [reviews, total] = await Promise.all([
+        ReviewModel.find(ACTIVE_REVIEW_FILTER)
         .populate('customer_id', 'name')
         .populate('restaurant_id', 'name')
-        .lean();
+            .skip(skip)
+            .limit(limit)
+        .lean(),
+        ReviewModel.countDocuments(ACTIVE_REVIEW_FILTER),
+    ]);
+    return { reviews, total };
 };
 
-const getAllDeletedReviews = async (): Promise<IReview[]> => {
-    return ReviewModel
+const getAllDeletedReviews = async (skip: number, limit: number): Promise<{ reviews: IReview[], total: number}> => {
+    const [reviews, total] = await Promise.all([
+    ReviewModel
         .find(DELETED_REVIEW_FILTER)
         .populate('customer_id', 'name')
         .populate('restaurant_id', 'name')
-        .lean();
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+        ReviewModel.countDocuments(DELETED_REVIEW_FILTER),
+    ]);
+    return { reviews, total };
 };
 
-const updateReview = async (reviewId: string, data: Partial<IReview>): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const updateReview = async (reviewId: string, data: Partial<IReview>): Promise<IReview> => {
     const { _id, customer_id, restaurant_id, ...safeData } = data;
     return ReviewModel
         .findOneAndUpdate(
@@ -11455,8 +12358,7 @@ const updateReview = async (reviewId: string, data: Partial<IReview>): Promise<I
 
 // ─── Delete / Restore ─────────────────────────────────────────────────────────
 
-const softDeleteReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const softDeleteReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOneAndUpdate(
             { _id: reviewId, ...ACTIVE_REVIEW_FILTER },
@@ -11466,8 +12368,7 @@ const softDeleteReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const restoreReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const restoreReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOneAndUpdate(
             { _id: reviewId, ...DELETED_REVIEW_FILTER },
@@ -11477,101 +12378,98 @@ const restoreReview = async (reviewId: string): Promise<IReview | null> => {
         .lean();
 };
 
-const hardDeleteReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const hardDeleteReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel.findByIdAndDelete(reviewId).lean();
 };
 
 // ─── Queries by relation ──────────────────────────────────────────────────────
 
-const getReviewsByRestaurant = async (restaurantId: string): Promise<IReview[]> => {
-    return ReviewModel
-        .find({
-            restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-            ...ACTIVE_REVIEW_FILTER,
-        })
-        .populate('customer_id', 'name profilePictures')
-        .lean();
+const getReviewsByRestaurant = async (restaurantId: string, skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const filter = {
+        restaurant_id: new mongoose.Types.ObjectId(restaurantId),
+        ...ACTIVE_REVIEW_FILTER,
+    };
+    const [reviews, total] = await Promise.all([
+        ReviewModel
+            .find(filter)
+            .populate('customer_id', 'name profilePictures')
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        ReviewModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
-const getDeletedReviewsByRestaurant = async (restaurantId: string): Promise<IReview[]> => {
-    return ReviewModel
-        .find({
-            restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-            ...DELETED_REVIEW_FILTER,
-        })
-        .populate('customer_id', 'name profilePictures')
-        .lean();
+const getDeletedReviewsByRestaurant = async (restaurantId: string, skip: number, limit: number): Promise<{ reviews: IReview[], total: number }> => {
+    const filter =  { restaurant_id: new mongoose.Types.ObjectId(restaurantId), 
+        ...DELETED_REVIEW_FILTER };
+    const [reviews, total ] = await Promise.all([
+        ReviewModel
+            .find(filter)
+            .populate('customer_id', 'name profilePictures')
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        ReviewModel.countDocuments(filter)
+    ]);
+    return { reviews, total };
 };
 
 // ─── Paginated queries by customer ───────────────────────────────────────────
 
-const buildCustomerFilter = (
-    customerId: string,
-    deletedFilter: Record<string, boolean>,
-    minGlobalRating?: number,
-): Record<string, unknown> => {
-    const filter: Record<string, unknown> = {
+const getReviewsByCustomer = async ( customerId: string, skip: number, limit: number, options: ReviewListOptions = {} ): Promise<{ reviews: IReview[], total: number }> => {
+    const filter: Record<string, any> = {
         customer_id: new mongoose.Types.ObjectId(customerId),
-        ...deletedFilter,
+        ...ACTIVE_REVIEW_FILTER,
     };
-    if (minGlobalRating !== undefined) {
-        filter.globalRating = { $gte: minGlobalRating };
-    }
-    return filter;
-};
 
-const fetchCustomerReviews = async (
-    filter: Record<string, unknown>,
-    options: ReviewListOptions,
-): Promise<ICustomerReviewListResponse> => {
-    const { limit = 5, skip = 0, sortByLikes = false } = options;
-    const sort: Record<string, 1 | -1> = sortByLikes ? { likes: -1 } : { createdAt: -1 };
+    if (options.minGlobalRating !== undefined) {
+        filter.globalRating = { $gte: options.minGlobalRating };
+    }
+    
+    const sort: Record<string, 1 | -1> = options.sortByLikes ? { likes: -1 } : { createdAt: -1 };
 
     const [reviews, total] = await Promise.all([
         ReviewModel.find(filter)
             .sort(sort)
             .skip(skip)
             .limit(limit)
-            .populate({ path: 'restaurant_id', select: 'profile' })
-            .lean(),
+            .populate({ path: 'restaurant_id', select: 'profile.name' })
+            .lean<IReview[]>(),
         ReviewModel.countDocuments(filter),
     ]);
 
-    return {
-        data: reviews.map((review: any) => ({
-            ...review,
-            restaurant_id: {
-                _id:  review.restaurant_id._id,
-                name: review.restaurant_id.profile?.name,
-            },
-        })),
-        total,
+    return { reviews, total };
+};
+
+const getDeletedReviewsByCustomer = async ( customerId: string, skip: number, limit: number, options: ReviewListOptions = {} ): Promise<{ reviews: IReview[]; total: number }> => {
+    const filter: Record<string, any> = {
+        customer_id: new mongoose.Types.ObjectId(customerId),
+        ...DELETED_REVIEW_FILTER,
     };
-};
+    if (options.minGlobalRating !== undefined) {
+        filter.globalRating = { $gte: options.minGlobalRating };
+    }
+    
+    const sort: Record<string, 1 | -1> = options.sortByLikes ? { likes: -1 } : { createdAt: -1 };
 
-const getReviewsByCustomer = async (
-    customerId: string,
-    options: ReviewListOptions = {},
-): Promise<ICustomerReviewListResponse> => {
-    if (!mongoose.Types.ObjectId.isValid(customerId)) return { data: [], total: 0 };
-    const filter = buildCustomerFilter(customerId, ACTIVE_REVIEW_FILTER, options.minGlobalRating);
-    return fetchCustomerReviews(filter, options);
-};
+    const [reviews, total] = await Promise.all([
+        ReviewModel.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .populate({ path: 'restaurant_id', select: 'profile.name' })
+            .lean<IReview[]>(),
+        ReviewModel.countDocuments(filter),
+    ]);
 
-const getDeletedReviewsByCustomer = async (
-    customerId: string,
-    options: ReviewListOptions = {},
-): Promise<ICustomerReviewListResponse> => {
-    if (!mongoose.Types.ObjectId.isValid(customerId)) return { data: [], total: 0 };
-    const filter = buildCustomerFilter(customerId, DELETED_REVIEW_FILTER, options.minGlobalRating);
-    return fetchCustomerReviews(filter, options);
+    return { reviews, total };
 };
 
 // ─── Like ─────────────────────────────────────────────────────────────────────
 
-const likeReview = async (reviewId: string): Promise<IReview | null> => {
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) return null;
+const likeReview = async (reviewId: string): Promise<IReview> => {
     return ReviewModel
         .findOneAndUpdate(
             { _id: reviewId, ...ACTIVE_REVIEW_FILTER },
@@ -11634,18 +12532,27 @@ const getDeletedReward = async (reward_id: string) => {
     return await RewardModel.findOne({ _id: reward_id, active: false }).lean();
 };
 
-const getAllRewards = async (page: number = 1, limit: number = 10) => {
-    const skip = (page - 1) * limit;
-    return await RewardModel.find()
-        .skip(skip)
-        .limit(limit);
+const getAllRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[], total: number }> => {
+    const [rewards, total] = await Promise.all([
+        RewardModel.find()
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        RewardModel.countDocuments()
+    ]);
+    return { rewards, total };
 };
 
-const getAllDeletedRewards = async (page: number = 1, limit: number = 10) => {
-    const skip = (page - 1) * limit;
-    return await RewardModel.find({ active: false })
-        .skip(skip)
-        .limit(limit);
+const getAllDeletedRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[], total: number }> => {
+    const filter = { active: false };
+    const [rewards, total] = await Promise.all([
+        RewardModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        RewardModel.countDocuments(filter)
+    ]);
+    return { rewards, total };
 };
 
 const updateReward = async (reward_id: string, data: Partial<IReward>) => {
@@ -11669,8 +12576,6 @@ const restoreReward = async (reward_id: string) => {
 
 const hardDeleteReward = async (reward_id: string) => {
     const deletedReward = await RewardModel.findByIdAndDelete(reward_id);
-
-    // Automatically remove the reward ID from the restaurant's rewards array
     if (deletedReward && deletedReward.restaurant_id) {
         await RestaurantModel.findByIdAndUpdate(deletedReward.restaurant_id, {
             $pull: { rewards: deletedReward._id }
@@ -11701,13 +12606,6 @@ import { RewardRedemptionModel, IRewardRedemption } from '../models/rewardRedemp
 import { CustomerModel } from '../models/customer';
 import { RewardModel } from '../models/reward';
 import { PointsWalletModel } from '../models/pointsWallet';
-
-type RewardRedemptionFilters = {
-  status?: string;
-  restaurant_id?: string;
-  customer_id?: string;
-  reward_id?: string;
-};
 
 type RedeemRewardPayload = {
   customer_id: string;
@@ -11754,6 +12652,7 @@ const createRewardRedemption = async (data: Partial<IRewardRedemption>) => {
 
   return await redemption.save();
 };
+
 
 const redeemReward = async (data: RedeemRewardPayload) => {
   const session = await mongoose.startSession();
@@ -11864,28 +12763,75 @@ const redeemReward = async (data: RedeemRewardPayload) => {
 
 const getRewardRedemption = async (redemptionId: string) => {
   return await RewardRedemptionModel.findById(redemptionId)
-    .populate('customer_id')
-    .populate('restaurant_id')
-    .populate('reward_id')
-    .populate('employee_id');
+      .populate('customer_id', 'name email')
+      .populate('reward_id', 'name description pointsRequired')
+      .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+      .populate('employee_id', 'name');
 };
 
-const getAllRewardRedemptions = async (
-  filters: RewardRedemptionFilters = {}
-): Promise<IRewardRedemption[]> => {
-  const query: Record<string, unknown> = {};
+const getAllRewardRedemptions = async ( skip: number, limit: number ): Promise<{ redemptions: IRewardRedemption[], total: number }> => {
+  const [redemptions, total] = await Promise.all([
+    RewardRedemptionModel.find()
+        .populate('customer_id', 'name email')
+        .populate('reward_id', 'name description pointsRequired')
+        .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+        .populate('employee_id', 'name')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean<IRewardRedemption[]>(),
+    RewardRedemptionModel.countDocuments()
+  ]);
 
-  if (filters.status) query.status = filters.status;
-  if (filters.restaurant_id) query.restaurant_id = filters.restaurant_id;
-  if (filters.customer_id) query.customer_id = filters.customer_id;
-  if (filters.reward_id) query.reward_id = filters.reward_id;
+  return { redemptions, total };
+};
 
-  return await RewardRedemptionModel.find(query)
-    .populate('customer_id')
-    .populate('restaurant_id')
-    .populate('reward_id')
-    .populate('employee_id')
-    .sort({ createdAt: -1 });
+const getByCustomer = async (customer_id: string, skip: number, limit: number) => {
+    const [redemptions, total] = await Promise.all([
+        RewardRedemptionModel.find({ customer_id })
+            .populate('reward_id', 'name description pointsRequired')
+            .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+            .populate('employee_id', 'name')
+            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
+        RewardRedemptionModel.countDocuments({ customer_id })
+    ]);
+    return { redemptions, total };
+};
+
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const [redemptions, total] = await Promise.all([
+        RewardRedemptionModel.find({ restaurant_id })
+            .populate('customer_id', 'name email')
+            .populate('reward_id', 'name description pointsRequired')
+            .populate('employee_id', 'name email')
+            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
+        RewardRedemptionModel.countDocuments({ restaurant_id })
+    ]);
+    return { redemptions, total };
+};
+
+const getByEmployee = async (employee_id: string, skip: number, limit: number) => {
+    const [redemptions, total] = await Promise.all([
+        RewardRedemptionModel.find({ employee_id })
+            .populate('customer_id', 'name')
+            .populate('reward_id', 'name')
+            .populate('restaurant_id', 'profile.name')
+            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
+        RewardRedemptionModel.countDocuments({ employee_id })
+    ]);
+    return { redemptions, total };
+};
+
+const getByReward = async (reward_id: string, skip: number, limit: number) => {
+    const [redemptions, total] = await Promise.all([
+        RewardRedemptionModel.find({ reward_id })
+            .populate('customer_id', 'name email')
+            .populate('restaurant_id', 'profile.name')
+            .populate('employee_id', 'name')
+            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
+        RewardRedemptionModel.countDocuments({ reward_id })
+    ]);
+    return { redemptions, total };
 };
 
 const updateRewardRedemption = async (redemptionId: string, data: Partial<IRewardRedemption>) => {
@@ -11927,6 +12873,7 @@ const isTransactionUnsupportedError = (error: any): boolean => {
   const message = String(error?.message || '');
   return message.includes('Transaction numbers are only allowed on a replica set member or mongos');
 };
+
 const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
   const { customer_id, reward_id, employee_id, notes } = data;
 
@@ -12046,6 +12993,10 @@ export default {
   redeemReward,
   getRewardRedemption,
   getAllRewardRedemptions,
+  getByCustomer,
+  getByRestaurant,
+  getByEmployee,
+  getByReward,
   updateRewardRedemption,
   updateStatus,
   deleteRewardRedemption,
@@ -12082,8 +13033,16 @@ const getStatistics = async (statistics_id: string) => {
     return await StatisticsModel.findById(statistics_id);
 };
 
-const getAllStatistics = async (): Promise<IStatistics[]> => {
-    return await StatisticsModel.find();
+const getAllStatistics = async (skip: number, limit: number): Promise<{ statistics: IStatistics[], total: number }> => {
+    const [statistics, total] = await Promise.all([
+    StatisticsModel.find().skip(skip).limit(limit),
+        StatisticsModel.countDocuments()
+    ]);
+    return { statistics, total };
+};
+
+const getByRestaurant = async (restaurant_id: string) => {
+    return await StatisticsModel.findOne({ restaurant_id });
 };
 
 const updateStatistics = async (statistics_id: string, data: Partial<IStatistics>) => {
@@ -12109,17 +13068,15 @@ const deleteStatistics = async (statistics_id: string) => {
     return deleted;
 };
 
-export default { createStatistics, getStatistics, getAllStatistics, updateStatistics, deleteStatistics };
+export default { createStatistics, getStatistics, getAllStatistics, getByRestaurant, updateStatistics, deleteStatistics };
 
 
 
 
 ==================== src\services\visit.ts ====================
 
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { VisitModel, IVisit } from '../models/visit';
-
-// ─── Create ───────────────────────────────────────────────────────────────────
 
 const createVisit = async (data: Partial<IVisit>) => {
     const visit = new VisitModel({
@@ -12129,132 +13086,98 @@ const createVisit = async (data: Partial<IVisit>) => {
     return await visit.save();
 };
 
-// ─── Read (single) ────────────────────────────────────────────────────────────
-
 const getVisit = async (visit_id: string) => {
-    const visit = await VisitModel.findOne({ _id: visit_id });
-    if (!visit || visit.deletedAt) return null;
-    return visit;
+    return await VisitModel.findById(visit_id)
+        .populate('customer_id', 'name email')
+        .populate('restaurant_id', 'profile.name profile.location.city profile.location.address');
 };
 
 const getDeletedVisit = async (visit_id: string) => {
-    const visit = await VisitModel.findOne({ _id: visit_id, deletedAt: { $ne: null } });
-    if (!visit) return null;
-    return visit;
+    return await VisitModel.findOne({ _id: visit_id, deletedAt: { $ne: null } })
+        .populate('customer_id', 'name email')
+        .populate('restaurant_id', 'profile.name profile.location.city profile.location.address');
 };
 
-// ─── Read (collection, paginada) ─────────────────────────────────────────────
-
-const getAllVisits = async (
-    filters: { customer_id?: string; restaurant_id?: string; deletedAt?: any } = {},
-    page: number = 1,
-    limit: number = 5
-) => {
-    const query: Record<string, any> = {};
-
-    if (filters.customer_id) query.customer_id = new Types.ObjectId(filters.customer_id);
-    if (filters.restaurant_id) query.restaurant_id = new Types.ObjectId(filters.restaurant_id);
-
-    // ✅ Cubre deletedAt: null y documentos sin el campo (seed sin deletedAt)
-    query.$or = [{ deletedAt: null }, { deletedAt: { $exists: false } }];
-
-    const skip = (page - 1) * limit;
-
-    const data = await VisitModel.find(query)
-        .populate('customer_id')
-        .populate('restaurant_id')
-        .sort({ date: -1 })
-        .skip(skip)
-        .limit(limit);
-
-    const total = await VisitModel.countDocuments(query);
-
-    return {
-        data,
-        pagination: {
-            total,
-            page,
-            limit,
-            pages: Math.ceil(total / limit)
-        }
-    };
+const getAllVisits = async (skip: number, limit: number): Promise<{ visits: IVisit[], total: number }> => {
+    const query = { deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(query)
+            .populate('customer_id', 'name email')
+            .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(query)
+    ]);
+    return { visits, total };
 };
 
-const getAllDeletedVisits = async (
-    filters: { customer_id?: string; restaurant_id?: string } = {},
-    page: number = 1,
-    limit: number = 5
-) => {
-    const query: Record<string, any> = { deletedAt: { $ne: null } };
-
-    if (filters.customer_id) query.customer_id = new Types.ObjectId(filters.customer_id);
-    if (filters.restaurant_id) query.restaurant_id = new Types.ObjectId(filters.restaurant_id);
-
-    const skip = (page - 1) * limit;
-
-    const data = await VisitModel.find(query)
-        .populate('customer_id')
-        .populate('restaurant_id')
-        .sort({ date: -1 })
-        .skip(skip)
-        .limit(limit);
-
-    const total = await VisitModel.countDocuments(query);
-
-    return {
-        data,
-        pagination: {
-            total,
-            page,
-            limit,
-            pages: Math.ceil(total / limit)
-        }
-    };
+const getAllDeletedVisits = async (skip: number, limit: number): Promise<{ visits: IVisit[], total: number }> => {
+    const query = { deletedAt: { $ne: null } };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(query)
+            .populate('customer_id', 'name email')
+            .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(query)
+    ]);
+    return { visits, total };
 };
 
-// ─── Read (full, populated) ───────────────────────────────────────────────────
-
-const getVisitFull = async (visit_id: string) => {
-    const visit = await VisitModel.findOne({ _id: visit_id })
-        .populate('customer_id')
-        .populate('restaurant_id');
-    if (!visit || visit.deletedAt) return null;
-    return visit;
+const getByCustomer = async (customer_id: string, skip: number, limit: number) => {
+    const query = { customer_id, deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(query)
+            .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(query)
+    ]);
+    return { visits, total };
 };
 
-const getDeletedVisitFull = async (visit_id: string) => {
-    const visit = await VisitModel.findOne({ _id: visit_id, deletedAt: { $ne: null } })
-        .populate('customer_id')
-        .populate('restaurant_id');
-    if (!visit) return null;
-    return visit;
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(query)
+            .populate('customer_id', 'name email')
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(query)
+    ]);
+    return { visits, total };
 };
-
-// ─── Update ───────────────────────────────────────────────────────────────────
 
 const updateVisit = async (visit_id: string, data: Partial<IVisit>) => {
-    // ✅ findByIdAndUpdate para soportar deletedAt en soft delete desde el frontend
-    return await VisitModel.findByIdAndUpdate(visit_id, data, { new: true });
+    const visit = await VisitModel.findById(visit_id);
+
+    if (visit) {
+        visit.set(data);
+        return await visit.save();
+    }
+
+    return null;
 };
 
-// ─── Soft Delete ──────────────────────────────────────────────────────────────
-
-const softDeleteVisit = async (id: string) => {
-    return await VisitModel.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true });
+const softDeleteVisit = async (visit_id: string) => {
+    return await VisitModel.findByIdAndUpdate(visit_id, { deletedAt: new Date() }, { new: true }).lean();
 };
 
-const restoreVisit = async (id: string) => {
-    return await VisitModel.findByIdAndUpdate(id, { deletedAt: null }, { new: true });
+const restoreVisit = async (visit_id: string) => {
+    return await VisitModel.findByIdAndUpdate(visit_id, { deletedAt: null }, { new: true }).lean();
 };
 
-// ─── Hard Delete ─────────────────────────────────────────────────────────────
-
-const hardDeleteVisit = async (id: string) => {
-    return await VisitModel.findByIdAndDelete(id);
+const hardDeleteVisit = async (visit_id: string) => {
+    return await VisitModel.findByIdAndDelete(visit_id);
 };
-
-// deleteVisit → hard delete (el controlador lo usa para DELETE /visits/:id)
-const deleteVisit = hardDeleteVisit;
 
 export default {
     createVisit,
@@ -12262,14 +13185,14 @@ export default {
     getDeletedVisit,
     getAllVisits,
     getAllDeletedVisits,
-    getVisitFull,
-    getDeletedVisitFull,
+    getByCustomer,
+    getByRestaurant,
     updateVisit,
-    deleteVisit,
     softDeleteVisit,
     restoreVisit,
     hardDeleteVisit,
 };
+
 
 
 
@@ -12431,13 +13354,30 @@ export const insertData = async () => {
                         Logging.info(`Inserting data into ${model.collection.name} collection...`);
                         await model.insertMany(data);
                         Logging.info(`Data inserted into ${model.collection.name} collection.`);
-                    } else {
+                    }
+                    else {
                         Logging.info(`${model.collection.name} collection is not empty. Skipping insertion.`);
                     }
                 }
             }
         }
+
         Logging.info('Database data check completed.');
+
+        // 1. Get all unique dish IDs that have ratings
+        const ratedDishes = await DishRatingModel.distinct('dish_id', { deletedAt: null });
+
+        Logging.info(`Recalculating avgRating for ${ratedDishes.length} dishes...`);
+
+        // 2. Trigger the static method for each dish
+        // Note: We use Promise.all to run these in parallel for speed
+        await Promise.all(
+            ratedDishes.map((dishId) =>
+                (DishRatingModel as any).calculateAvgRating(dishId)
+            )
+        );
+
+        Logging.info('Dish avgRatings updated successfully.');
     } catch (error) {
         Logging.error('Error inserting data:');
         Logging.error(error);
@@ -12479,6 +13419,25 @@ export const verifyAccessToken = (token: string) => {
 export const verifyRefreshToken = (token: string) => {
     return jwt.verify(token, config.jwt.refreshSecret) as IJwtPayload;
 };
+
+
+
+==================== src\utils\pagination.ts ====================
+
+export interface PaginationOptions {
+    page: number;
+    limit: number;
+    skip: number;
+}
+
+export const getPaginationOptions = (query: any): PaginationOptions => {
+    const page = Math.max(1, parseInt(query.page as string) || 1);
+    const limit = Math.max(1, Math.min(100, parseInt(query.limit as string) || 10));
+    const skip = (page - 1) * limit;
+
+    return { page, limit, skip };
+};
+
 
 
 

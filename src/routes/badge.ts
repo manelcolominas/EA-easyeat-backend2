@@ -147,6 +147,146 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
 
 /**
  * @openapi
+ * /badges/restaurant/{restaurant_id}:
+ *   get:
+ *     summary: Gets all badges for a restaurant
+ *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant's ObjectId
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: OK - Array of badges
+ *       404:
+ *         description: Restaurant not found
+ *       400:
+ *         description: Invalid restaurant_id format
+ */
+router.get('/restaurant/:restaurant_id', controller.readByRestaurant);
+
+/**
+ * @openapi
+ * /badges/restaurant/{restaurant_id}/deleted:
+ *   get:
+ *     summary: Gets all deleted badges for a restaurant
+ *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The restaurant's ObjectId
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: OK - Array of badges
+ *       404:
+ *         description: Restaurant not found
+ *       400:
+ *         description: Invalid restaurant_id format
+ */
+router.get('/restaurant/:restaurant_id/deleted', controller.readDeletedByRestaurant);
+
+/**
+ * @openapi
+ * /badges/customer/{customer_id}:
+ *   get:
+ *     summary: Gets all badges for a customer
+ *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The customer's ObjectId
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: OK - Array of badges
+ *       404:
+ *         description: Customer not found
+ *       400:
+ *         description: Invalid customer_id format
+ */
+router.get('/customer/:customer_id', controller.readByCustomer);
+
+/**
+ * @openapi
+ * /badges/customer/{customer_id}/deleted:
+ *   get:
+ *     summary: Gets all deleted badges for a customer
+ *     tags: [Badges]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The customer's ObjectId
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: OK - Array of badges
+ *       404:
+ *         description: Customer not found
+ *       400:
+ *         description: Invalid customer_id format
+ */
+router.get('/customer/:customer_id/deleted', controller.readDeletedByCustomer);
+
+/**
+ * @openapi
  * /badges/{badge_id}:
  *   get:
  *     summary: Gets a badge by ID
@@ -278,28 +418,5 @@ router.patch('/:badge_id/restore', authenticate, requireRole('admin'), controlle
  *         description: Not found
  */
 router.delete('/:badge_id/hard', authenticate, requireRole('admin'), controller.hardDeleteBadge);
-
-/**
- * @openapi
- * /badges/customer/{customer_id}:
- *   get:
- *     summary: Gets all badges for a customer
- *     tags: [Badges]
- *     parameters:
- *       - in: path
- *         name: customer_id
- *         required: true
- *         schema:
- *           type: string
- *         description: The customer's ObjectId
- *     responses:
- *       200:
- *         description: OK - Array of badges
- *       404:
- *         description: Customer not found
- *       400:
- *         description: Invalid customer_id format
- */
-router.get('/customer/:customer_id', controller.getBadgesByCustomer);
 
 export default router;

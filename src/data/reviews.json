@@ -3,6 +3,7 @@
     "_id": "65f1c2a1b2c3d4e5f678d001",
     "customer_id": "65f1c2a1b2c3d4e5f6789051",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "employee_id": "65f1c2a1b2c3d4e5f6783001",
     "date": "2024-06-14T21:30:00.000Z",
     "globalRating": 9,
     "images": [
@@ -22,6 +23,7 @@
     "_id": "65f1c2a1b2c3d4e5f678d002",
     "customer_id": "65f1c2a1b2c3d4e5f6789052",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "employee_id": "65f1c2a1b2c3d4e5f6783002",
     "date": "2024-05-10T15:00:00.000Z",
     "globalRating": 8,
     "images": [
@@ -41,6 +43,7 @@
     "_id": "65f1c2a1b2c3d4e5f678d003",
     "customer_id": "65f1c2a1b2c3d4e5f6789051",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "employee_id": "65f1c2a1b2c3d4e5f6783004",
     "date": "2024-04-10T13:00:00.000Z",
     "globalRating": 9,
     "images": [
@@ -60,6 +63,7 @@
     "_id": "65f1c2a1b2c3d4e5f678d004",
     "customer_id": "65f1c2a1b2c3d4e5f6789052",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "employee_id": "65f1c2a1b2c3d4e5f6783006",
     "date": "2024-05-25T21:00:00.000Z",
     "globalRating": 7,
     "images": [
@@ -78,6 +82,7 @@
     "_id": "65f1c2a1b2c3d4e5f678d005",
     "customer_id": "65f1c2a1b2c3d4e5f6789051",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "employee_id": "65f1c2a1b2c3d4e5f6783008",
     "date": "2024-06-03T11:00:00.000Z",
     "globalRating": 8,
     "images": [
@@ -97,6 +102,7 @@
     "_id": "65f1c2a1b2c3d4e5f678d006",
     "customer_id": "65f1c2a1b2c3d4e5f6789052",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "employee_id": "65f1c2a1b2c3d4e5f6783013",
     "date": "2024-05-17T22:00:00.000Z",
     "globalRating": 10,
     "images": [

@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/review';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin } from '../middleware/auth';
+import { authenticate, requireRole, requireSelfOrAdmin, requireCustomerAccess } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -126,7 +126,7 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
 router.get(
   '/',
   authenticate,
-  requireRole('admin'),
+  requireRole('admin', 'owner', 'staff'),
   controller.readAll
 );
 
@@ -223,7 +223,7 @@ router.get(
 router.get(
   '/restaurant/:restaurant_id/deleted',
   authenticate,
-  requireRole('admin'),
+  requireRole('admin', 'owner', 'staff'),
   controller.readDeletedByRestaurant
 );
 
@@ -268,7 +268,7 @@ router.get(
 router.get(
   '/customer/:customer_id',
   authenticate,
-  requireSelfOrAdmin('customer_id'),
+  requireCustomerAccess('customer_id'),
   controller.readByCustomer
 );
 
@@ -309,7 +309,7 @@ router.get(
 router.get(
   '/customer/:customer_id/deleted',
   authenticate,
-  requireRole('admin'),
+  requireRole('admin', 'owner', 'staff'),
   controller.readDeletedByCustomer
 );
 

@@ -94,7 +94,7 @@ const router = express.Router();
  *               type: integer
  */
 
-// ─── POST /dish-ratings ───────────────────────────────────────────────────────
+// --- POST /dish-ratings ------------------------------------------------------
 
 /**
  * @openapi
@@ -103,7 +103,7 @@ const router = express.Router();
  *     summary: Submit or update a dish rating
  *     description: >
  *       Creates a new rating or updates an existing active rating for the same
- *       customer + dish pair. The `customer_id` must match the authenticated
+ *       customer + dish pair. The customer_id must match the authenticated
  *       user's ID (admins may use any customer_id).
  *     tags: [DishRatings]
  *     security:
@@ -128,17 +128,21 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/DishRating'
  *       403:
- *         description: Access denied – customer_id does not match authenticated user
+ *         description: Access denied - customer_id does not match authenticated user
  *       404:
  *         description: Dish not found or not active
  *       422:
  *         description: Validation error
  */
-router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Schemas.dishRating.create),
+router.post(
+    '/',
+    authenticate,
+    requireRole('customer', 'admin'),
+    ValidateJoi(Schemas.dishRating.create),
     controller.rateOrUpdateDish
 );
 
-// ─── GET /dish-ratings/dish/:dish_id ─────────────────────────────────────────
+// --- GET /dish-ratings/dish/:dish_id ----------------------------------------
 
 /**
  * @openapi
@@ -174,7 +178,7 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  */
 router.get('/dish/:dish_id', controller.readByDish);
 
-// ─── GET /dish-ratings/dish/:dish_id/summary ─────────────────────────────────
+// --- GET /dish-ratings/dish/:dish_id/summary --------------------------------
 
 /**
  * @openapi
@@ -198,7 +202,7 @@ router.get('/dish/:dish_id', controller.readByDish);
  */
 router.get('/dish/:dish_id/summary', controller.getRatingSummary);
 
-// ─── GET /dish-ratings/customer/:customer_id ─────────────────────────────────
+// --- GET /dish-ratings/customer/:customer_id --------------------------------
 
 /**
  * @openapi
@@ -238,10 +242,9 @@ router.get('/dish/:dish_id/summary', controller.getRatingSummary);
  *       403:
  *         description: Access denied
  */
-router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readByCustomer
-);
+router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readByCustomer);
 
-// ─── DELETE /dish-ratings/:id/soft ───────────────────────────────────────────
+// --- DELETE /dish-ratings/:id/soft ------------------------------------------
 
 /**
  * @openapi
@@ -265,9 +268,57 @@ router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_
  *         description: Rating deleted
  *       401:
  *         description: Authentication required
+ *       403:
+ *         description: Access denied
  *       404:
  *         description: Rating not found or already deleted
  */
-router.delete('/:id/soft', authenticate, requireSelfOrAdmin('customer_id'), controller.softDeleteRating );
+router.delete('/:id/soft', authenticate, requireRole('customer', 'admin'), controller.softDeleteRating);
+
+// --- GET /dish-ratings/top-dish/:restaurant_id ------------------------------
+
+/**
+ * @openapi
+ * /dish-ratings/top-dish/{restaurant_id}:
+ *   get:
+ *     summary: Get top-rated dish for a restaurant
+ *     description: Returns the dish with highest average rating in the restaurant.
+ *     tags: [DishRatings]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Top dish by average rating
+ *       404:
+ *         description: No ratings found for this restaurant
+ */
+router.get('/top-dish/:restaurant_id', controller.getTopDishByRestaurant);
+
+// --- GET /dish-ratings/top-dishes/:restaurant_id -----------------------------
+
+/**
+ * @openapi
+ * /dish-ratings/top-dishes/{restaurant_id}:
+ *   get:
+ *     summary: Get ranked dishes for a restaurant by average rating
+ *     description: Returns all active dishes rated in the restaurant, sorted by avgRating DESC.
+ *     tags: [DishRatings]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Ranked dish list
+ *       500:
+ *         description: Server error
+ */
+router.get('/top-dishes/:restaurant_id', controller.getTopDishesByRestaurant);
 
 export default router;

@@ -6,10 +6,10 @@
     "employee_id": "65f1c2a1b2c3d4e5f6789012",
     "pointsUsed": 200,
     "status": "redeemed",
-    "redeemedAt": "2024-06-14T21:45:00.000Z",
+    "redeemedAt": "2026-05-08T21:45:00.000Z",
     "notes": "Customer chose the crème brûlée.",
-    "createdAt": "2024-06-14T21:45:00.000Z",
-    "updatedAt": "2024-06-14T21:50:00.000Z"
+    "createdAt": "2026-05-08T21:45:00.000Z",
+    "updatedAt": "2026-05-08T21:50:00.000Z"
   },
   {
     "customer_id": "65f1c2a1b2c3d4e5f6789052",
@@ -18,9 +18,9 @@
     "employee_id": "65f1c2a1b2c3d4e5f6789013",
     "pointsUsed": 150,
     "status": "pending",
-    "redeemedAt": "2024-06-15T12:30:00.000Z",
-    "createdAt": "2024-06-15T12:30:00.000Z",
-    "updatedAt": "2024-06-15T12:30:00.000Z"
+    "redeemedAt": "2026-04-28T12:30:00.000Z",
+    "createdAt": "2026-04-28T12:30:00.000Z",
+    "updatedAt": "2026-04-28T12:30:00.000Z"
   },
   {
     "customer_id": "65f1c2a1b2c3d4e5f6789051",
@@ -29,9 +29,9 @@
     "employee_id": "65f1c2a1b2c3d4e5f6789011",
     "pointsUsed": 1000,
     "status": "expired",
-    "redeemedAt": "2024-04-10T19:00:00.000Z",
+    "redeemedAt": "2026-04-16T19:00:00.000Z",
     "notes": "Reward expired before approval.",
-    "createdAt": "2024-04-10T19:00:00.000Z",
-    "updatedAt": "2024-04-15T00:00:00.000Z"
+    "createdAt": "2026-04-16T19:00:00.000Z",
+    "updatedAt": "2026-04-21T00:00:00.000Z"
   }
 ]

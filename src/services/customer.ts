@@ -197,6 +197,43 @@ const getAllDeletedCustomers = async (skip: number, limit: number): Promise<{ da
     ]);
     return { data, total };
 };
+const getCustomersByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ customers: ICustomer[], total: number }> => {
+    const restaurantObjectId = new mongoose.Types.ObjectId(restaurant_id);
+    
+    // Identificar clientes únicos a partir de las visitas reales usando agregación para mayor robustez
+    const visits = await VisitModel.aggregate([
+        { 
+            $match: { 
+                restaurant_id: restaurantObjectId,
+                deletedAt: null 
+            } 
+        },
+        { 
+            $group: { 
+                _id: "$customer_id" 
+            } 
+        }
+    ]);
+
+    const uniqueCustomerIds = visits.map(v => v._id);
+
+    if (uniqueCustomerIds.length === 0) {
+        return { customers: [], total: 0 };
+    }
+
+    // Filtrar clientes por esos IDs y asegurarse de que no estén eliminados
+    const filter = { _id: { $in: uniqueCustomerIds }, deletedAt: null };
+
+    const [customers, total] = await Promise.all([
+        CustomerModel.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean<ICustomer[]>(),
+        CustomerModel.countDocuments(filter)
+    ]);
+
+    return { customers, total };
+};
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 
@@ -239,6 +276,7 @@ export default {
     getCustomerAllReviews,
     getCustomerAllVisits,
     getCustomerAllDeletedVisits,
+    getCustomersByRestaurant,
     updateCustomer,
     softDeleteCustomer,
     restoreCustomer,

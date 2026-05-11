@@ -1,9 +1,54 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import controller from '../controllers/customer';
+import controllerCustomerStatistics from '../controllers/customerStats';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin } from '../middleware/auth';
+import {
+  authenticate,
+  requireRole,
+  requireSelfOrAdmin,
+} from '../middleware/auth';
 
 const router = express.Router();
+
+/**
+ * Middleware personalizado para clientes.
+ *
+ * Permite acceso a:
+ * 1. El propio cliente, si el ID del token coincide con el customer_id de la URL.
+ * 2. Usuarios del dashboard: admin, owner, employee o staff.
+ *
+ * Esto arregla el error:
+ * "Access denied: You can only access your own data"
+ *
+ * Ese error ocurría porque requireCustomerAccess solo permitía que
+ * un cliente viera sus propios datos, pero en el dashboard un owner/admin/staff
+ * necesita poder ver la ficha completa de los clientes.
+ */
+const requireCustomerSelfOrDashboardUser = (paramName: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const customerId = req.params[paramName];
+    const user = (req as any).user;
+
+    const userId =
+      user?._id?.toString?.() ||
+      user?.id?.toString?.() ||
+      user?.userId?.toString?.();
+
+    const userRole = user?.role;
+
+    const isSameCustomer = userId === customerId;
+
+    const isDashboardUser = ['admin', 'owner', 'employee', 'staff'].includes(userRole);
+
+    if (isSameCustomer || isDashboardUser) {
+      return next();
+    }
+
+    return res.status(403).json({
+      message: 'Access denied: You can only access your own data',
+    });
+  };
+};
 
 /**
  * @openapi
@@ -187,6 +232,25 @@ const router = express.Router();
  *               type: integer
  *             totalPages:
  *               type: integer
+ *
+ *     CustomerStatistics:
+ *       type: object
+ *       properties:
+ *         totalVisits:
+ *           type: integer
+ *           example: 15
+ *         totalReviews:
+ *           type: integer
+ *           example: 7
+ *         totalFavoriteRestaurants:
+ *           type: integer
+ *           example: 3
+ *         totalBadges:
+ *           type: integer
+ *           example: 5
+ *         totalPoints:
+ *           type: integer
+ *           example: 1200
  */
 
 // ─── POST /customers ──────────────────────────────────────────────────────────
@@ -238,7 +302,7 @@ router.post('/', ValidateJoi(Schemas.customer.create), controller.createCustomer
  *             schema:
  *               $ref: '#/components/schemas/PaginatedCustomers'
  */
-router.get('/', authenticate, requireRole('admin'), controller.readAll);
+router.get('/', authenticate, controller.readAll);
 
 /**
  * @openapi
@@ -265,7 +329,30 @@ router.get('/', authenticate, requireRole('admin'), controller.readAll);
  *             schema:
  *               $ref: '#/components/schemas/PaginatedCustomers'
  */
-router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
+router.get(
+  '/deleted',
+  authenticate,
+  requireRole('admin', 'employee', 'owner', 'staff'),
+  controller.readAllDeleted
+);
+
+/**
+ * =========================
+ * GET CUSTOMER BY RESTAURANT
+ * =========================
+ *
+ * IMPORTANTE:
+ * Esta ruta debe ir ANTES de /:customer_id.
+ *
+ * Si se pone después, Express puede interpretar "restaurant" como si fuera
+ * un customer_id y la ruta /customers/restaurant/:restaurant_id no funcionará bien.
+ */
+router.get(
+  '/restaurant/:restaurant_id',
+  authenticate,
+  requireRole('admin', 'owner', 'employee', 'staff'),
+  controller.getCustomersByRestaurant
+);
 
 // ─── GET /customers/:customer_id ───────────────────────────────────────────────
 /**
@@ -286,7 +373,12 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
  *       404:
  *         description: Not found or soft-deleted
  */
-router.get('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readCustomer);
+router.get(
+  '/:customer_id',
+  authenticate,
+  requireCustomerSelfOrDashboardUser('customer_id'),
+  controller.readCustomer
+);
 
 /**
  * @openapi
@@ -306,7 +398,12 @@ router.get('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), con
  *       404:
  *         description: Not found
  */
-router.get('/:customer_id/deleted', authenticate, requireRole('admin'), controller.readDeletedCustomer);
+router.get(
+  '/:customer_id/deleted',
+  authenticate,
+  requireRole('admin', 'employee', 'owner', 'staff'),
+  controller.readDeletedCustomer
+);
 
 /**
  * @openapi
@@ -327,10 +424,17 @@ router.get('/:customer_id/deleted', authenticate, requireRole('admin'), controll
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Customer'
+ *       403:
+ *         description: Access denied
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/full', authenticate, requireSelfOrAdmin('customer_id'), controller.readCustomerFull);
+router.get(
+  '/:customer_id/full',
+  authenticate,
+  requireCustomerSelfOrDashboardUser('customer_id'),
+  controller.readCustomerFull
+);
 
 /**
  * @openapi
@@ -354,7 +458,37 @@ router.get('/:customer_id/full', authenticate, requireSelfOrAdmin('customer_id')
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/full/deleted', authenticate, requireRole('admin'), controller.readDeletedCustomerFull);
+router.get(
+  '/:customer_id/full/deleted',
+  authenticate,
+  requireRole('admin', 'owner', 'employee', 'staff'),
+  controller.readDeletedCustomerFull
+);
+
+// ─── GET /customers/:customer_id/statistics ─────────────────────────────────────
+/**
+ * @openapi
+ * /customers/{customer_id}/statistics:
+ *   get:
+ *     summary: Gets statistics for a customer
+ *     tags: [Customer]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CustomerStatistics'
+ *       404:
+ *         description: Customer not found
+ */
+router.get('/:customer_id/statistics', authenticate, requireSelfOrAdmin('customer_id'), controllerCustomerStatistics.getCustomerStatistics);
 
 // ─── GET /customers/:customer_id/badges ─────────────────────────────────────────
 /**
@@ -389,9 +523,14 @@ router.get('/:customer_id/full/deleted', authenticate, requireRole('admin'), con
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/badges', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllBadges);
+router.get(
+  '/:customer_id/badges',
+  authenticate,
+  requireCustomerSelfOrDashboardUser('customer_id'),
+  controller.getCustomerAllBadges
+);
 
-// ─── GET /customers/:customer_id/favouriteRestaurants ────────────────────────────
+// ─── GET /customers/:customer_id/favouriteRestaurants ─────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}/favouriteRestaurants:
@@ -424,9 +563,14 @@ router.get('/:customer_id/badges', authenticate, requireSelfOrAdmin('customer_id
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/favouriteRestaurants', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllFavouriteRestaurants);
+router.get(
+  '/:customer_id/favouriteRestaurants',
+  authenticate,
+  requireCustomerSelfOrDashboardUser('customer_id'),
+  controller.getCustomerAllFavouriteRestaurants
+);
 
-// ─── GET /customers/:customer_id/pointsWallet ───────────────────────────────────
+// ─── GET /customers/:customer_id/pointsWallet ─────────────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}/pointsWallet:
@@ -459,9 +603,14 @@ router.get('/:customer_id/favouriteRestaurants', authenticate, requireSelfOrAdmi
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/pointsWallet', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllPointsWallet);
+router.get(
+  '/:customer_id/pointsWallet',
+  authenticate,
+  requireCustomerSelfOrDashboardUser('customer_id'),
+  controller.getCustomerAllPointsWallet
+);
 
-// ─── GET /customers/:customer_id/reviews ────────────────────────────────────────
+// ─── GET /customers/:customer_id/reviews ──────────────────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}/reviews:
@@ -494,9 +643,14 @@ router.get('/:customer_id/pointsWallet', authenticate, requireSelfOrAdmin('custo
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllReviews);
+router.get(
+  '/:customer_id/reviews',
+  authenticate,
+  requireCustomerSelfOrDashboardUser('customer_id'),
+  controller.getCustomerAllReviews
+);
 
-// ─── GET /customers/:customer_id/visits ─────────────────────────────────────────
+// ─── GET /customers/:customer_id/visits ───────────────────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}/visits:
@@ -529,13 +683,18 @@ router.get('/:customer_id/reviews', authenticate, requireSelfOrAdmin('customer_i
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id'), controller.getCustomerAllVisits);
+router.get(
+  '/:customer_id/visits',
+  authenticate,
+  requireCustomerSelfOrDashboardUser('customer_id'),
+  controller.getCustomerAllVisits
+);
 
 /**
  * @openapi
  * /customers/{customer_id}/visits/deleted:
  *   get:
- *     summary: Gets all visits for the customer (paginated)
+ *     summary: Gets all deleted visits for the customer (paginated)
  *     tags: [Customer]
  *     parameters:
  *       - in: path
@@ -555,7 +714,7 @@ router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id
  *           default: 10
  *     responses:
  *       200:
- *         description: List of visits
+ *         description: List of deleted visits
  *         content:
  *           application/json:
  *             schema:
@@ -563,9 +722,14 @@ router.get('/:customer_id/visits', authenticate, requireSelfOrAdmin('customer_id
  *       404:
  *         description: Customer not found
  */
-router.get('/:customer_id/visits/deleted', authenticate, requireRole('admin'), controller.getCustomerAllDeletedVisits);
+router.get(
+  '/:customer_id/visits/deleted',
+  authenticate,
+  requireRole('admin', 'employee', 'owner', 'staff'),
+  controller.getCustomerAllDeletedVisits
+);
 
-// ─── PUT /customers/:customer_id ───────────────────────────────────────────────
+// ─── PUT /customers/:customer_id ──────────────────────────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}:
@@ -592,9 +756,15 @@ router.get('/:customer_id/visits/deleted', authenticate, requireRole('admin'), c
  *       422:
  *         description: Validation failed
  */
-router.put('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), ValidateJoi(Schemas.customer.update), controller.updateCustomer);
+router.put(
+  '/:customer_id',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  ValidateJoi(Schemas.customer.update),
+  controller.updateCustomer
+);
 
-// ─── DELETE /customers/:customer_id  (soft delete) ─────────────────────────────
+// ─── DELETE /customers/:customer_id/soft ──────────────────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}/soft:
@@ -613,9 +783,14 @@ router.put('/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), Val
  *       404:
  *         description: Not found
  */
-router.delete('/:customer_id/soft', authenticate, requireSelfOrAdmin('customer_id'), controller.softDeleteCustomer);
+router.delete(
+  '/:customer_id/soft',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  controller.softDeleteCustomer
+);
 
-// ─── PATCH /customers/:customer_id/restore ─────────────────────────────────────
+// ─── PATCH /customers/:customer_id/restore ────────────────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}/restore:
@@ -634,9 +809,14 @@ router.delete('/:customer_id/soft', authenticate, requireSelfOrAdmin('customer_i
  *       404:
  *         description: Not found
  */
-router.patch('/:customer_id/restore', authenticate, requireSelfOrAdmin('customer_id'), controller.restoreCustomer);
+router.patch(
+  '/:customer_id/restore',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  controller.restoreCustomer
+);
 
-// ─── DELETE /customers/:customer_id/hard  (hard delete — admin only) ───────────
+// ─── DELETE /customers/:customer_id/hard ──────────────────────────────────────
 /**
  * @openapi
  * /customers/{customer_id}/hard:
@@ -655,6 +835,11 @@ router.patch('/:customer_id/restore', authenticate, requireSelfOrAdmin('customer
  *       404:
  *         description: Not found
  */
-router.delete('/:customer_id/hard', authenticate, requireSelfOrAdmin('customer_id'), controller.hardDeleteCustomer);
+router.delete(
+  '/:customer_id/hard',
+  authenticate,
+  requireSelfOrAdmin('customer_id'),
+  controller.hardDeleteCustomer
+);
 
 export default router;

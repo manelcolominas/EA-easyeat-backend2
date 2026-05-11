@@ -3,36 +3,140 @@
     "_id": "65f1c2a1b2c3d4e5f678c001",
     "customer_id": "65f1c2a1b2c3d4e5f6789051",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
-    "date": "2024-06-14T21:00:00.000Z",
+    "employee_id": "65f1c2a1b2c3d4e5f6783001",
+    "date": "2026-05-08T21:00:00.000Z",
     "pointsEarned": 95,
-    "billAmount": 47.50,
+    "billAmount": 47.5,
     "deletedAt": null
   },
   {
     "_id": "65f1c2a1b2c3d4e5f678c002",
     "customer_id": "65f1c2a1b2c3d4e5f6789051",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
-    "date": "2024-05-20T20:00:00.000Z",
+    "employee_id": "65f1c2a1b2c3d4e5f6783001",
+    "date": "2026-05-06T20:00:00.000Z",
     "pointsEarned": 120,
-    "billAmount": 62.00,
+    "billAmount": 62,
     "deletedAt": null
   },
   {
     "_id": "65f1c2a1b2c3d4e5f678c003",
     "customer_id": "65f1c2a1b2c3d4e5f6789051",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
-    "date": "2024-04-10T13:00:00.000Z",
+    "employee_id": "65f1c2a1b2c3d4e5f6783003",
+    "date": "2026-05-04T13:00:00.000Z",
     "pointsEarned": 50,
-    "billAmount": 24.00,
+    "billAmount": 24,
     "deletedAt": null
   },
   {
     "_id": "65f1c2a1b2c3d4e5f678c004",
     "customer_id": "65f1c2a1b2c3d4e5f6789052",
     "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
-    "date": "2024-05-10T14:00:00.000Z",
+    "employee_id": "65f1c2a1b2c3d4e5f6783001",
+    "date": "2026-05-02T14:00:00.000Z",
     "pointsEarned": 0,
-    "billAmount": 18.50,
+    "billAmount": 18.5,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c005",
+    "customer_id": "65f1c2a1b2c3d4e5f6789053",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "employee_id": "65f1c2a1b2c3d4e5f6783006",
+    "date": "2026-04-30T20:30:00.000Z",
+    "pointsEarned": 85,
+    "billAmount": 35,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c006",
+    "customer_id": "65f1c2a1b2c3d4e5f6789053",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "employee_id": "65f1c2a1b2c3d4e5f6783008",
+    "date": "2026-04-28T14:00:00.000Z",
+    "pointsEarned": 60,
+    "billAmount": 22.5,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c007",
+    "customer_id": "65f1c2a1b2c3d4e5f6789053",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "employee_id": "65f1c2a1b2c3d4e5f6783011",
+    "date": "2026-04-26T21:15:00.000Z",
+    "pointsEarned": 110,
+    "billAmount": 55,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c008",
+    "customer_id": "65f1c2a1b2c3d4e5f6789054",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "employee_id": "65f1c2a1b2c3d4e5f6783007",
+    "date": "2026-04-24T13:30:00.000Z",
+    "pointsEarned": 45,
+    "billAmount": 18,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c009",
+    "customer_id": "65f1c2a1b2c3d4e5f6789054",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "employee_id": "65f1c2a1b2c3d4e5f6783012",
+    "date": "2026-04-22T20:45:00.000Z",
+    "pointsEarned": 95,
+    "billAmount": 48,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c010",
+    "customer_id": "65f1c2a1b2c3d4e5f6789055",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789005",
+    "employee_id": "65f1c2a1b2c3d4e5f6783013",
+    "date": "2026-04-20T21:00:00.000Z",
+    "pointsEarned": 130,
+    "billAmount": 65,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c011",
+    "customer_id": "65f1c2a1b2c3d4e5f6789055",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789004",
+    "employee_id": "65f1c2a1b2c3d4e5f6783008",
+    "date": "2026-04-19T12:45:00.000Z",
+    "pointsEarned": 70,
+    "billAmount": 30,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c012",
+    "customer_id": "65f1c2a1b2c3d4e5f6789055",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789001",
+    "employee_id": "65f1c2a1b2c3d4e5f6783001",
+    "date": "2026-04-18T20:15:00.000Z",
+    "pointsEarned": 100,
+    "billAmount": 50,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c013",
+    "customer_id": "65f1c2a1b2c3d4e5f6789055",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789003",
+    "employee_id": "65f1c2a1b2c3d4e5f6783005",
+    "date": "2026-04-17T22:00:00.000Z",
+    "pointsEarned": 90,
+    "billAmount": 42,
+    "deletedAt": null
+  },
+  {
+    "_id": "65f1c2a1b2c3d4e5f678c014",
+    "customer_id": "65f1c2a1b2c3d4e5f6789056",
+    "restaurant_id": "65f1c2a1b2c3d4e5f6789002",
+    "employee_id": "65f1c2a1b2c3d4e5f6783004",
+    "date": "2026-04-16T13:00:00.000Z",
+    "pointsEarned": 40,
+    "billAmount": 19,
     "deletedAt": null
   }
 ]

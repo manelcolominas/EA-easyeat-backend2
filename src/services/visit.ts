@@ -1,12 +1,10 @@
-import mongoose from 'mongoose';
 import { VisitModel, IVisit } from '../models/visit';
+import { pointsRedemption } from '../utils/pointsRedemption';
 
 const createVisit = async (data: Partial<IVisit>) => {
-    const visit = new VisitModel({
-        _id: new mongoose.Types.ObjectId(),
-        ...data
-    });
-    return await visit.save();
+    const { _id, pointsEarned, deletedAt, ...visitData } = data;
+
+    return await pointsRedemption(visitData);
 };
 
 const getVisit = async (visit_id: string) => {
@@ -65,8 +63,37 @@ const getByCustomer = async (customer_id: string, skip: number, limit: number) =
     return { visits, total };
 };
 
+const getDeletedByCustomer = async (customer_id: string, skip: number, limit: number) => {
+    const query = { customer_id, deletedAt: { $ne: null } };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(query)
+            .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(query)
+    ]);
+    return { visits, total };
+};
+
 const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
     const query = { restaurant_id, deletedAt: null };
+    const [visits, total] = await Promise.all([
+        VisitModel.find(query)
+            .populate('customer_id', 'name email')
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean<IVisit[]>(),
+        VisitModel.countDocuments(query)
+    ]);
+    return { visits, total };
+    
+};
+
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+    const query = { restaurant_id, deletedAt: { $ne: null } };
     const [visits, total] = await Promise.all([
         VisitModel.find(query)
             .populate('customer_id', 'name email')
@@ -109,7 +136,9 @@ export default {
     getAllVisits,
     getAllDeletedVisits,
     getByCustomer,
+    getDeletedByCustomer,
     getByRestaurant,
+    getDeletedByRestaurant,
     updateVisit,
     softDeleteVisit,
     restoreVisit,

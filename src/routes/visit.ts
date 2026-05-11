@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/visit';
 import { Schemas, ValidateJoi } from '../middleware/joi';
-import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
+import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess, requireCustomerAccess } from '../middleware/auth';
 
 
 const router = express.Router();
@@ -24,18 +24,19 @@ const router = express.Router();
  *         customer_id:
  *           type: string
  *           description: Customer ObjectId
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *           example: "65f1c2a1b2c3d4e5f6789051"
  *         restaurant_id:
  *           type: string
  *           description: Restaurant ObjectId
  *           example: "65f1c2a1b2c3d4e5f6789014"
+ *         employee_id:
+ *          type: string
+ *          description: Employee ObjectId
+ *          example: "65f1c2a1b2c3d4e5f6783001"
  *         date:
  *           type: string
  *           format: date-time
  *           example: "2024-03-14T10:00:00.000Z"
- *         pointsEarned:
- *           type: number
- *           example: 10
  *         billAmount:
  *           type: number
  *           example: 31.00
@@ -44,20 +45,22 @@ const router = express.Router();
  *       required:
  *         - customer_id
  *         - restaurant_id
+ *         - date
+ *         - employee_id
  *       properties:
  *         customer_id:
  *           type: string
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *           example: "65f1c2a1b2c3d4e5f6789051"
  *         restaurant_id:
  *           type: string
- *           example: "65f1c2a1b2c3d4e5f6789014"
+ *           example: "65f1c2a1b2c3d4e5f6789001"
+ *         employee_id:
+ *          type: string
+ *          example: "65f1c2a1b2c3d4e5f6783001"
  *         date:
  *           type: string
  *           format: date-time
  *           example: "2024-03-14T10:00:00.000Z"
- *         pointsEarned:
- *           type: number
- *           example: 10
  *         billAmount:
  *           type: number
  *           example: 31.00
@@ -163,7 +166,35 @@ router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDel
  *       200:
  *         description: OK
  */
-router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readByCustomer);
+router.get('/customer/:customer_id', authenticate, requireCustomerAccess('customer_id'), controller.readByCustomer);
+
+/**
+ * @openapi
+ * /visits/customer/{customer_id}/deleted:
+ *   get:
+ *     summary: Lists all deleted visits for a specific customer
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: customer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/customer/:customer_id/deleted', authenticate, requireRole('admin'), controller.readDeletedByCustomer);
 
 /**
  * @openapi
@@ -192,6 +223,34 @@ router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_
  *         description: OK
  */
 router.get('/restaurant/:restaurant_id', authenticate, requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
+
+/**
+ * @openapi
+ * /visits/restaurant/{restaurant_id}/deleted:
+ *   get:
+ *     summary: Lists all deleted visits for a specific restaurant
+ *     tags: [Visits]
+ *     parameters:
+ *       - in: path
+ *         name: restaurant_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+router.get('/restaurant/:restaurant_id/deleted', authenticate, requireRole('admin'), controller.readDeletedByRestaurant);
 
 /**
  * @openapi
@@ -233,7 +292,7 @@ router.get('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff', 'c
  *       404:
  *         description: Not found
  */
-router.get('/:visit_id/deleted', authenticate, requireRole('admin'), controller.readDeletedVisit);
+router.get('/:visit_id/deleted', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.readDeletedVisit);
 
 /**
  * @openapi
@@ -283,7 +342,7 @@ router.put('/:visit_id', authenticate, requireRole('admin', 'owner', 'staff'), V
  *       404:
  *         description: Visit not found
  */
-router.delete('/:visit_id/soft', authenticate, requireRole('admin'), controller.softDeleteVisit);
+router.delete('/:visit_id/soft', authenticate, requireRole('admin', 'owner', 'staff'), controller.softDeleteVisit);
 
 /**
  * @openapi
@@ -304,7 +363,7 @@ router.delete('/:visit_id/soft', authenticate, requireRole('admin'), controller.
  *       404:
  *         description: Visit not found
  */
-router.patch('/:visit_id/restore', authenticate, requireRole('admin'), controller.restoreVisit);
+router.patch('/:visit_id/restore', authenticate, requireRole('admin', 'owner', 'staff'), controller.restoreVisit);
 
 /**
  * @openapi
@@ -325,6 +384,6 @@ router.patch('/:visit_id/restore', authenticate, requireRole('admin'), controlle
  *       404:
  *         description: Visit not found
  */
-router.delete('/:visit_id/hard', authenticate, requireRole('admin'), controller.hardDeleteVisit);
+router.delete('/:visit_id/hard', authenticate, requireRole('admin', 'owner', 'staff'), controller.hardDeleteVisit);
 
 export default router;
