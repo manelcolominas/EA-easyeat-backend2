@@ -23,7 +23,7 @@ export class SocketManager {
     }
 
     private setupMiddlewares() {
-        this.io.use((socket: Socket, next) => {
+        this.io.use((socket: Socket, next: (err?: any) => void) => {
             // Support token in auth object or headers
             const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
 
