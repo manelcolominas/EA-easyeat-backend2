@@ -27,5 +27,6 @@ export const config = {
             sameSite: 'lax' as const,
             path:     '/'
         }
-    }
+    },
+    geminiApiKey: process.env.GEMINI_API_KEY || ''
 };
