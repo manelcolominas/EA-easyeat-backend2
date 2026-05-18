@@ -55,9 +55,7 @@ const reviewSchema = new Schema<IReview>(
 );
 
 // Evitar duplicados SOLO si no está eliminado
-reviewSchema.index( { customer_id: 1, restaurant_id: 1 },
-  { unique: true, partialFilterExpression: { deleted: false } }
-);
+reviewSchema.index({ customer_id: 1, restaurant_id: 1 }, { unique: true, partialFilterExpression: { deleted: false } });
 
 // Para búsquedas rápidas (paginación/filtros)
 reviewSchema.index({ customer_id: 1, deleted: 1 });
@@ -65,7 +63,6 @@ reviewSchema.index({ restaurant_id: 1, deleted: 1 });
 reviewSchema.index({ employee_id: 1, deleted: 1 });
 reviewSchema.index({ globalRating: -1 });
 reviewSchema.index({ likes: -1 });
-
 
 // 3️⃣ Model
 export const ReviewModel = model<IReview>('Review', reviewSchema);

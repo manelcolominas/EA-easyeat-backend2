@@ -79,7 +79,7 @@ const router = express.Router();
  *         isActive:
  *           type: boolean
  *           example: true
- * 
+ *
  *     PaginatedEmployees:
  *       type: object
  *       properties:
@@ -118,13 +118,7 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post(
-  '/',
-  authenticate,
-  requireRole('owner', 'admin'),
-  ValidateJoi(Schemas.employee.create),
-  controller.createEmployee
-);
+router.post('/', authenticate, requireRole('owner', 'admin'), ValidateJoi(Schemas.employee.create), controller.createEmployee);
 
 /**
  * @openapi
@@ -136,12 +130,7 @@ router.post(
  *       200:
  *         description: OK
  */
-router.get(
-  '/',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readAll
-);
+router.get('/', authenticate, requireRole('admin', 'owner', 'staff'), controller.readAll);
 
 /**
  * @openapi
@@ -153,12 +142,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/deleted',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readAllDeleted
-);
+router.get('/deleted', authenticate, requireRole('admin', 'owner', 'staff'), controller.readAllDeleted);
 
 /**
  * @openapi
@@ -170,13 +154,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/restaurant/:restaurant_id',
-  authenticate,
-  requireRole('owner', 'admin', 'staff'),
-  requireRestaurantAccess('restaurant_id'),
-  controller.readByRestaurant
-);
+router.get('/restaurant/:restaurant_id', authenticate, requireRole('owner', 'admin', 'staff'), requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
 
 /**
  * @openapi
@@ -195,13 +173,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/restaurant/:restaurant_id/stats',
-  authenticate,
-  requireRole('admin', 'owner', 'employee', 'staff'),
-  requireRestaurantAccess('restaurant_id'),
-  controller.getEmployeesByRestaurantStats
-);
+router.get('/restaurant/:restaurant_id/stats', authenticate, requireRole('admin', 'owner', 'employee', 'staff'), requireRestaurantAccess('restaurant_id'), controller.getEmployeesByRestaurantStats);
 
 /**
  * @openapi
@@ -222,9 +194,12 @@ router.get(
  *         description: OK
  */
 router.get(
-    '/restaurant/:restaurant_id/statistics',
-    authenticate,
-    requireRole('owner', 'admin', 'staff'), requireSelfOrAdmin('employee_id'),requireRestaurantAccess('restaurant_id'), controllerEmployeeStatistics.getEmployeeStatistics
+  '/restaurant/:restaurant_id/statistics',
+  authenticate,
+  requireRole('owner', 'admin', 'staff'),
+  requireSelfOrAdmin('employee_id'),
+  requireRestaurantAccess('restaurant_id'),
+  controllerEmployeeStatistics.getEmployeeStatistics
 );
 
 /**
@@ -245,11 +220,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/:employee_id/statistics',
-  authenticate,
-  requireRole('owner', 'admin', 'staff'), requireSelfOrAdmin('employee_id'), controllerEmployeeStatistics.getEmployeeStatistics
-);
+router.get('/:employee_id/statistics', authenticate, requireRole('owner', 'admin', 'staff'), requireSelfOrAdmin('employee_id'), controllerEmployeeStatistics.getEmployeeStatistics);
 
 /**
  * @openapi
@@ -261,13 +232,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/restaurant/:restaurant_id/deleted',
-  authenticate,
-  requireRole('owner', 'admin', 'staff'),
-  requireRestaurantAccess('restaurant_id'),
-  controller.readDeletedByRestaurant
-);
+router.get('/restaurant/:restaurant_id/deleted', authenticate, requireRole('owner', 'admin', 'staff'), requireRestaurantAccess('restaurant_id'), controller.readDeletedByRestaurant);
 
 /**
  * @openapi
@@ -281,12 +246,7 @@ router.get(
  *       404:
  *         description: Not found
  */
-router.get(
-  '/:employee_id',
-  authenticate,
-  requireRole('owner', 'admin', 'staff'),
-  controller.readEmployee
-);
+router.get('/:employee_id', authenticate, requireRole('owner', 'admin', 'staff'), controller.readEmployee);
 
 // ─── GET /employees/:employee_id/statistics ────────────────────────────────────
 /**
@@ -309,12 +269,7 @@ router.get(
  *       500:
  *         description: Server error
  */
-router.get(
-  '/:employee_id/statistics',
-  authenticate,
-  requireRole('owner', 'admin', 'staff'),
-  controllerEmployeeStatistics.getEmployeeStatistics
-);
+router.get('/:employee_id/statistics', authenticate, requireRole('owner', 'admin', 'staff'), controllerEmployeeStatistics.getEmployeeStatistics);
 
 /**
  * @openapi
@@ -326,12 +281,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/:employee_id/deleted',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readDeletedEmployee
-);
+router.get('/:employee_id/deleted', authenticate, requireRole('admin', 'owner', 'staff'), controller.readDeletedEmployee);
 
 /**
  * @openapi
@@ -343,13 +293,7 @@ router.get(
  *       200:
  *         description: Updated
  */
-router.put(
-  '/:employee_id',
-  authenticate,
-  requireRole('owner', 'admin'),
-  ValidateJoi(Schemas.employee.update),
-  controller.updateEmployee
-);
+router.put('/:employee_id', authenticate, requireRole('owner', 'admin'), ValidateJoi(Schemas.employee.update), controller.updateEmployee);
 
 /**
  * @openapi
@@ -358,12 +302,7 @@ router.put(
  *     summary: Deletes an employee by ID
  *     tags: [Employees]
  */
-router.delete(
-  '/:employee_id/soft',
-  authenticate,
-  requireRole('owner', 'admin'),
-  controller.softDeleteEmployee
-);
+router.delete('/:employee_id/soft', authenticate, requireRole('owner', 'admin'), controller.softDeleteEmployee);
 
 /**
  * @openapi
@@ -372,12 +311,7 @@ router.delete(
  *     summary: Restore a soft-deleted employee by ID
  *     tags: [Employees]
  */
-router.patch(
-  '/:employee_id/restore',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.restoreEmployee
-);
+router.patch('/:employee_id/restore', authenticate, requireRole('admin', 'owner', 'staff'), controller.restoreEmployee);
 
 /**
  * @openapi
@@ -386,11 +320,6 @@ router.patch(
  *     summary: Hard delete an employee by ID
  *     tags: [Employees]
  */
-router.delete(
-  '/:employee_id/hard',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.hardDeleteEmployee
-);
+router.delete('/:employee_id/hard', authenticate, requireRole('admin', 'owner', 'staff'), controller.hardDeleteEmployee);
 
 export default router;

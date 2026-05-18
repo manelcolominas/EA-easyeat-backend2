@@ -144,7 +144,7 @@ const router = express.Router();
  *           type: array
  *           items:
  *             type: string
- *         reviews: 
+ *         reviews:
  *           type: array
  *           items:
  *             type: string
@@ -159,7 +159,7 @@ const router = express.Router();
  *         updatedAt:
  *           type: string
  *           format: date-time
- * 
+ *
  *     PaginatedRestaurants:
  *       type: object
  *       properties:
@@ -178,7 +178,7 @@ const router = express.Router();
  *               type: integer
  *             totalPages:
  *               type: integer
- * 
+ *
  *     PaginatedCustomers:
  *       type: object
  *       properties:
@@ -348,7 +348,7 @@ router.get('/', controller.readAll);
  *             schema:
  *               $ref: '#/components/schemas/PaginatedRestaurants'
  */
-router.get('/deleted', authenticate, requireRole('admin'),controller.readAllDeleted);
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
 /**
  * @openapi
@@ -479,7 +479,7 @@ router.get('/:restaurantId', controller.readRestaurant);
  *       404:
  *         description: Deleted restaurant not found
  */
-router.get('/:restaurantId/deleted', authenticate, requireRole('admin'),controller.readDeletedRestaurant);
+router.get('/:restaurantId/deleted', authenticate, requireRole('admin'), controller.readDeletedRestaurant);
 
 /**
  * @openapi
@@ -927,10 +927,7 @@ router.get('/:restaurantId/badges/deleted', authenticate, requireRole('admin'), 
  *       404:
  *         description: Restaurant not found
  */
-router.get(
-    '/:restaurantId/statistics', authenticate, requireRole('admin', 'owner'),
-    requireRestaurantAccess('restaurantId'), controller.getStatistics
-);
+router.get('/:restaurantId/statistics', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurantId'), controller.getStatistics);
 
 /**
  * @openapi
@@ -970,10 +967,7 @@ router.get('/:restaurantId/statistics/deleted', authenticate, requireRole('admin
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/employees', authenticate, requireRole('admin', 'owner'),
-    requireRestaurantAccess('restaurantId'),
-    controller.getEmployees
-);
+router.get('/:restaurantId/employees', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurantId'), controller.getEmployees);
 
 /**
  * @openapi
@@ -1093,7 +1087,7 @@ router.get('/:restaurantId/rewards/deleted', authenticate, requireRole('admin'),
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/visits',     controller.getVisits);
+router.get('/:restaurantId/visits', controller.getVisits);
 
 /**
  * @openapi

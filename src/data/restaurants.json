@@ -8,13 +8,31 @@
       "maxPointsVisit": 100,
       "category": ["Marisc", "Espanyol", "Wine Bar"],
       "timetable": {
-        "monday":    [{ "open": "13:00", "close": "16:00" }, { "open": "20:00", "close": "23:30" }],
-        "tuesday":   [{ "open": "13:00", "close": "16:00" }, { "open": "20:00", "close": "23:30" }],
-        "wednesday": [{ "open": "13:00", "close": "16:00" }, { "open": "20:00", "close": "23:30" }],
-        "thursday":  [{ "open": "13:00", "close": "16:00" }, { "open": "20:00", "close": "23:30" }],
-        "friday":    [{ "open": "13:00", "close": "16:30" }, { "open": "20:00", "close": "00:00" }],
-        "saturday":  [{ "open": "13:00", "close": "16:30" }, { "open": "20:00", "close": "00:00" }],
-        "sunday":    [{ "open": "13:00", "close": "17:00" }]
+        "monday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "20:00", "close": "23:30" }
+        ],
+        "tuesday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "20:00", "close": "23:30" }
+        ],
+        "wednesday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "20:00", "close": "23:30" }
+        ],
+        "thursday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "20:00", "close": "23:30" }
+        ],
+        "friday": [
+          { "open": "13:00", "close": "16:30" },
+          { "open": "20:00", "close": "00:00" }
+        ],
+        "saturday": [
+          { "open": "13:00", "close": "16:30" },
+          { "open": "20:00", "close": "00:00" }
+        ],
+        "sunday": [{ "open": "13:00", "close": "17:00" }]
       },
       "image": [
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80",
@@ -30,16 +48,16 @@
         "coordinates": { "type": "Point", "coordinates": [2.1834, 41.3851] }
       }
     },
-    "employees":  ["65f1c2a1b2c3d4e5f6783001", "65f1c2a1b2c3d4e5f6783002"],
-    "rewards":    ["65f1c2a1b2c3d4e5f6789021", "65f1c2a1b2c3d4e5f6789022"],
-    "visits":     ["65f1c2a1b2c3d4e5f678c001", "65f1c2a1b2c3d4e5f678c002", "65f1c2a1b2c3d4e5f678c004"],
+    "employees": ["65f1c2a1b2c3d4e5f6783001", "65f1c2a1b2c3d4e5f6783002"],
+    "rewards": ["65f1c2a1b2c3d4e5f6789021", "65f1c2a1b2c3d4e5f6789022"],
+    "visits": ["65f1c2a1b2c3d4e5f678c001", "65f1c2a1b2c3d4e5f678c002", "65f1c2a1b2c3d4e5f678c004"],
     "statistics": "65f1c2a1b2c3d4e5f678e001",
-    "badges":     ["65f1c2a1b2c3d4e5f678a001"],
-    "dishes":     ["65f1c2a1b2c3d4e5f6789014", "65f1c2a1b2c3d4e5f6789015"],
-    "reviews":    ["65f1c2a1b2c3d4e5f678d001", "65f1c2a1b2c3d4e5f678d002"],
-    "deletedAt":  null,
-    "createdAt":  "2023-06-01T08:00:00.000Z",
-    "updatedAt":  "2024-06-15T10:00:00.000Z"
+    "badges": ["65f1c2a1b2c3d4e5f678a001"],
+    "dishes": ["65f1c2a1b2c3d4e5f6789014", "65f1c2a1b2c3d4e5f6789015"],
+    "reviews": ["65f1c2a1b2c3d4e5f678d001", "65f1c2a1b2c3d4e5f678d002"],
+    "deletedAt": null,
+    "createdAt": "2023-06-01T08:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789002",
@@ -50,12 +68,24 @@
       "maxPointsVisit": 50,
       "category": ["Japonès", "Ramen", "Sushi"],
       "timetable": {
-        "tuesday":   [{ "open": "12:00", "close": "15:00" }, { "open": "19:00", "close": "22:30" }],
-        "wednesday": [{ "open": "12:00", "close": "15:00" }, { "open": "19:00", "close": "22:30" }],
-        "thursday":  [{ "open": "12:00", "close": "15:00" }, { "open": "19:00", "close": "22:30" }],
-        "friday":    [{ "open": "12:00", "close": "15:00" }, { "open": "19:00", "close": "23:00" }],
-        "saturday":  [{ "open": "12:00", "close": "23:00" }],
-        "sunday":    [{ "open": "12:00", "close": "16:00" }]
+        "tuesday": [
+          { "open": "12:00", "close": "15:00" },
+          { "open": "19:00", "close": "22:30" }
+        ],
+        "wednesday": [
+          { "open": "12:00", "close": "15:00" },
+          { "open": "19:00", "close": "22:30" }
+        ],
+        "thursday": [
+          { "open": "12:00", "close": "15:00" },
+          { "open": "19:00", "close": "22:30" }
+        ],
+        "friday": [
+          { "open": "12:00", "close": "15:00" },
+          { "open": "19:00", "close": "23:00" }
+        ],
+        "saturday": [{ "open": "12:00", "close": "23:00" }],
+        "sunday": [{ "open": "12:00", "close": "16:00" }]
       },
       "image": [
         "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&q=80",
@@ -70,16 +100,16 @@
         "coordinates": { "type": "Point", "coordinates": [2.1554, 41.3902] }
       }
     },
-    "employees":  ["65f1c2a1b2c3d4e5f6783003", "65f1c2a1b2c3d4e5f6783004"],
-    "rewards":    ["65f1c2a1b2c3d4e5f6789023", "65f1c2a1b2c3d4e5f6789024"],
-    "visits":     ["65f1c2a1b2c3d4e5f678c003"],
+    "employees": ["65f1c2a1b2c3d4e5f6783003", "65f1c2a1b2c3d4e5f6783004"],
+    "rewards": ["65f1c2a1b2c3d4e5f6789023", "65f1c2a1b2c3d4e5f6789024"],
+    "visits": ["65f1c2a1b2c3d4e5f678c003"],
     "statistics": "65f1c2a1b2c3d4e5f678e002",
-    "badges":     [],
-    "dishes":     ["65f1c2a1b2c3d4e5f6789016", "65f1c2a1b2c3d4e5f6789017"],
-    "reviews":    ["65f1c2a1b2c3d4e5f678d003"],
-    "deletedAt":  null,
-    "createdAt":  "2023-11-15T10:00:00.000Z",
-    "updatedAt":  "2024-05-01T14:00:00.000Z"
+    "badges": [],
+    "dishes": ["65f1c2a1b2c3d4e5f6789016", "65f1c2a1b2c3d4e5f6789017"],
+    "reviews": ["65f1c2a1b2c3d4e5f678d003"],
+    "deletedAt": null,
+    "createdAt": "2023-11-15T10:00:00.000Z",
+    "updatedAt": "2024-05-01T14:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789003",
@@ -90,12 +120,15 @@
       "maxPointsVisit": 75,
       "category": ["Mexicà", "Street Food", "Taperia"],
       "timetable": {
-        "tuesday":   [{ "open": "18:00", "close": "23:30" }],
+        "tuesday": [{ "open": "18:00", "close": "23:30" }],
         "wednesday": [{ "open": "18:00", "close": "23:30" }],
-        "thursday":  [{ "open": "18:00", "close": "23:30" }],
-        "friday":    [{ "open": "13:00", "close": "16:00" }, { "open": "19:00", "close": "01:00" }],
-        "saturday":  [{ "open": "13:00", "close": "01:00" }],
-        "sunday":    [{ "open": "13:00", "close": "22:00" }]
+        "thursday": [{ "open": "18:00", "close": "23:30" }],
+        "friday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "19:00", "close": "01:00" }
+        ],
+        "saturday": [{ "open": "13:00", "close": "01:00" }],
+        "sunday": [{ "open": "13:00", "close": "22:00" }]
       },
       "image": [
         "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80",
@@ -111,16 +144,16 @@
         "coordinates": { "type": "Point", "coordinates": [2.1622, 41.3765] }
       }
     },
-    "employees":  ["65f1c2a1b2c3d4e5f6783005", "65f1c2a1b2c3d4e5f6783006"],
-    "rewards":    ["65f1c2a1b2c3d4e5f678f002", "65f1c2a1b2c3d4e5f678f003"],
-    "visits":     ["65f1c2a1b2c3d4e5f678c005", "65f1c2a1b2c3d4e5f678c006"],
+    "employees": ["65f1c2a1b2c3d4e5f6783005", "65f1c2a1b2c3d4e5f6783006"],
+    "rewards": ["65f1c2a1b2c3d4e5f678f002", "65f1c2a1b2c3d4e5f678f003"],
+    "visits": ["65f1c2a1b2c3d4e5f678c005", "65f1c2a1b2c3d4e5f678c006"],
     "statistics": "65f1c2a1b2c3d4e5f678e003",
-    "badges":     ["65f1c2a1b2c3d4e5f678a002"],
-    "dishes":     ["65f1c2a1b2c3d4e5f6789018", "65f1c2a1b2c3d4e5f6789019"],
-    "reviews":    ["65f1c2a1b2c3d4e5f678d004"],
-    "deletedAt":  null,
-    "createdAt":  "2024-01-10T11:00:00.000Z",
-    "updatedAt":  "2024-06-01T09:30:00.000Z"
+    "badges": ["65f1c2a1b2c3d4e5f678a002"],
+    "dishes": ["65f1c2a1b2c3d4e5f6789018", "65f1c2a1b2c3d4e5f6789019"],
+    "reviews": ["65f1c2a1b2c3d4e5f678d004"],
+    "deletedAt": null,
+    "createdAt": "2024-01-10T11:00:00.000Z",
+    "updatedAt": "2024-06-01T09:30:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789004",
@@ -131,12 +164,12 @@
       "maxPointsVisit": 25,
       "category": ["Vegà", "Vegetarià", "Cafeteria", "Gluten Free"],
       "timetable": {
-        "monday":    [{ "open": "09:00", "close": "20:00" }],
-        "tuesday":   [{ "open": "09:00", "close": "20:00" }],
+        "monday": [{ "open": "09:00", "close": "20:00" }],
+        "tuesday": [{ "open": "09:00", "close": "20:00" }],
         "wednesday": [{ "open": "09:00", "close": "20:00" }],
-        "thursday":  [{ "open": "09:00", "close": "20:00" }],
-        "friday":    [{ "open": "09:00", "close": "21:00" }],
-        "saturday":  [{ "open": "10:00", "close": "21:00" }]
+        "thursday": [{ "open": "09:00", "close": "20:00" }],
+        "friday": [{ "open": "09:00", "close": "21:00" }],
+        "saturday": [{ "open": "10:00", "close": "21:00" }]
       },
       "image": [
         "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80",
@@ -151,16 +184,16 @@
         "coordinates": { "type": "Point", "coordinates": [2.1565, 41.3968] }
       }
     },
-    "employees":  ["65f1c2a1b2c3d4e5f6783007", "65f1c2a1b2c3d4e5f6783008"],
-    "rewards":    ["65f1c2a1b2c3d4e5f678f004", "65f1c2a1b2c3d4e5f678f005"],
-    "visits":     ["65f1c2a1b2c3d4e5f678c007", "65f1c2a1b2c3d4e5f678c008"],
+    "employees": ["65f1c2a1b2c3d4e5f6783007", "65f1c2a1b2c3d4e5f6783008"],
+    "rewards": ["65f1c2a1b2c3d4e5f678f004", "65f1c2a1b2c3d4e5f678f005"],
+    "visits": ["65f1c2a1b2c3d4e5f678c007", "65f1c2a1b2c3d4e5f678c008"],
     "statistics": "65f1c2a1b2c3d4e5f6789044",
-    "badges":     [],
-    "dishes":     ["65f1c2a1b2c3d4e5f6789020", "65f1c2a1b2c3d4e5f6789021"],
-    "reviews":    ["65f1c2a1b2c3d4e5f678d005"],
-    "deletedAt":  null,
-    "createdAt":  "2024-02-14T08:30:00.000Z",
-    "updatedAt":  "2024-05-20T12:00:00.000Z"
+    "badges": [],
+    "dishes": ["65f1c2a1b2c3d4e5f6789020", "65f1c2a1b2c3d4e5f6789021"],
+    "reviews": ["65f1c2a1b2c3d4e5f678d005"],
+    "deletedAt": null,
+    "createdAt": "2024-02-14T08:30:00.000Z",
+    "updatedAt": "2024-05-20T12:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789005",
@@ -171,12 +204,21 @@
       "maxPointsVisit": 1000,
       "category": ["Italià", "Pizzeria", "Gourmet"],
       "timetable": {
-        "monday":    [{ "open": "19:30", "close": "23:30" }],
+        "monday": [{ "open": "19:30", "close": "23:30" }],
         "wednesday": [{ "open": "19:30", "close": "23:30" }],
-        "thursday":  [{ "open": "19:30", "close": "23:30" }],
-        "friday":    [{ "open": "13:30", "close": "15:30" }, { "open": "19:30", "close": "00:00" }],
-        "saturday":  [{ "open": "13:30", "close": "16:00" }, { "open": "19:30", "close": "00:00" }],
-        "sunday":    [{ "open": "13:30", "close": "16:00" }, { "open": "19:30", "close": "23:30" }]
+        "thursday": [{ "open": "19:30", "close": "23:30" }],
+        "friday": [
+          { "open": "13:30", "close": "15:30" },
+          { "open": "19:30", "close": "00:00" }
+        ],
+        "saturday": [
+          { "open": "13:30", "close": "16:00" },
+          { "open": "19:30", "close": "00:00" }
+        ],
+        "sunday": [
+          { "open": "13:30", "close": "16:00" },
+          { "open": "19:30", "close": "23:30" }
+        ]
       },
       "image": [
         "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&q=80",
@@ -191,16 +233,16 @@
         "coordinates": { "type": "Point", "coordinates": [2.1578, 41.3915] }
       }
     },
-    "employees":  ["65f1c2a1b2c3d4e5f6783010", "65f1c2a1b2c3d4e5f6783009", "65f1c2a1b2c3d4e5f6783011", "65f1c2a1b2c3d4e5f6783012", "65f1c2a1b2c3d4e5f6783013"],
-    "rewards":    ["65f1c2a1b2c3d4e5f678f001"],
-    "visits":     ["65f1c2a1b2c3d4e5f678c009", "65f1c2a1b2c3d4e5f678c010"],
+    "employees": ["65f1c2a1b2c3d4e5f6783010", "65f1c2a1b2c3d4e5f6783009", "65f1c2a1b2c3d4e5f6783011", "65f1c2a1b2c3d4e5f6783012", "65f1c2a1b2c3d4e5f6783013"],
+    "rewards": ["65f1c2a1b2c3d4e5f678f001"],
+    "visits": ["65f1c2a1b2c3d4e5f678c009", "65f1c2a1b2c3d4e5f678c010"],
     "statistics": "65f1c2a1b2c3d4e5f678e005",
-    "badges":     ["65f1c2a1b2c3d4e5f678a003"],
-    "dishes":     ["65f1c2a1b2c3d4e5f6789022", "65f1c2a1b2c3d4e5f6789023"],
-    "reviews":    ["65f1c2a1b2c3d4e5f678d006"],
-    "deletedAt":  null,
-    "createdAt":  "2023-09-05T17:00:00.000Z",
-    "updatedAt":  "2024-06-10T11:45:00.000Z"
+    "badges": ["65f1c2a1b2c3d4e5f678a003"],
+    "dishes": ["65f1c2a1b2c3d4e5f6789022", "65f1c2a1b2c3d4e5f6789023"],
+    "reviews": ["65f1c2a1b2c3d4e5f678d006"],
+    "deletedAt": null,
+    "createdAt": "2023-09-05T17:00:00.000Z",
+    "updatedAt": "2024-06-10T11:45:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789010",
@@ -211,12 +253,15 @@
       "maxPointsVisit": 75,
       "category": ["Espanyol", "Wine Bar", "Taperia"],
       "timetable": {
-        "monday":    [{ "open": "18:00", "close": "01:00" }],
-        "tuesday":   [{ "open": "18:00", "close": "01:00" }],
+        "monday": [{ "open": "18:00", "close": "01:00" }],
+        "tuesday": [{ "open": "18:00", "close": "01:00" }],
         "wednesday": [{ "open": "18:00", "close": "01:00" }],
-        "thursday":  [{ "open": "18:00", "close": "01:00" }],
-        "friday":    [{ "open": "18:00", "close": "01:00" }],
-        "saturday":  [{ "open": "12:00", "close": "15:00" }, { "open": "19:00", "close": "02:00" }]
+        "thursday": [{ "open": "18:00", "close": "01:00" }],
+        "friday": [{ "open": "18:00", "close": "01:00" }],
+        "saturday": [
+          { "open": "12:00", "close": "15:00" },
+          { "open": "19:00", "close": "02:00" }
+        ]
       },
       "image": [
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80",
@@ -232,16 +277,16 @@
         "coordinates": { "type": "Point", "coordinates": [1.989788516331793, 41.27317559672859] }
       }
     },
-    "employees":  [],
-    "rewards":    [],
-    "visits":     [],
+    "employees": [],
+    "rewards": [],
+    "visits": [],
     "statistics": null,
-    "badges":     [],
-    "dishes":     [],
-    "reviews":    [],
-    "deletedAt":  null,
-    "createdAt":  "2024-01-01T00:00:00.000Z",
-    "updatedAt":  "2024-06-15T00:00:00.000Z"
+    "badges": [],
+    "dishes": [],
+    "reviews": [],
+    "deletedAt": null,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-06-15T00:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789011",
@@ -252,11 +297,23 @@
       "maxPointsVisit": 100,
       "category": ["Espanyol", "Gourmet", "Wine Bar"],
       "timetable": {
-        "wednesday": [{ "open": "12:00", "close": "16:00" }, { "open": "20:00", "close": "00:00" }],
-        "thursday":  [{ "open": "12:00", "close": "16:00" }, { "open": "20:00", "close": "00:00" }],
-        "friday":    [{ "open": "12:00", "close": "16:00" }, { "open": "20:00", "close": "00:00" }],
-        "saturday":  [{ "open": "13:00", "close": "16:30" }, { "open": "20:00", "close": "01:00" }],
-        "sunday":    [{ "open": "13:30", "close": "17:00" }]
+        "wednesday": [
+          { "open": "12:00", "close": "16:00" },
+          { "open": "20:00", "close": "00:00" }
+        ],
+        "thursday": [
+          { "open": "12:00", "close": "16:00" },
+          { "open": "20:00", "close": "00:00" }
+        ],
+        "friday": [
+          { "open": "12:00", "close": "16:00" },
+          { "open": "20:00", "close": "00:00" }
+        ],
+        "saturday": [
+          { "open": "13:00", "close": "16:30" },
+          { "open": "20:00", "close": "01:00" }
+        ],
+        "sunday": [{ "open": "13:30", "close": "17:00" }]
       },
       "image": [
         "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",
@@ -272,16 +329,16 @@
         "coordinates": { "type": "Point", "coordinates": [1.9904704558868411, 41.27166333049305] }
       }
     },
-    "employees":  [],
-    "rewards":    [],
-    "visits":     [],
+    "employees": [],
+    "rewards": [],
+    "visits": [],
     "statistics": null,
-    "badges":     [],
-    "dishes":     [],
-    "reviews":    [],
-    "deletedAt":  null,
-    "createdAt":  "2024-01-01T00:00:00.000Z",
-    "updatedAt":  "2024-06-15T00:00:00.000Z"
+    "badges": [],
+    "dishes": [],
+    "reviews": [],
+    "deletedAt": null,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-06-15T00:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789012",
@@ -292,11 +349,26 @@
       "maxPointsVisit": 100,
       "category": ["Espanyol", "Gourmet", "Taperia"],
       "timetable": {
-        "tuesday":   [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:00" }],
-        "wednesday": [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:00" }],
-        "thursday":  [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:30" }],
-        "friday":    [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:30" }],
-        "saturday":  [{ "open": "13:00", "close": "16:00" }, { "open": "19:30", "close": "00:30" }]
+        "tuesday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "19:30", "close": "00:00" }
+        ],
+        "wednesday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "19:30", "close": "00:00" }
+        ],
+        "thursday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "19:30", "close": "00:30" }
+        ],
+        "friday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "19:30", "close": "00:30" }
+        ],
+        "saturday": [
+          { "open": "13:00", "close": "16:00" },
+          { "open": "19:30", "close": "00:30" }
+        ]
       },
       "image": [
         "https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=600&q=80",
@@ -312,16 +384,16 @@
         "coordinates": { "type": "Point", "coordinates": [1.9921451858340606, 41.277643252939434] }
       }
     },
-    "employees":  [],
-    "rewards":    [],
-    "visits":     [],
+    "employees": [],
+    "rewards": [],
+    "visits": [],
     "statistics": null,
-    "badges":     [],
-    "dishes":     [],
-    "reviews":    [],
-    "deletedAt":  null,
-    "createdAt":  "2024-01-01T00:00:00.000Z",
-    "updatedAt":  "2024-06-15T00:00:00.000Z"
+    "badges": [],
+    "dishes": [],
+    "reviews": [],
+    "deletedAt": null,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-06-15T00:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789013",
@@ -332,12 +404,27 @@
       "maxPointsVisit": 75,
       "category": ["Grec", "Marisc", "Gourmet"],
       "timetable": {
-        "tuesday":   [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:00" }],
-        "wednesday": [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:00" }],
-        "thursday":  [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:00" }],
-        "friday":    [{ "open": "12:00", "close": "16:00" }, { "open": "19:00", "close": "22:30" }],
-        "saturday":  [{ "open": "11:00", "close": "16:00" }, { "open": "19:00", "close": "22:30" }],
-        "sunday":    [{ "open": "12:00", "close": "16:00" }]
+        "tuesday": [
+          { "open": "12:00", "close": "16:00" },
+          { "open": "19:00", "close": "22:00" }
+        ],
+        "wednesday": [
+          { "open": "12:00", "close": "16:00" },
+          { "open": "19:00", "close": "22:00" }
+        ],
+        "thursday": [
+          { "open": "12:00", "close": "16:00" },
+          { "open": "19:00", "close": "22:00" }
+        ],
+        "friday": [
+          { "open": "12:00", "close": "16:00" },
+          { "open": "19:00", "close": "22:30" }
+        ],
+        "saturday": [
+          { "open": "11:00", "close": "16:00" },
+          { "open": "19:00", "close": "22:30" }
+        ],
+        "sunday": [{ "open": "12:00", "close": "16:00" }]
       },
       "image": [
         "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80",
@@ -353,16 +440,16 @@
         "coordinates": { "type": "Point", "coordinates": [1.9875297872052802, 41.27320669906986] }
       }
     },
-    "employees":  [],
-    "rewards":    [],
-    "visits":     [],
+    "employees": [],
+    "rewards": [],
+    "visits": [],
     "statistics": null,
-    "badges":     [],
-    "dishes":     [],
-    "reviews":    [],
-    "deletedAt":  null,
-    "createdAt":  "2024-01-01T00:00:00.000Z",
-    "updatedAt":  "2024-06-15T00:00:00.000Z"
+    "badges": [],
+    "dishes": [],
+    "reviews": [],
+    "deletedAt": null,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-06-15T00:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789014",
@@ -373,13 +460,19 @@
       "maxPointsVisit": 75,
       "category": ["Espanyol", "Taperia", "Gourmet"],
       "timetable": {
-        "monday":    [{ "open": "19:00", "close": "00:00" }],
-        "tuesday":   [{ "open": "19:00", "close": "00:00" }],
+        "monday": [{ "open": "19:00", "close": "00:00" }],
+        "tuesday": [{ "open": "19:00", "close": "00:00" }],
         "wednesday": [{ "open": "19:00", "close": "00:00" }],
-        "thursday":  [{ "open": "19:00", "close": "00:00" }],
-        "friday":    [{ "open": "19:00", "close": "00:00" }],
-        "saturday":  [{ "open": "13:00", "close": "17:00" }, { "open": "19:00", "close": "00:00" }],
-        "sunday":    [{ "open": "13:00", "close": "17:00" }, { "open": "19:00", "close": "00:00" }]
+        "thursday": [{ "open": "19:00", "close": "00:00" }],
+        "friday": [{ "open": "19:00", "close": "00:00" }],
+        "saturday": [
+          { "open": "13:00", "close": "17:00" },
+          { "open": "19:00", "close": "00:00" }
+        ],
+        "sunday": [
+          { "open": "13:00", "close": "17:00" },
+          { "open": "19:00", "close": "00:00" }
+        ]
       },
       "image": [
         "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&q=80",
@@ -395,16 +488,16 @@
         "coordinates": { "type": "Point", "coordinates": [1.986089082517462, 41.27258168399849] }
       }
     },
-    "employees":  [],
-    "rewards":    [],
-    "visits":     [],
+    "employees": [],
+    "rewards": [],
+    "visits": [],
     "statistics": null,
-    "badges":     [],
-    "dishes":     [],
-    "reviews":    [],
-    "deletedAt":  null,
-    "createdAt":  "2024-01-01T00:00:00.000Z",
-    "updatedAt":  "2024-06-15T00:00:00.000Z"
+    "badges": [],
+    "dishes": [],
+    "reviews": [],
+    "deletedAt": null,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-06-15T00:00:00.000Z"
   },
   {
     "_id": "65f1c2a1b2c3d4e5f6789015",
@@ -415,12 +508,12 @@
       "maxPointsVisit": 100,
       "category": ["Francès", "Gourmet", "Wine Bar"],
       "timetable": {
-        "monday":    [{ "open": "19:00", "close": "22:30" }],
-        "tuesday":   [{ "open": "19:00", "close": "22:30" }],
+        "monday": [{ "open": "19:00", "close": "22:30" }],
+        "tuesday": [{ "open": "19:00", "close": "22:30" }],
         "wednesday": [{ "open": "19:00", "close": "22:30" }],
-        "thursday":  [{ "open": "19:00", "close": "22:30" }],
-        "friday":    [{ "open": "19:00", "close": "22:30" }],
-        "saturday":  [{ "open": "19:00", "close": "22:30" }]
+        "thursday": [{ "open": "19:00", "close": "22:30" }],
+        "friday": [{ "open": "19:00", "close": "22:30" }],
+        "saturday": [{ "open": "19:00", "close": "22:30" }]
       },
       "image": [
         "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=600&q=80",
@@ -436,15 +529,15 @@
         "coordinates": { "type": "Point", "coordinates": [1.9859677274043068, 41.27677832720455] }
       }
     },
-    "employees":  [],
-    "rewards":    [],
-    "visits":     [],
+    "employees": [],
+    "rewards": [],
+    "visits": [],
     "statistics": null,
-    "badges":     [],
-    "dishes":     [],
-    "reviews":    [],
-    "deletedAt":  null,
-    "createdAt":  "2024-01-01T00:00:00.000Z",
-    "updatedAt":  "2024-06-15T00:00:00.000Z"
+    "badges": [],
+    "dishes": [],
+    "reviews": [],
+    "deletedAt": null,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-06-15T00:00:00.000Z"
   }
 ]

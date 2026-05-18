@@ -3,26 +3,28 @@ import { ServicePeriod } from '../utils/servicePeriod';
 
 // Interface
 export interface IDish {
-    _id?: Types.ObjectId;
-    restaurant_id: Types.ObjectId;
-    name: string;
-    description?: string;
-    section: 'Starters' | 'Mains' | 'Desserts' | 'Drinks' | 'Sides' | 'Specials' ;
-    price: number;
-    images?: string[];
-    active: boolean;
-    availableAt?: ServicePeriod[];
-    ingredients?: string[];
-    allergens?: ('gluten' | 'shellfish' | 'nuts' | 'dairy' | 'eggs' | 'soy' | 'fish' | 'sesame' | 'mustard' | 'celery' | 'lupins' | 'molluscs' | 'sulphites')[];    dietaryFlags?: ('vegan' | 'vegetarian' | 'gluten-free' | 'halal' | 'kosher' | 'dairy-free' | 'nut-free')[];
-    flavorProfile?: ('spicy' | 'mild' | 'sweet' | 'sour' | 'salty' | 'bitter' | 'umami' | 'smoky' | 'rich' | 'light' | 'creamy' | 'tangy' | 'fresh' | 'hearty' | 'nutty' )[];
-    cuisineTags?: string[];
-    portionSize?: 'small' | 'medium' | 'large' | 'sharing';
-    avgRating?: number;
-    ratingsCount?: number;
+  _id?: Types.ObjectId;
+  restaurant_id: Types.ObjectId;
+  name: string;
+  description?: string;
+  section: 'Starters' | 'Mains' | 'Desserts' | 'Drinks' | 'Sides' | 'Specials';
+  price: number;
+  images?: string[];
+  active: boolean;
+  availableAt?: ServicePeriod[];
+  ingredients?: string[];
+  allergens?: ('gluten' | 'shellfish' | 'nuts' | 'dairy' | 'eggs' | 'soy' | 'fish' | 'sesame' | 'mustard' | 'celery' | 'lupins' | 'molluscs' | 'sulphites')[];
+  dietaryFlags?: ('vegan' | 'vegetarian' | 'gluten-free' | 'halal' | 'kosher' | 'dairy-free' | 'nut-free')[];
+  flavorProfile?: ('spicy' | 'mild' | 'sweet' | 'sour' | 'salty' | 'bitter' | 'umami' | 'smoky' | 'rich' | 'light' | 'creamy' | 'tangy' | 'fresh' | 'hearty' | 'nutty')[];
+  cuisineTags?: string[];
+  portionSize?: 'small' | 'medium' | 'large' | 'sharing';
+  avgRating?: number;
+  ratingsCount?: number;
 }
 
 // Schema
-const dishSchema = new Schema<IDish>({
+const dishSchema = new Schema<IDish>(
+  {
     restaurant_id: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true },
     name: { type: String, required: true },
     description: { type: String },
@@ -30,25 +32,60 @@ const dishSchema = new Schema<IDish>({
     price: { type: Number, required: true, min: 0 },
     images: [{ type: String }],
     active: { type: Boolean, default: true, required: true },
-    availableAt: { type: [{ type: String, enum: ['breakfast', 'brunch', 'lunch', 'happy-hour', 'dinner', 'all-day'] }], required: true,
-        validate: { validator: (v: string[]) => v.length > 0, message: 'A dish must be available in at least one service period' }
+    availableAt: {
+      type: [{ type: String, enum: ['breakfast', 'brunch', 'lunch', 'happy-hour', 'dinner', 'all-day'] }],
+      required: true,
+      validate: { validator: (v: string[]) => v.length > 0, message: 'A dish must be available in at least one service period' }
     },
     ingredients: [{ type: String }],
     allergens: [{ type: String, enum: ['gluten', 'shellfish', 'nuts', 'dairy', 'eggs', 'soy', 'fish', 'sesame', 'mustard', 'celery', 'lupins', 'molluscs', 'sulphites'] }],
     dietaryFlags: [{ type: String, enum: ['vegan', 'vegetarian', 'gluten-free', 'halal', 'kosher', 'dairy-free', 'nut-free'] }],
     flavorProfile: [{ type: String, enum: ['spicy', 'mild', 'sweet', 'sour', 'salty', 'bitter', 'umami', 'smoky', 'rich', 'light', 'creamy', 'tangy', 'fresh', 'hearty', 'nutty'] }],
-    cuisineTags: [{ type: String,
+    cuisineTags: [
+      {
+        type: String,
         enum: [
-            'Italià', 'Japonès', 'Sushi', 'Mexicà', 'Xinès', 'Indi', 'Tailandès', 'Francès',
-            'Mediterrani', 'Espanyol', 'Grec', 'Turc', 'Coreà', 'Vietnamita','Alemany', 'Brasileny',
-            'Peruà', 'Vegà', 'Vegetarià', 'Marisc', 'Carn', 'Pizzeria', 'Gluten Free', 'Gourmet',
-            'Fast Food', 'Street Food', 'Wine', 'Tapa', 'Gelateria', 'Sandwich', 'Ramen', 'Cafeteria'
+          'Italià',
+          'Japonès',
+          'Sushi',
+          'Mexicà',
+          'Xinès',
+          'Indi',
+          'Tailandès',
+          'Francès',
+          'Mediterrani',
+          'Espanyol',
+          'Grec',
+          'Turc',
+          'Coreà',
+          'Vietnamita',
+          'Alemany',
+          'Brasileny',
+          'Peruà',
+          'Vegà',
+          'Vegetarià',
+          'Marisc',
+          'Carn',
+          'Pizzeria',
+          'Gluten Free',
+          'Gourmet',
+          'Fast Food',
+          'Street Food',
+          'Wine',
+          'Tapa',
+          'Gelateria',
+          'Sandwich',
+          'Ramen',
+          'Cafeteria'
         ]
-    }],
+      }
+    ],
     portionSize: { type: String, enum: ['small', 'medium', 'large', 'sharing'] },
     avgRating: { type: Number, min: 0, max: 10, default: 0 },
-    ratingsCount : { type: Number, default: 0 }
-}, { timestamps: true });
+    ratingsCount: { type: Number, default: 0 }
+  },
+  { timestamps: true }
+);
 
 // Indexes
 dishSchema.index({ restaurant_id: 1 });

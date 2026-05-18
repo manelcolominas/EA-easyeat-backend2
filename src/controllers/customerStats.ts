@@ -47,5 +47,5 @@ const recalculateCustomerStatistics = async (req: Request, res: Response, next: 
 export default {
   getCustomerStatistics,
   calculateAndSaveCustomerStatistics,
-  recalculateCustomerStatistics,
+  recalculateCustomerStatistics
 };

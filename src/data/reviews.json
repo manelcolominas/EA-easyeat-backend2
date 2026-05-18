@@ -6,10 +6,7 @@
     "employee_id": "65f1c2a1b2c3d4e5f6783001",
     "date": "2024-06-14T21:30:00.000Z",
     "globalRating": 9,
-    "images": [
-      "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800",
-      "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800"
-    ],
+    "images": ["https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800", "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800"],
     "ratings": {
       "foodQuality": 9,
       "staffService": 8,
@@ -26,10 +23,7 @@
     "employee_id": "65f1c2a1b2c3d4e5f6783002",
     "date": "2024-05-10T15:00:00.000Z",
     "globalRating": 8,
-    "images": [
-      "https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=800",
-      "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=800"
-    ],
+    "images": ["https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=800", "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=800"],
     "ratings": {
       "foodQuality": 8,
       "staffService": 9,
@@ -46,10 +40,7 @@
     "employee_id": "65f1c2a1b2c3d4e5f6783004",
     "date": "2024-04-10T13:00:00.000Z",
     "globalRating": 9,
-    "images": [
-      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800",
-      "https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=800"
-    ],
+    "images": ["https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800", "https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=800"],
     "ratings": {
       "foodQuality": 10,
       "staffService": 10,
@@ -66,10 +57,7 @@
     "employee_id": "65f1c2a1b2c3d4e5f6783006",
     "date": "2024-05-25T21:00:00.000Z",
     "globalRating": 7,
-    "images": [
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800",
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800"
-    ],
+    "images": ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800", "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800"],
     "ratings": {
       "foodQuality": 7,
       "staffService": 6,
@@ -85,10 +73,7 @@
     "employee_id": "65f1c2a1b2c3d4e5f6783008",
     "date": "2024-06-03T11:00:00.000Z",
     "globalRating": 8,
-    "images": [
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800",
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800"
-    ],
+    "images": ["https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800", "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800"],
     "ratings": {
       "foodQuality": 9,
       "staffService": 8,
@@ -105,10 +90,7 @@
     "employee_id": "65f1c2a1b2c3d4e5f6783013",
     "date": "2024-05-17T22:00:00.000Z",
     "globalRating": 10,
-    "images": [
-      "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800",
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800"
-    ],
+    "images": ["https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800", "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800"],
     "ratings": {
       "foodQuality": 10,
       "staffService": 10,

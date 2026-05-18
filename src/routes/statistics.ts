@@ -3,7 +3,6 @@ import controller from '../controllers/statistics';
 import { Schemas, ValidateJoi } from '../middleware/joi';
 import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess } from '../middleware/auth';
 
-
 const router = express.Router();
 
 /**
@@ -210,7 +209,6 @@ router.put('/:statistics_id', authenticate, requireRole('admin'), ValidateJoi(Sc
  *       404:
  *         description: Not found
  */
-router.delete('/:statistics_id', authenticate, requireRole('admin'),controller.deleteStatistics);
+router.delete('/:statistics_id', authenticate, requireRole('admin'), controller.deleteStatistics);
 
 export default router;
-

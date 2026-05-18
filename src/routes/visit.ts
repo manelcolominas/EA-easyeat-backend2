@@ -3,7 +3,6 @@ import controller from '../controllers/visit';
 import { Schemas, ValidateJoi } from '../middleware/joi';
 import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess, requireCustomerAccess } from '../middleware/auth';
 
-
 const router = express.Router();
 
 /**

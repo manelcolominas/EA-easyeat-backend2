@@ -95,10 +95,7 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
-    ValidateJoi(Schemas.reward.create),
-    rewardController.createReward
-);
+router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.reward.create), rewardController.createReward);
 
 /**
  * @openapi
@@ -336,6 +333,6 @@ router.patch('/:reward_id/restore', authenticate, requireRole('admin'), controll
  *       404:
  *         description: Not found
  */
-router.delete('/:reward_id/hard', authenticate, requireRole('admin','owner'), controller.hardDeleteReward);
+router.delete('/:reward_id/hard', authenticate, requireRole('admin', 'owner'), controller.hardDeleteReward);
 
 export default router;

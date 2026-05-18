@@ -6,7 +6,7 @@ import { IJwtPayload } from '../models/JWTPayload';
 import { CustomerModel } from '../models/customer';
 
 export interface AuthRequest extends Request {
-    user?: IJwtPayload;
+  user?: IJwtPayload;
 }
 
 const normalizeRole = (role?: string) => (typeof role === 'string' ? role.trim().toLowerCase() : '');
@@ -15,36 +15,36 @@ const normalizeRole = (role?: string) => (typeof role === 'string' ? role.trim()
  * Verifies the Bearer access token and attaches the decoded payload to `req.user`.
  */
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-        const authHeader = req.headers.authorization;
-        const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
-        const cookieToken = (req as Request & { cookies?: { accessToken?: string } }).cookies?.accessToken;
-        const token = bearerToken || cookieToken;
+  try {
+    const authHeader = req.headers.authorization;
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
+    const cookieToken = (req as Request & { cookies?: { accessToken?: string } }).cookies?.accessToken;
+    const token = bearerToken || cookieToken;
 
-        if (!token) {
-            return res.status(401).json({ message: 'Authentication required' });
-        }
-
-        const decoded = verifyAccessToken(token);
-
-        if (decoded.type !== 'access') {
-            console.log('AUTH REJECTED: invalid token type', decoded.type);
-            return res.status(401).json({ message: 'Invalid token type' });
-        }
-
-        if (!decoded?.id || !decoded?.email || !decoded?.role) {
-            console.log('AUTH REJECTED: invalid token payload', decoded);
-            return res.status(401).json({ message: 'Invalid token payload' });
-        }
-
-        decoded.role = normalizeRole(decoded.role);
-
-        req.user = decoded;
-        next();
-    } catch {
-        console.log('AUTH VERIFY FAILED');
-        return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!token) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
+
+    const decoded = verifyAccessToken(token);
+
+    if (decoded.type !== 'access') {
+      console.log('AUTH REJECTED: invalid token type', decoded.type);
+      return res.status(401).json({ message: 'Invalid token type' });
+    }
+
+    if (!decoded?.id || !decoded?.email || !decoded?.role) {
+      console.log('AUTH REJECTED: invalid token payload', decoded);
+      return res.status(401).json({ message: 'Invalid token payload' });
+    }
+
+    decoded.role = normalizeRole(decoded.role);
+
+    req.user = decoded;
+    next();
+  } catch {
+    console.log('AUTH VERIFY FAILED');
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
 };
 
 /**
@@ -52,36 +52,36 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
  * Admins ALWAYS have access (Bypass).
  */
 export const requireRole = (...roles: string[]) => {
-    const normalizedAllowedRoles = roles.map(normalizeRole).filter(Boolean);
+  const normalizedAllowedRoles = roles.map(normalizeRole).filter(Boolean);
 
-    return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.user) {
-            return res.status(401).json({ message: 'Authentication required' });
-        }
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
 
-        if (!normalizedAllowedRoles.length) {
-            return res.status(500).json({ message: 'Role middleware misconfigured: no roles provided' });
-        }
+    if (!normalizedAllowedRoles.length) {
+      return res.status(500).json({ message: 'Role middleware misconfigured: no roles provided' });
+    }
 
-        const currentRole = normalizeRole(req.user.role);
+    const currentRole = normalizeRole(req.user.role);
 
-        if (!currentRole) {
-            return res.status(403).json({ message: 'Access denied: missing role in token payload' });
-        }
+    if (!currentRole) {
+      return res.status(403).json({ message: 'Access denied: missing role in token payload' });
+    }
 
-        // Admin bypass
-        if (currentRole === 'admin') {
-            return next();
-        }
+    // Admin bypass
+    if (currentRole === 'admin') {
+      return next();
+    }
 
-        if (!normalizedAllowedRoles.includes(currentRole)) {
-            return res.status(403).json({
-                message: `Access denied. Required role(s): ${normalizedAllowedRoles.join(', ')}`
-            });
-        }
+    if (!normalizedAllowedRoles.includes(currentRole)) {
+      return res.status(403).json({
+        message: `Access denied. Required role(s): ${normalizedAllowedRoles.join(', ')}`
+      });
+    }
 
-        next();
-    };
+    next();
+  };
 };
 
 /**
@@ -90,19 +90,19 @@ export const requireRole = (...roles: string[]) => {
  * Expected parameter name in req.params: 'userId' or 'customer_id'
  */
 export const requireSelfOrAdmin = (paramName: string = 'userId') => {
-    return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.user) return res.status(401).json({ message: 'Authentication required' });
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) return res.status(401).json({ message: 'Authentication required' });
 
-        const resourceId = req.params[paramName];
-        const isOwner = req.user.id === resourceId;
-        const isAdmin = normalizeRole(req.user.role) === 'admin';
+    const resourceId = req.params[paramName];
+    const isOwner = req.user.id === resourceId;
+    const isAdmin = normalizeRole(req.user.role) === 'admin';
 
-        if (isAdmin || isOwner) {
-            return next();
-        }
+    if (isAdmin || isOwner) {
+      return next();
+    }
 
-        return res.status(403).json({ message: 'Access denied: You can only access your own data' });
-    };
+    return res.status(403).json({ message: 'Access denied: You can only access your own data' });
+  };
 };
 
 /**
@@ -111,42 +111,42 @@ export const requireSelfOrAdmin = (paramName: string = 'userId') => {
  * OR if the user is owner/staff of the restaurant the customer belongs to.
  */
 export const requireCustomerAccess = (paramName: string = 'customer_id') => {
-    return async (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.user) return res.status(401).json({ message: 'Authentication required' });
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) return res.status(401).json({ message: 'Authentication required' });
 
-        const customerId = req.params[paramName];
-        const role = normalizeRole(req.user.role);
-        
-        // 1. Admin bypass
-        if (role === 'admin') return next();
+    const customerId = req.params[paramName];
+    const role = normalizeRole(req.user.role);
 
-        // 2. Self access
-        if (req.user.id === customerId) return next();
+    // 1. Admin bypass
+    if (role === 'admin') return next();
 
-        // 3. Restaurant management access
-        if (['owner', 'staff'].includes(role) && req.user.restaurant_id) {
-            try {
-                // Fetch customer to check their favoriteRestaurants
-                const customer = await CustomerModel.findById(customerId).select('favoriteRestaurants').lean();
-                
-                if (!customer) {
-                    return res.status(404).json({ message: 'Customer not found' });
-                }
+    // 2. Self access
+    if (req.user.id === customerId) return next();
 
-                const restaurantId = String(req.user.restaurant_id);
-                const belongsToRestaurant = customer.favoriteRestaurants?.some(id => String(id) === restaurantId);
+    // 3. Restaurant management access
+    if (['owner', 'staff'].includes(role) && req.user.restaurant_id) {
+      try {
+        // Fetch customer to check their favoriteRestaurants
+        const customer = await CustomerModel.findById(customerId).select('favoriteRestaurants').lean();
 
-                if (belongsToRestaurant) {
-                    return next();
-                }
-            } catch (error) {
-                console.error('Error in requireCustomerAccess:', error);
-                return res.status(500).json({ message: 'Internal server error during authorization' });
-            }
+        if (!customer) {
+          return res.status(404).json({ message: 'Customer not found' });
         }
 
-        return res.status(403).json({ message: 'Access denied: You do not have permission to access this customer data' });
-    };
+        const restaurantId = String(req.user.restaurant_id);
+        const belongsToRestaurant = customer.favoriteRestaurants?.some((id) => String(id) === restaurantId);
+
+        if (belongsToRestaurant) {
+          return next();
+        }
+      } catch (error) {
+        console.error('Error in requireCustomerAccess:', error);
+        return res.status(500).json({ message: 'Internal server error during authorization' });
+      }
+    }
+
+    return res.status(403).json({ message: 'Access denied: You do not have permission to access this customer data' });
+  };
 };
 
 /**
@@ -155,23 +155,21 @@ export const requireCustomerAccess = (paramName: string = 'customer_id') => {
  * Owners and Staff must match the restaurant_id.
  */
 export const requireRestaurantAccess = (paramName: string = 'restaurant_id') => {
-    return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.user) return res.status(401).json({ message: 'Authentication required' });
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) return res.status(401).json({ message: 'Authentication required' });
 
-        // Admin bypass
-        if (normalizeRole(req.user.role) === 'admin') return next();
+    // Admin bypass
+    if (normalizeRole(req.user.role) === 'admin') return next();
 
-        const targetrestaurant_id = req.params[paramName] || req.body[paramName] || req.query[paramName];
-        
-        if (!req.user.restaurant_id || String(req.user.restaurant_id) !== String(targetrestaurant_id)) {
-            return res.status(403).json({ message: 'Access denied: You do not have access to this restaurant' });
-        }
+    const targetrestaurant_id = req.params[paramName] || req.body[paramName] || req.query[paramName];
 
-        next();
-    };
+    if (!req.user.restaurant_id || String(req.user.restaurant_id) !== String(targetrestaurant_id)) {
+      return res.status(403).json({ message: 'Access denied: You do not have access to this restaurant' });
+    }
+
+    next();
+  };
 };
-
-
 
 /**
  * Allows access if:

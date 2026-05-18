@@ -130,13 +130,7 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post(
-  '/',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  ValidateJoi(Schemas.rewardRedemption.redeem),
-  controller.redeemReward
-);
+router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), ValidateJoi(Schemas.rewardRedemption.redeem), controller.redeemReward);
 
 /**
  * @openapi
@@ -157,12 +151,7 @@ router.post(
  *       404:
  *         description: Not found
  */
-router.get(
-  '/:redemptionId',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readRewardRedemption
-);
+router.get('/:redemptionId', authenticate, requireRole('admin', 'owner', 'staff'), controller.readRewardRedemption);
 
 /**
  * @openapi
@@ -191,12 +180,7 @@ router.get(
  *       422:
  *         description: Validation failed (Joi)
  */
-router.get(
-  '/',
-  authenticate,
-  requireRole('admin'),
-  controller.readAll
-);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
@@ -224,12 +208,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/customer/:customer_id',
-  authenticate,
-  requireSelfOrAdmin('customer_id'),
-  controller.readByCustomer
-);
+router.get('/customer/:customer_id', authenticate, requireSelfOrAdmin('customer_id'), controller.readByCustomer);
 
 /**
  * @openapi
@@ -257,12 +236,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/restaurant/:restaurant_id',
-  authenticate,
-  requireRestaurantAccess('restaurant_id'),
-  controller.readByRestaurant
-);
+router.get('/restaurant/:restaurant_id', authenticate, requireRestaurantAccess('restaurant_id'), controller.readByRestaurant);
 
 /**
  * @openapi
@@ -290,12 +264,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/employee/:employee_id',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readByEmployee
-);
+router.get('/employee/:employee_id', authenticate, requireRole('admin', 'owner', 'staff'), controller.readByEmployee);
 
 /**
  * @openapi
@@ -323,12 +292,7 @@ router.get(
  *       200:
  *         description: OK
  */
-router.get(
-  '/reward/:reward_id',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readByReward
-);
+router.get('/reward/:reward_id', authenticate, requireRole('admin', 'owner', 'staff'), controller.readByReward);
 
 /**
  * @openapi
@@ -371,13 +335,7 @@ router.get(
  *       422:
  *         description: Validation failed (Joi)
  */
-router.patch(
-  '/:redemptionId/status',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  ValidateJoi(Schemas.rewardRedemption.updateStatus),
-  controller.updateStatus
-);
+router.patch('/:redemptionId/status', authenticate, requireRole('admin', 'owner', 'staff'), ValidateJoi(Schemas.rewardRedemption.updateStatus), controller.updateStatus);
 
 /**
  * @openapi
@@ -434,11 +392,6 @@ router.put(
  *       404:
  *         description: Not found
  */
-router.delete(
-  '/:redemptionId',
-  authenticate,
-  requireRole('admin'),
-  controller.deleteRewardRedemption
-);
+router.delete('/:redemptionId', authenticate, requireRole('admin'), controller.deleteRewardRedemption);
 
 export default router;

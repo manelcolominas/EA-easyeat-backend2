@@ -123,12 +123,7 @@ router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Sch
  *       200:
  *         description: List of reviews
  */
-router.get(
-  '/',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readAll
-);
+router.get('/', authenticate, requireRole('admin', 'owner', 'staff'), controller.readAll);
 
 /**
  * @openapi
@@ -151,13 +146,7 @@ router.get(
  *       200:
  *         description: List of deleted reviews
  */
-router.get(
-  '/deleted',
-  authenticate,
-  requireRole('admin'),
-  controller.readAllDeleted
-);
-
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
 // ========================
 // GET BY RESTAURANT
@@ -188,11 +177,7 @@ router.get(
  *       200:
  *         description: List of reviews
  */
-router.get(
-  '/restaurant/:restaurant_id',
-  controller.readByRestaurant
-);
-
+router.get('/restaurant/:restaurant_id', controller.readByRestaurant);
 
 /**
  * @openapi
@@ -220,12 +205,7 @@ router.get(
  *       200:
  *         description: List of deleted reviews
  */
-router.get(
-  '/restaurant/:restaurant_id/deleted',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readDeletedByRestaurant
-);
+router.get('/restaurant/:restaurant_id/deleted', authenticate, requireRole('admin', 'owner', 'staff'), controller.readDeletedByRestaurant);
 
 // ========================
 // GET BY CUSTOMER
@@ -265,12 +245,7 @@ router.get(
  *       200:
  *         description: List of reviews
  */
-router.get(
-  '/customer/:customer_id',
-  authenticate,
-  requireCustomerAccess('customer_id'),
-  controller.readByCustomer
-);
+router.get('/customer/:customer_id', authenticate, requireCustomerAccess('customer_id'), controller.readByCustomer);
 
 /**
  * @openapi
@@ -306,12 +281,7 @@ router.get(
  *       200:
  *         description: List of deleted reviews
  */
-router.get(
-  '/customer/:customer_id/deleted',
-  authenticate,
-  requireRole('admin', 'owner', 'staff'),
-  controller.readDeletedByCustomer
-);
+router.get('/customer/:customer_id/deleted', authenticate, requireRole('admin', 'owner', 'staff'), controller.readDeletedByCustomer);
 
 // ========================
 // GET ONE
@@ -334,10 +304,7 @@ router.get(
  *       404:
  *         description: Not found
  */
-router.get(
-  '/:review_id',
-  controller.readReview
-);
+router.get('/:review_id', controller.readReview);
 
 /**
  * @openapi
@@ -357,12 +324,7 @@ router.get(
  *       404:
  *         description: Not found
  */
-router.get(
-  '/:review_id/deleted',
-  authenticate,
-  requireRole('admin'),
-  controller.readDeletedReview
-);
+router.get('/:review_id/deleted', authenticate, requireRole('admin'), controller.readDeletedReview);
 
 // ========================
 // UPDATE
@@ -386,13 +348,7 @@ router.get(
  *       404:
  *         description: Not found
  */
-router.put(
-  '/:review_id',
-  authenticate,
-  requireRole('customer', 'admin'),
-  ValidateJoi(Schemas.review.update),
-  controller.updateReview
-);
+router.put('/:review_id', authenticate, requireRole('customer', 'admin'), ValidateJoi(Schemas.review.update), controller.updateReview);
 
 // ========================
 // DELETE
@@ -416,12 +372,7 @@ router.put(
  *       404:
  *         description: Not found
  */
-router.delete(
-  '/:review_id/soft',
-  authenticate,
-  requireSelfOrAdmin('customer_id'),
-  controller.softDeleteReview
-);
+router.delete('/:review_id/soft', authenticate, requireSelfOrAdmin('customer_id'), controller.softDeleteReview);
 
 /**
  * @openapi
@@ -441,12 +392,7 @@ router.delete(
  *       404:
  *         description: Not found
  */
-router.patch(
-  '/:review_id/restore',
-  authenticate,
-  requireRole('admin'),
-  controller.restoreReview
-);
+router.patch('/:review_id/restore', authenticate, requireRole('admin'), controller.restoreReview);
 
 /**
  * @openapi
@@ -466,11 +412,6 @@ router.patch(
  *       404:
  *         description: Not found
  */
-router.delete(
-  '/:review_id/hard',
-  authenticate,
-  requireRole('admin'),
-  controller.hardDeleteReview
-);
+router.delete('/:review_id/hard', authenticate, requireRole('admin'), controller.hardDeleteReview);
 
 export default router;

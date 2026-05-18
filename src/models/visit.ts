@@ -4,20 +4,20 @@ import { EmployeeModel } from './employee';
 // ─── 1. Interface ─────────────────────────────────────────────────────────────
 
 export interface IVisit {
-    _id?: Types.ObjectId;
-    customer_id: Types.ObjectId;
-    restaurant_id: Types.ObjectId;
-    employee_id: Types.ObjectId;
-    date: Date;
-    pointsEarned?: number;
-    billAmount?: number;
-    deletedAt?: Date | null;
+  _id?: Types.ObjectId;
+  customer_id: Types.ObjectId;
+  restaurant_id: Types.ObjectId;
+  employee_id: Types.ObjectId;
+  date: Date;
+  pointsEarned?: number;
+  billAmount?: number;
+  deletedAt?: Date | null;
 }
 
 // ─── 2. Query helpers ─────────────────────────────────────────────────────────
 
 export interface VisitQueryHelpers {
-    active(): Query<any, Document<unknown, any, IVisit> & IVisit> & VisitQueryHelpers;
+  active(): Query<any, Document<unknown, any, IVisit> & IVisit> & VisitQueryHelpers;
 }
 
 // ─── 3. Model type ────────────────────────────────────────────────────────────
@@ -27,28 +27,31 @@ export type VisitModelType = Model<IVisit, VisitQueryHelpers>;
 // ─── 4. Schema ────────────────────────────────────────────────────────────────
 
 const visitSchema = new Schema<IVisit, VisitModelType, {}, VisitQueryHelpers>(
-    {
-        customer_id: {
-            type: Schema.Types.ObjectId, ref: 'Customer',
-            required: [true, 'customer_id is required'],
-        },
-        restaurant_id: {
-            type: Schema.Types.ObjectId, ref: 'Restaurant',
-            required: [true, 'restaurant_id is required'],
-        },
-        employee_id: {
-            type: Schema.Types.ObjectId, ref: 'Employee',
-            required: [true, 'employee_id is required'],
-        },
-        date: { type: Date, default: Date.now, required: true },
-        pointsEarned: { type: Number, min: [0, 'pointsEarned must be ≥ 0'], default: 0 },
-        billAmount: { type: Number, min: [0, 'billAmount must be ≥ 0'], default: 0 },
-        deletedAt: { type: Date, default: null },
+  {
+    customer_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'Customer',
+      required: [true, 'customer_id is required']
     },
-    {
-        timestamps: true,
-        versionKey: false,
+    restaurant_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'Restaurant',
+      required: [true, 'restaurant_id is required']
     },
+    employee_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'Employee',
+      required: [true, 'employee_id is required']
+    },
+    date: { type: Date, default: Date.now, required: true },
+    pointsEarned: { type: Number, min: [0, 'pointsEarned must be ≥ 0'], default: 0 },
+    billAmount: { type: Number, min: [0, 'billAmount must be ≥ 0'], default: 0 },
+    deletedAt: { type: Date, default: null }
+  },
+  {
+    timestamps: true,
+    versionKey: false
+  }
 );
 
 // ─── 5. Indexes ───────────────────────────────────────────────────────────────
@@ -60,40 +63,40 @@ visitSchema.index({ customer_id: 1, restaurant_id: 1, deletedAt: 1 });
 // ─── 6. Query helper — .active() ─────────────────────────────────────────────
 
 visitSchema.query.active = function (this: VisitModelType) {
-    return this.where({ deletedAt: null });
+  return this.where({ deletedAt: null });
 };
 
 // ─── 7. Pre-save relational validation ───────────────────────────────────────
 
 visitSchema.pre('save', async function (next) {
-    try {
-        const { CustomerModel } = await import('./customer');
-        const { RestaurantModel } = await import('./restaurant');
+  try {
+    const { CustomerModel } = await import('./customer');
+    const { RestaurantModel } = await import('./restaurant');
 
-        if (this.isModified('customer_id') || this.isNew) {
-            const customerExists = await CustomerModel.exists({ _id: this.customer_id });
-            if (!customerExists) {
-                return next(new Error(`Customer with id ${this.customer_id} does not exist`));
-            }
-        }
-
-        if (this.isModified('restaurant_id') || this.isNew) {
-            const restaurantExists = await RestaurantModel.exists({ _id: this.restaurant_id });
-            if (!restaurantExists) {
-                return next(new Error(`Restaurant with id ${this.restaurant_id} does not exist`));
-            }
-        }
-
-        if (this.isModified('employee_id') || this.isNew) {
-            const employeeExists = await EmployeeModel.exists({ _id: this.employee_id });
-            if (!employeeExists) {
-                return next(new Error(`Employee with id ${this.employee_id} does not exist`));
-            }
-        }
-        next();
-    } catch (err: any) {
-        next(err);
+    if (this.isModified('customer_id') || this.isNew) {
+      const customerExists = await CustomerModel.exists({ _id: this.customer_id });
+      if (!customerExists) {
+        return next(new Error(`Customer with id ${this.customer_id} does not exist`));
+      }
     }
+
+    if (this.isModified('restaurant_id') || this.isNew) {
+      const restaurantExists = await RestaurantModel.exists({ _id: this.restaurant_id });
+      if (!restaurantExists) {
+        return next(new Error(`Restaurant with id ${this.restaurant_id} does not exist`));
+      }
+    }
+
+    if (this.isModified('employee_id') || this.isNew) {
+      const employeeExists = await EmployeeModel.exists({ _id: this.employee_id });
+      if (!employeeExists) {
+        return next(new Error(`Employee with id ${this.employee_id} does not exist`));
+      }
+    }
+    next();
+  } catch (err: any) {
+    next(err);
+  }
 });
 
 // ─── 8. Model ─────────────────────────────────────────────────────────────────

@@ -3,7 +3,6 @@ import controller from '../controllers/pointsWallet';
 import { Schemas, ValidateJoi } from '../middleware/joi';
 import { authenticate, requireRole, requireRestaurantAccess } from '../middleware/auth';
 
-
 const router = express.Router();
 
 /**
@@ -51,7 +50,7 @@ const router = express.Router();
  *           minimum: 0
  *           default: 0
  *           example: 150
- * 
+ *
  *     PaginatedPointsWallets:
  *       type: object
  *       properties:
@@ -90,7 +89,7 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'),ValidateJoi(Schemas.pointsWallet.create), controller.createPointsWallet);
+router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.pointsWallet.create), controller.createPointsWallet);
 
 /**
  * @openapi
@@ -119,7 +118,7 @@ router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRe
  *             schema:
  *               $ref: '#/components/schemas/PaginatedPointsWallets'
  */
-router.get('/', authenticate, requireRole('admin'),controller.readAll);
+router.get('/', authenticate, requireRole('admin'), controller.readAll);
 
 /**
  * @openapi
@@ -140,7 +139,7 @@ router.get('/', authenticate, requireRole('admin'),controller.readAll);
  *       404:
  *         description: Not found
  */
-router.get('/:walletId', authenticate, requireRole('admin', 'owner', 'staff', 'customer'),controller.readPointsWallet);
+router.get('/:walletId', authenticate, requireRole('admin', 'owner', 'staff', 'customer'), controller.readPointsWallet);
 
 /**
  * @openapi
@@ -169,8 +168,7 @@ router.get('/:walletId', authenticate, requireRole('admin', 'owner', 'staff', 'c
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:walletId', authenticate, requireRole('admin', 'owner', 'staff'),
-    requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.pointsWallet.update), controller.updatePointsWallet);
+router.put('/:walletId', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.pointsWallet.update), controller.updatePointsWallet);
 
 /**
  * @openapi
@@ -191,6 +189,6 @@ router.put('/:walletId', authenticate, requireRole('admin', 'owner', 'staff'),
  *       404:
  *         description: Not found
  */
-router.delete('/:walletId', authenticate, requireRole('admin'),controller.deletePointsWallet);
+router.delete('/:walletId', authenticate, requireRole('admin'), controller.deletePointsWallet);
 
 export default router;

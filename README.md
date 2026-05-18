@@ -5,7 +5,8 @@
 > ⚠️ Seguint aquestes regles protegim la feina de tots, evitem errors inesperats i mantenim un backend robust, intel·ligible i escalable. 💪
 
 1. **Els endpoints NO HAN de canviar la seva estructura de resposta** un cop definits finalment. Això protegeix la feina de tots i evita inconsistències.
-2. **Nous requisits → nous endpoints.** Per a nous requisits, prioritza reutilitzar endpoints existents sempre que tingui sentit. Si cal un petit ajust que no alteri l'estructura de la resposta, endavant. Però si el canvi modifica significativament la resposta retornada, s'hauria de crear un endpoint. sempre mirar de fer el més òptim per al sitema.
+2. **Nous requisits → nous endpoints.** Per a nous requisits, prioritza reutilitzar endpoints existents sempre que tingui sentit. Si cal un petit ajust que no alteri l'estructura de la resposta,
+   endavant. Però si el canvi modifica significativament la resposta retornada, s'hauria de crear un endpoint. sempre mirar de fer el més òptim per al sitema.
 3. **Totes les respostes HAN de seguir l'estructura estàndard acordada.**
 4. **No es fan canvis directes a la branca de desenvolupament**; sempre treballar en noves branques.
 5. **El backend NO HA de ser modificat per adaptar-se a necessitats puntuals del frontend**; el frontend s'ha d'adaptar al backend.
@@ -15,7 +16,8 @@
 
 ## Descripció
 
-L'API REST d'EASY-EAT és una aplicació backend desenvolupada amb Node.js, TypeScript i MongoDB per gestionar restaurants, clients, ressenyes, recompenses i visites. Aquesta API proporciona una plataforma completa per a aplicacions de gestió de restaurants i sistemes de fidelització de clients.
+L'API REST d'EASY-EAT és una aplicació backend desenvolupada amb Node.js, TypeScript i MongoDB per gestionar restaurants, clients, ressenyes, recompenses i visites. Aquesta API proporciona una
+plataforma completa per a aplicacions de gestió de restaurants i sistemes de fidelització de clients.
 
 ## Característiques
 
@@ -50,24 +52,27 @@ L'API REST d'EASY-EAT és una aplicació backend desenvolupada amb Node.js, Type
 ## Instal·lació
 
 1. Clona el repositori:
+
 ```bash
 git clone <url-del-repositori>
 cd EA-easyeat-backend2
 ```
 
 2. Instal·la les dependències:
+
 ```bash
 npm install
 ```
 
-3. Configura les variables d'entorn:
-Crea un fitxer `.env` a l'arrel del projecte amb les següents variables:
+3. Configura les variables d'entorn: Crea un fitxer `.env` a l'arrel del projecte amb les següents variables:
+
 ```env
 MONGO_URI=mongodb://localhost:27017/easyeat
 SERVER_PORT=1337
 ```
 
 4. Compila el projecte:
+
 ```bash
 npm run build
 ```
@@ -93,6 +98,7 @@ El servidor s'iniciarà al port especificat (per defecte 1337) i es connectarà 
 ### Documentació API
 
 Accedeix a la documentació interactiva de l'API a:
+
 ```
 http://localhost:1337/api
 ```
@@ -100,6 +106,7 @@ http://localhost:1337/api
 ### Health Check
 
 Pots verificar que el servidor estigui funcionant correctament amb:
+
 ```
 GET http://localhost:1337/ping
 ```
@@ -217,5 +224,4 @@ Aquest projecte està sota la llicència MIT.
 
 ## Autor
 
-Desenvolupat com a part del projecte d'Enginyeria d'Aplicacions.</content>
-<parameter name="filePath">
+Desenvolupat com a part del projecte d'Enginyeria d'Aplicacions.</content> <parameter name="filePath">

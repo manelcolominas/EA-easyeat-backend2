@@ -3,120 +3,94 @@ import { RewardModel, IReward } from '../models/reward';
 import { RestaurantModel } from '../models/restaurant';
 
 const createReward = async (data: Partial<IReward>) => {
-    const reward = new RewardModel({
-        _id: new mongoose.Types.ObjectId(),
-        ...data
+  const reward = new RewardModel({
+    _id: new mongoose.Types.ObjectId(),
+    ...data
+  });
+
+  const savedReward = await reward.save();
+
+  // Automatically add the new reward ID to the restaurant's rewards array
+  if (data.restaurant_id) {
+    await RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
+      $push: { rewards: savedReward._id }
     });
+  }
 
-    const savedReward = await reward.save();
-
-    // Automatically add the new reward ID to the restaurant's rewards array
-    if (data.restaurant_id) {
-        await RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
-            $push: { rewards: savedReward._id }
-        });
-    }
-
-    return savedReward;
+  return savedReward;
 };
 
 const getReward = async (reward_id: string) => {
-    return await RewardModel.findById(reward_id);
+  return await RewardModel.findById(reward_id);
 };
 
 const getDeletedReward = async (reward_id: string) => {
-    return await RewardModel.findOne({ _id: reward_id, active: false }).lean();
+  return await RewardModel.findOne({ _id: reward_id, active: false }).lean();
 };
 
-const getAllRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[], total: number }> => {
-    const [rewards, total] = await Promise.all([
-        RewardModel.find()
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-        RewardModel.countDocuments()
-    ]);
-    return { rewards, total };
+const getAllRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
+  const [rewards, total] = await Promise.all([RewardModel.find().skip(skip).limit(limit).lean(), RewardModel.countDocuments()]);
+  return { rewards, total };
 };
 
-const getAllDeletedRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[], total: number }> => {
-    const filter = { active: false };
-    const [rewards, total] = await Promise.all([
-        RewardModel.find(filter)
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-        RewardModel.countDocuments(filter)
-    ]);
-    return { rewards, total };
+const getAllDeletedRewards = async (skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
+  const filter = { active: false };
+  const [rewards, total] = await Promise.all([RewardModel.find(filter).skip(skip).limit(limit).lean(), RewardModel.countDocuments(filter)]);
+  return { rewards, total };
 };
 
 const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
-    const query = { restaurant_id, active: true };
-    const [rewards, total] = await Promise.all([
-        RewardModel.find(query)
-            .sort({ date: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean<IReward[]>(),
-        RewardModel.countDocuments(query)
-    ]);
-    return { rewards, total };
+  const query = { restaurant_id, active: true };
+  const [rewards, total] = await Promise.all([RewardModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).lean<IReward[]>(), RewardModel.countDocuments(query)]);
+  return { rewards, total };
 };
 
 const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
-    const query = { restaurant_id, active: false };
-    const [rewards, total] = await Promise.all([
-        RewardModel.find(query)
-            .sort({ date: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean<IReward[]>(),
-        RewardModel.countDocuments(query)
-    ]);
-    return { rewards, total };
+  const query = { restaurant_id, active: false };
+  const [rewards, total] = await Promise.all([RewardModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).lean<IReward[]>(), RewardModel.countDocuments(query)]);
+  return { rewards, total };
 };
 
 const updateReward = async (reward_id: string, data: Partial<IReward>) => {
-    const reward = await RewardModel.findById(reward_id);
+  const reward = await RewardModel.findById(reward_id);
 
-    if (reward) {
-        reward.set(data);
-        return await reward.save();
-    }
+  if (reward) {
+    reward.set(data);
+    return await reward.save();
+  }
 
-    return null;
+  return null;
 };
 
 const softDeleteReward = async (reward_id: string) => {
-    return await RewardModel.findByIdAndUpdate(reward_id, { active: false }, { new: true }).lean();
+  return await RewardModel.findByIdAndUpdate(reward_id, { active: false }, { new: true }).lean();
 };
 
 const restoreReward = async (reward_id: string) => {
-    return await RewardModel.findByIdAndUpdate(reward_id, { active: true }, { new: true }).lean();
+  return await RewardModel.findByIdAndUpdate(reward_id, { active: true }, { new: true }).lean();
 };
 
 const hardDeleteReward = async (reward_id: string) => {
-    const deletedReward = await RewardModel.findByIdAndDelete(reward_id);
-    if (deletedReward && deletedReward.restaurant_id) {
-        await RestaurantModel.findByIdAndUpdate(deletedReward.restaurant_id, {
-            $pull: { rewards: deletedReward._id }
-        });
-    }
+  const deletedReward = await RewardModel.findByIdAndDelete(reward_id);
+  if (deletedReward && deletedReward.restaurant_id) {
+    await RestaurantModel.findByIdAndUpdate(deletedReward.restaurant_id, {
+      $pull: { rewards: deletedReward._id }
+    });
+  }
 
-    return deletedReward;
+  return deletedReward;
 };
 
 export default {
-    createReward,
-    getReward,
-    getDeletedReward,
-    getAllRewards,
-    getAllDeletedRewards,
-    getByRestaurant,
-    getDeletedByRestaurant,
-    updateReward,
-    softDeleteReward,
-    restoreReward,
-    hardDeleteReward
+  createReward,
+  getReward,
+  getDeletedReward,
+  getAllRewards,
+  getAllDeletedRewards,
+  getByRestaurant,
+  getDeletedByRestaurant,
+  updateReward,
+  softDeleteReward,
+  restoreReward,
+  hardDeleteReward
 };

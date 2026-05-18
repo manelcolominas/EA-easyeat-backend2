@@ -47,5 +47,5 @@ const recalculateEmployeeStatistics = async (req: Request, res: Response, next: 
 export default {
   getEmployeeStatistics,
   calculateAndSaveEmployeeStatistics,
-  recalculateEmployeeStatistics,
+  recalculateEmployeeStatistics
 };
