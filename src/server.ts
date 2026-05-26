@@ -31,6 +31,12 @@ import { swaggerSpec } from './swagger';
 import { ChatService } from './services/chat';
 
 const router = express();
+const corsOptions = {
+  origin: config.cors.origins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
 mongoose
   .connect(config.mongo.url, { retryWrites: true, w: 'majority' })
@@ -55,7 +61,8 @@ const StartServer = () => {
   router.use(express.urlencoded({ extended: true }));
   router.use(express.json());
   router.use(cookieParser());
-  router.use(cors());
+  router.use(cors(corsOptions));
+  router.options('*', cors(corsOptions));
 
   router.use(
     '/api',
