@@ -4,6 +4,13 @@ dotenv.config();
 
 const MONGO_URL = process.env.MONGO_URI || '';
 const SERVER_PORT = process.env.SERVER_PORT ? Number(process.env.SERVER_PORT) : 1337;
+const DEFAULT_CORS_ORIGINS = ['https://ea2.upc.edu', 'http://localhost:3000', 'http://localhost:5173'];
+
+const CORS_ORIGINS = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  : DEFAULT_CORS_ORIGINS;
 
 export const config = {
   mongo: {
@@ -11,6 +18,9 @@ export const config = {
   },
   server: {
     port: SERVER_PORT
+  },
+  cors: {
+    origins: CORS_ORIGINS
   },
   jwt: {
     accessSecret: process.env.JWT_SECRET || 'cce788eebd26d18a40e2f414c69692bb9bdedd9fc3438d92e52915359abe8d59',
