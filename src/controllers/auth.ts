@@ -4,6 +4,7 @@ import { validateAdminCredentials, validateCustomerCredentials, validateEmployee
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { config } from '../config/config';
 import Logging from '../library/logging';
+import { verifyGoogleToken, findOrCreateCustomerFromGoogle, generateGoogleTokens } from '../services/googleAuth';
 
 export const loginAdmin = async (req: Request, res: Response) => {
   try {
@@ -165,4 +166,88 @@ export const logout = (_req: Request, res: Response) => {
   return res.status(200).json({ message: 'Logged out successfully' });
 };
 
-export default { loginAdmin, registerAdmin, refresh, logout };
+/**
+ * POST /auth/login/google
+ * Login or create customer using Google OAuth token
+ */
+export const loginGoogle = async (req: Request, res: Response) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ message: 'ID token is required' });
+    }
+
+    // Verify Google token
+    const googleData = await verifyGoogleToken(idToken);
+
+    // Find or create customer
+    const customer = await findOrCreateCustomerFromGoogle(googleData);
+
+    // Generate tokens
+    const { accessToken, refreshToken } = generateGoogleTokens(customer);
+
+    // Set cookies
+    res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
+    res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
+
+    return res.status(200).json({
+      message: 'Google login successful',
+      accessToken,
+      customer: {
+        _id: customer._id,
+        email: customer.email,
+        name: customer.name,
+        role: 'customer',
+        profilePicture: customer.profilePictures?.[0] || null
+      }
+    });
+  } catch (error) {
+    Logging.error(error);
+    return res.status(401).json({ message: 'Google authentication failed' });
+  }
+};
+
+/**
+ * POST /auth/register/google
+ * Register customer using Google OAuth token
+ */
+export const registerGoogle = async (req: Request, res: Response) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ message: 'ID token is required' });
+    }
+
+    // Verify Google token
+    const googleData = await verifyGoogleToken(idToken);
+
+    // Find or create customer
+    const customer = await findOrCreateCustomerFromGoogle(googleData);
+
+    // Generate tokens
+    const { accessToken, refreshToken } = generateGoogleTokens(customer);
+
+    // Set cookies
+    res.cookie('accessToken', accessToken, { ...config.cookies.options, httpOnly: true });
+    res.cookie(config.cookies.refreshName, refreshToken, config.cookies.options);
+
+    return res.status(201).json({
+      message: 'Account registered or retrieved successfully',
+      accessToken,
+      customer: {
+        _id: customer._id,
+        email: customer.email,
+        name: customer.name,
+        role: 'customer',
+        profilePicture: customer.profilePictures?.[0] || null
+      }
+    });
+  } catch (error) {
+    Logging.error(error);
+    return res.status(400).json({ message: 'Google registration failed' });
+  }
+};
+
+export default { loginAdmin, registerAdmin, refresh, logout, loginGoogle, registerGoogle };

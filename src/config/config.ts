@@ -28,5 +28,8 @@ export const config = {
       path: '/'
     }
   },
-  geminiApiKey: process.env.GEMINI_API_KEY || ''
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID || ''
+  }
 };

@@ -21,7 +21,7 @@ export class SupportService {
   constructor() {
     this.genAI = new GoogleGenerativeAI(config.geminiApiKey);
     this.model = this.genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash'
+      model: 'gemini-2.5-flash-lite'
     });
   }
 
