@@ -245,8 +245,7 @@ La part backend està implementada.
 - Actualització de denúncies.
 - Eliminació de denúncies.
 
-## Parts NO operatives
-No m'he donat compte fins al final que estaba treballant en entorn local desdel main, en comptes des del develop en producció.
+
 
 ## Endpoints implementats
 
