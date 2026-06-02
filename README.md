@@ -219,3 +219,43 @@ Aquest projecte està sota la llicència MIT.
 
 Desenvolupat com a part del projecte d'Enginyeria d'Aplicacions.</content>
 <parameter name="filePath">
+
+# MINIM2 - Backend sistema de denúncies de restaurants
+
+## Descripció
+
+S’ha implementat la part de backend del sistema de denúncies de restaurants.
+
+Aquesta funcionalitat permet registrar denúncies sobre restaurants amb informació incorrecta, inexistents, tancats o fraudulents. Cada denúncia queda guardada a la base de dades per poder ser revisada posteriorment.
+
+## Estat de l’exercici
+
+La part backend està implementada.
+
+## Parts operatives
+
+- Creació del model `Report`.
+- Creació del servei de reports.
+- Creació del controlador de reports.
+- Creació de les rutes de reports.
+- Validació amb Joi del camp `reason`.
+- Documentació Swagger/OpenAPI dels endpoints.
+- Registre de denúncies a la base de dades.
+- Llistat de denúncies per revisió.
+- Actualització de denúncies.
+- Eliminació de denúncies.
+
+## Parts NO operatives
+No m'he donat compte fins al final que estaba treballant en entorn local desdel main, en comptes des del develop en producció.
+
+## Endpoints implementats
+
+### Crear denúncia
+
+```http
+POST /restaurants/:restaurantId/report
+
+
+
+
+
