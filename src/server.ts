@@ -29,6 +29,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 
 import { ChatService } from './services/chat';
+import { initWeaviate } from './services/weaviate-init.service';
 
 const router = express();
 const corsOptions = {
@@ -43,6 +44,7 @@ mongoose
   .then(async () => {
     Logging.info('Mongo connected successfully.');
     await insertData();
+    await initWeaviate();
     StartServer();
   })
   .catch((error) => Logging.error(error));

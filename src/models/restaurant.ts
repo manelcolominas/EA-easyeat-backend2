@@ -120,6 +120,24 @@ export interface IRestaurant {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Weaviate interface for AI queries
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface IRestaurantWeaviate {
+  id: string; // MongoDB ObjectId string
+  name: string;
+  description: string;
+  categories: string[];
+  globalRating: number;
+  city: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  phone?: string;
+  website?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Query-helper interface  (enables Model.find().active())
 // ─────────────────────────────────────────────────────────────────────────────
 

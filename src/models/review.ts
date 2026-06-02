@@ -29,6 +29,20 @@ export interface IReview {
   updatedAt?: Date;
 }
 
+// Weaviate interface for AI queries
+export interface IReviewWeaviate {
+  id: string; // MongoDB ObjectId string
+  restaurantId: string; // MongoDB ObjectId string
+  customerId: string; // MongoDB ObjectId string
+  globalRating: number;
+  foodQualityRating?: number;
+  staffServiceRating?: number;
+  cleanlinessRating?: number;
+  environmentRating?: number;
+  comment?: string;
+  createdAt?: Date;
+}
+
 // 2️⃣ Schema
 const reviewSchema = new Schema<IReview>(
   {
