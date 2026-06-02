@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { ReportModel, IReport } from '../models/report';
 
 const createReport = async (data: Partial<IReport>) => {

@@ -5,12 +5,22 @@ import { AuthRequest } from '../middleware/auth';
 
 const createReport = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-            const savedReport = await ReportService.createReport(req.body);
-            return res.status(201).json(savedReport);
-        } catch (error) {
-            return next(error);
-        }
-    };
+        const restaurantId: any = req.params.restaurantId;
+        const userId: any = req.user?.id;
+        const reason: any = req.body.reason;
+
+        const reportData = {
+            restaurantId,
+            userId,
+            reason,
+        };
+
+        const savedReport = await ReportService.createReport(reportData);
+        return res.status(201).json(savedReport);
+    } catch (error) {
+        return next(error);
+    }
+};
 const updateReport = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const updated = await ReportService.updateReport(req.params.reportId, req.body);

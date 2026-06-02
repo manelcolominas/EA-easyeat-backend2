@@ -1,19 +1,11 @@
 import { Schema, model, Types } from 'mongoose';
 
-export const REPORT_REASONS = [
-    'restaurant_inexistent',
-    'informacio_incorrecta',
-    'restaurant_tancat'
-] as const;
-
-export type ReportReason = (typeof REPORT_REASONS)[number];
-
 // Interface
 export interface IReport {
     _id?: Types.ObjectId;
-    restaurantId: Types.ObjectId;
-    userId: Types.ObjectId;
-    reason: ReportReason;
+    restaurantId: Types.ObjectId | string;
+    userId: Types.ObjectId | string;
+    reason: string;
     createdAt?: Date;
 }
 
@@ -25,7 +17,8 @@ const reportSchema = new Schema<IReport>({
         type: String,
         required: true,
         trim: true,
-        enum: REPORT_REASONS
+        minlength: 3,
+        maxlength: 500
     }
 }, { 
     timestamps: { createdAt: 'createdAt', updatedAt: false } 

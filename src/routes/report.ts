@@ -27,6 +27,7 @@ const router = express.Router();
  *           example: "65f1c2a1b2c3d4e5f6789010"
  *         reason:
  *           type: string
+ *           description: Free text written by the user
  *           minLength: 3
  *           maxLength: 500
  *           example: "El restaurante aparece como abierto pero está cerrado permanentemente"
@@ -42,6 +43,7 @@ const router = express.Router();
  *       properties:
  *         reason:
  *           type: string
+ *           description: Free text written by the user
  *           minLength: 3
  *           maxLength: 500
  *           example: "El restaurante aparece como abierto pero está cerrado permanentemente"
