@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-
+import NotificationService from '../services/notification';
 import Chat, { SenderRole } from '../models/chat';
 import Conversation from '../models/conversation';
 
@@ -155,6 +155,22 @@ export class ChatService {
         new: true
       }
     );
+
+    const notificationData: any = {
+      // keep ids as ObjectId (models expect ObjectId types); the notification service
+      // will stringify values when preparing FCM payload
+      message_id: message._id,
+      conversation_id: conversation._id
+    };
+
+    await NotificationService.createAndSendNotification({
+      customer_id: conversation.customer,
+      restaurant_id: conversation.restaurant,
+      type: 'new_message',
+      title: 'Nou missatge',
+      message: 'T’han enviat un nou missatge al xat.',
+      data: notificationData
+    });
 
     return Chat.findById(message._id).populate('customer').populate('restaurant');
   }

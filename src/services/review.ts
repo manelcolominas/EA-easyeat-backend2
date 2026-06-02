@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { ReviewModel, IReview } from '../models/review';
+import NotificationService from '../services/notification';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -134,7 +135,34 @@ const getDeletedReviewsByCustomer = async (customerId: string, skip: number, lim
 // ─── Like ─────────────────────────────────────────────────────────────────────
 
 const likeReview = async (reviewId: string): Promise<IReview> => {
-  return ReviewModel.findOneAndUpdate({ _id: reviewId, ...ACTIVE_REVIEW_FILTER }, { $inc: { likes: 1 } }, { new: true }).lean();
+  // Increment likes and return the updated review
+  const updated = await ReviewModel.findOneAndUpdate(
+    { _id: reviewId, ...ACTIVE_REVIEW_FILTER },
+    { $inc: { likes: 1 } },
+    { new: true }
+  ).lean();
+
+  // If update succeeded, send a notification (best-effort)
+  if (updated) {
+    try {
+      await NotificationService.createAndSendNotification({
+        // Cast ids to any so typing differences (ObjectId vs string) don't fail here
+        customer_id: (updated.customer_id as any),
+        restaurant_id: (updated.restaurant_id as any),
+        type: 'review_liked',
+        title: 'La teva review ha rebut un like',
+        message: 'Algú ha valorat positivament la teva opinió.',
+        data: {
+          review_id: (updated._id as any)
+        }
+      });
+    } catch (err) {
+      // swallow notification errors to avoid breaking the like API
+      console.warn('Failed to send review liked notification', (err as any)?.message || err);
+    }
+  }
+
+  return updated as any;
 };
 
 // ─── Exports ──────────────────────────────────────────────────────────────────
