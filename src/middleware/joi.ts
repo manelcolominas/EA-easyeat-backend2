@@ -12,6 +12,7 @@ import { IStatistics } from '../models/statistics';
 import { IVisit } from '../models/visit';
 import { IDish } from '../models/dish';
 import { IDishRating } from '../models/dishRating';
+import { REPORT_REASONS } from '../models/report';
 
 import Logging from '../library/logging';
 
@@ -403,6 +404,25 @@ export const Schemas = {
         update: Joi.object<IDishRating>({
             rating:  Joi.number().min(0).max(10),
         }),
-    }
+    },
 
+    report: {
+        createParams: Joi.object({
+            restaurantId: objectId.required(),
+        }),
+        updateParams: Joi.object({
+            reportId: objectId.required(),
+        }),
+        create: Joi.object({
+            reason: Joi.string()
+                .valid(...REPORT_REASONS)
+                .required(),
+        }),
+        update: Joi.object({
+            reason: Joi.string()
+                .valid(...REPORT_REASONS)
+                .required(),
+        }),
+    }
 }
+
