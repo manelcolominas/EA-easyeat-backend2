@@ -24,6 +24,7 @@ import dishRatingRoutes from './routes/dishRating';
 import authRoutes from './routes/auth';
 import chatRoutes from './routes/chat';
 import supportRoutes from './routes/support';
+import walletRoutes from './routes/wallet';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -46,6 +47,12 @@ mongoose
     StartServer();
   })
   .catch((error) => Logging.error(error));
+
+// Initialize Google Wallet LoyaltyClass (fire and forget)
+import { googleWalletService } from './services/googleWallet.service';
+googleWalletService.createOrUpdateLoyaltyClass().catch(err => {
+    Logging.error(`Google Wallet Init Error: ${err}`);
+});
 
 const StartServer = () => {
   router.use((req, res, next) => {
@@ -98,6 +105,7 @@ const StartServer = () => {
   router.use('/dish-ratings', dishRatingRoutes);
   router.use('/chat', chatRoutes);
   router.use('/support', supportRoutes);
+  router.use('/wallet', walletRoutes);
 
   router.use((req, res) => {
     Logging.error(new Error(`Not found: ${req.url}`));
