@@ -48,5 +48,5 @@ export const config = {
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
     // Private key may contain newlines that are escaped in env files
     privateKey: process.env.FIREBASE_PRIVATE_KEY || ''
-  },
+  }
 };

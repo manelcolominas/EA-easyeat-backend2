@@ -136,24 +136,20 @@ const getDeletedReviewsByCustomer = async (customerId: string, skip: number, lim
 
 const likeReview = async (reviewId: string): Promise<IReview> => {
   // Increment likes and return the updated review
-  const updated = await ReviewModel.findOneAndUpdate(
-    { _id: reviewId, ...ACTIVE_REVIEW_FILTER },
-    { $inc: { likes: 1 } },
-    { new: true }
-  ).lean();
+  const updated = await ReviewModel.findOneAndUpdate({ _id: reviewId, ...ACTIVE_REVIEW_FILTER }, { $inc: { likes: 1 } }, { new: true }).lean();
 
   // If update succeeded, send a notification (best-effort)
   if (updated) {
     try {
       await NotificationService.createAndSendNotification({
         // Cast ids to any so typing differences (ObjectId vs string) don't fail here
-        customer_id: (updated.customer_id as any),
-        restaurant_id: (updated.restaurant_id as any),
+        customer_id: updated.customer_id as any,
+        restaurant_id: updated.restaurant_id as any,
         type: 'review_liked',
         title: 'La teva review ha rebut un like',
         message: 'Algú ha valorat positivament la teva opinió.',
         data: {
-          review_id: (updated._id as any)
+          review_id: updated._id as any
         }
       });
     } catch (err) {

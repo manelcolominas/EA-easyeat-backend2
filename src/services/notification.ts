@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { NotificationModel, INotification, NotificationType } from '../models/notification';
-import {CustomerDeviceTokenModel } from '../models/customerDeviceToken';
-import { sendPushToTokens} from './fcm';
+import { CustomerDeviceTokenModel } from '../models/customerDeviceToken';
+import { sendPushToTokens } from './fcm';
 
 // ─── CREATE ────────────────────────────────────────────────────────────────────
 
@@ -38,27 +38,13 @@ const getDeletedNotification = async (notification_id: string) => {
 
 const getByCustomer = async (customer_id: string, skip: number, limit: number) => {
   const query = { customer_id, deletedAt: null };
-  const [notifications, total] = await Promise.all([
-    NotificationModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean<INotification[]>(),
-    NotificationModel.countDocuments(query)
-  ]);
+  const [notifications, total] = await Promise.all([NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean<INotification[]>(), NotificationModel.countDocuments(query)]);
   return { notifications, total };
 };
 
 const getUnreadByCustomer = async (customer_id: string, skip: number, limit: number) => {
   const query = { customer_id, isRead: false, deletedAt: null };
-  const [notifications, total] = await Promise.all([
-    NotificationModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean<INotification[]>(),
-    NotificationModel.countDocuments(query)
-  ]);
+  const [notifications, total] = await Promise.all([NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean<INotification[]>(), NotificationModel.countDocuments(query)]);
   return { notifications, total };
 };
 
@@ -70,14 +56,7 @@ const countUnreadByCustomer = async (customer_id: string): Promise<number> => {
 
 const getByType = async (type: NotificationType, skip: number, limit: number) => {
   const query = { type, deletedAt: null };
-  const [notifications, total] = await Promise.all([
-    NotificationModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean<INotification[]>(),
-    NotificationModel.countDocuments(query)
-  ]);
+  const [notifications, total] = await Promise.all([NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean<INotification[]>(), NotificationModel.countDocuments(query)]);
   return { notifications, total };
 };
 
@@ -85,11 +64,7 @@ const getByType = async (type: NotificationType, skip: number, limit: number) =>
 
 const getAllNotifications = async (skip: number, limit: number) => {
   const [notifications, total] = await Promise.all([
-    NotificationModel.find({ deletedAt: null })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean<INotification[]>(),
+    NotificationModel.find({ deletedAt: null }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean<INotification[]>(),
     NotificationModel.countDocuments({ deletedAt: null })
   ]);
   return { notifications, total };
@@ -97,14 +72,7 @@ const getAllNotifications = async (skip: number, limit: number) => {
 
 const getAllDeletedNotifications = async (skip: number, limit: number) => {
   const query = { deletedAt: { $ne: null } };
-  const [notifications, total] = await Promise.all([
-    NotificationModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean<INotification[]>(),
-    NotificationModel.countDocuments(query)
-  ]);
+  const [notifications, total] = await Promise.all([NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean<INotification[]>(), NotificationModel.countDocuments(query)]);
   return { notifications, total };
 };
 
@@ -151,11 +119,7 @@ const markAllAsReadByCustomer = async (customer_id: string) => {
 /**
  * Actualitzar estat d'enviament FCM
  */
-const updateFcmStatus = async (
-  notification_id: string,
-  fcmSent: boolean,
-  fcmError?: string
-) => {
+const updateFcmStatus = async (notification_id: string, fcmSent: boolean, fcmError?: string) => {
   return await NotificationModel.findByIdAndUpdate(
     notification_id,
     {
@@ -170,19 +134,11 @@ const updateFcmStatus = async (
 // ─── DELETE ────────────────────────────────────────────────────────────────────
 
 const softDeleteNotification = async (notification_id: string) => {
-  return await NotificationModel.findByIdAndUpdate(
-    notification_id,
-    { deletedAt: new Date() },
-    { new: true }
-  ).lean();
+  return await NotificationModel.findByIdAndUpdate(notification_id, { deletedAt: new Date() }, { new: true }).lean();
 };
 
 const restoreNotification = async (notification_id: string) => {
-  return await NotificationModel.findByIdAndUpdate(
-    notification_id,
-    { deletedAt: null },
-    { new: true }
-  ).lean();
+  return await NotificationModel.findByIdAndUpdate(notification_id, { deletedAt: null }, { new: true }).lean();
 };
 
 const hardDeleteNotification = async (notification_id: string) => {
@@ -207,10 +163,7 @@ const deleteOldNotifications = async (daysOld: number = 90) => {
 /**
  * Crear notificacions en bulk per a múltiples clients
  */
-const createBulkNotifications = async (
-  customer_ids: string[],
-  notificationData: Omit<INotification, '_id' | 'customer_id' | 'isRead' | 'fcmSent'>
-) => {
+const createBulkNotifications = async (customer_ids: string[], notificationData: Omit<INotification, '_id' | 'customer_id' | 'isRead' | 'fcmSent'>) => {
   const documents = customer_ids.map((customer_id) => ({
     _id: new mongoose.Types.ObjectId(),
     customer_id,
@@ -222,10 +175,7 @@ const createBulkNotifications = async (
   return await NotificationModel.insertMany(documents);
 };
 
-const toFcmData = (data?: Record<string, any>) =>
-  Object.fromEntries(
-    Object.entries(data ?? {}).map(([key, value]) => [key, value === undefined || value === null ? '' : String(value)])
-  );
+const toFcmData = (data?: Record<string, any>) => Object.fromEntries(Object.entries(data ?? {}).map(([key, value]) => [key, value === undefined || value === null ? '' : String(value)]));
 
 const createAndSendNotification = async (data: Partial<INotification>) => {
   const notification = new NotificationModel({
@@ -279,7 +229,6 @@ const createAndSendNotification = async (data: Partial<INotification>) => {
     return saved;
   }
 };
-
 
 export default {
   // Create

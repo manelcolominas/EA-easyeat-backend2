@@ -2,15 +2,7 @@ import { Schema, model, Types, Model, QueryWithHelpers, HydratedDocument } from 
 
 // ─── Types i Enums ────────────────────────────────────────────────────────────
 
-export type NotificationType =
-  | 'points_expiring'
-  | 'new_reward'
-  | 'new_dish'
-  | 'reactivation_offer'
-  | 'promotion'
-  | 'new_message'
-  | 'review_liked'
-  | 'points_awarded';
+export type NotificationType = 'points_expiring' | 'new_reward' | 'new_dish' | 'reactivation_offer' | 'promotion' | 'new_message' | 'review_liked' | 'points_awarded';
 
 // ─── Interface ─────────────────────────────────────────────────────────────────
 
@@ -61,12 +53,8 @@ export interface INotification {
 // ─── Query Helpers ────────────────────────────────────────────────────────────
 
 export interface INotificationQueryHelpers {
-  active<TResult>(
-    this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>
-  ): QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>;
-  unread<TResult>(
-    this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>
-  ): QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>;
+  active<TResult>(this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>): QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>;
+  unread<TResult>(this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>): QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>;
 }
 
 // ─── Model Type ───────────────────────────────────────────────────────────────
@@ -184,15 +172,11 @@ notificationSchema.index({ fcmSent: 1, deletedAt: 1 });
 
 // ─── Query Helpers ────────────────────────────────────────────────────────────
 
-notificationSchema.query.active = function <TResult>(
-  this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>
-) {
+notificationSchema.query.active = function <TResult>(this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>) {
   return this.where({ deletedAt: null });
 };
 
-notificationSchema.query.unread = function <TResult>(
-  this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>
-) {
+notificationSchema.query.unread = function <TResult>(this: QueryWithHelpers<TResult, HydratedDocument<INotification>, INotificationQueryHelpers>) {
   return this.where({ isRead: false, deletedAt: null });
 };
 

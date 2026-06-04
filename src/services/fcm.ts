@@ -42,9 +42,7 @@ export const sendPushToTokens = async (
 
   const response = await admin.messaging().sendEachForMulticast(message);
 
-  const failedTokens = response.responses
-    .map((r, idx) => (!r.success ? tokens[idx] : null))
-    .filter((t): t is string => Boolean(t));
+  const failedTokens = response.responses.map((r, idx) => (!r.success ? tokens[idx] : null)).filter((t): t is string => Boolean(t));
 
   return {
     successCount: response.successCount,

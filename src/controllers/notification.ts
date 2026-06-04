@@ -111,9 +111,7 @@ const updateNotification = async (req: Request, res: Response, next: NextFunctio
   const notification_id = req.params.notification_id;
   try {
     const updatedNotification = await NotificationService.updateNotification(notification_id, req.body);
-    return updatedNotification
-      ? res.status(201).json(updatedNotification)
-      : res.status(404).json({ message: 'not found' });
+    return updatedNotification ? res.status(201).json(updatedNotification) : res.status(404).json({ message: 'not found' });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -145,9 +143,7 @@ const softDeleteNotification = async (req: Request, res: Response, next: NextFun
   const notification_id = req.params.notification_id;
   try {
     const notification = await NotificationService.softDeleteNotification(notification_id);
-    return notification
-      ? res.status(200).json(notification)
-      : res.status(404).json({ message: 'not found' });
+    return notification ? res.status(200).json(notification) : res.status(404).json({ message: 'not found' });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -157,9 +153,7 @@ const restoreNotification = async (req: Request, res: Response, next: NextFuncti
   const notification_id = req.params.notification_id;
   try {
     const notification = await NotificationService.restoreNotification(notification_id);
-    return notification
-      ? res.status(201).json(notification)
-      : res.status(404).json({ message: 'not found' });
+    return notification ? res.status(201).json(notification) : res.status(404).json({ message: 'not found' });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -169,9 +163,7 @@ const hardDeleteNotification = async (req: Request, res: Response, next: NextFun
   const notification_id = req.params.notification_id;
   try {
     const notification = await NotificationService.hardDeleteNotification(notification_id);
-    return notification
-      ? res.status(200).json(notification)
-      : res.status(404).json({ message: 'not found' });
+    return notification ? res.status(200).json(notification) : res.status(404).json({ message: 'not found' });
   } catch (error) {
     return res.status(500).json({ error });
   }
