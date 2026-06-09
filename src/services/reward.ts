@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import { RewardModel, IReward } from '../models/reward';
 import { RestaurantModel } from '../models/restaurant';
+import { CustomerModel } from '../models/customer';
+import { PointsWalletModel } from '../models/pointsWallet';
+import NotificationService from './notification';
 
 const createReward = async (data: Partial<IReward>) => {
   const reward = new RewardModel({
@@ -12,9 +15,46 @@ const createReward = async (data: Partial<IReward>) => {
 
   // Automatically add the new reward ID to the restaurant's rewards array
   if (data.restaurant_id) {
-    await RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
+    const restaurant = await RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
       $push: { rewards: savedReward._id }
     });
+
+    // Send notifications to eligible customers
+    try {
+      const restaurantName = restaurant?.profile?.name || 'Restaurant';
+
+      // Get all customer IDs that have points from this restaurant
+      const walletCustomerIds = await PointsWalletModel.find({
+        restaurant_id: data.restaurant_id,
+        points: { $gt: 0 }
+      }).distinct('customer_id');
+
+      // Find active customers who either have this restaurant as a favorite OR have points
+      const targetCustomerIds = await CustomerModel.find({
+        $or: [{ favoriteRestaurants: data.restaurant_id }, { _id: { $in: walletCustomerIds } }],
+        deletedAt: null
+      }).distinct('_id');
+
+      // Send a notification to each target customer
+      for (const customerId of targetCustomerIds) {
+        try {
+          await NotificationService.createAndSendNotification({
+            customer_id: customerId as any,
+            restaurant_id: data.restaurant_id as any,
+            type: 'new_reward',
+            title: `Nova recompensa a ${restaurantName}!`,
+            message: `S'ha afegit una nova recompensa: "${savedReward.name}". Aprofita els teus punts!`,
+            data: {
+              reward_id: savedReward._id as any
+            }
+          });
+        } catch (innerErr: any) {
+          console.warn(`Failed to send notification to customer ${customerId}:`, innerErr?.message || innerErr);
+        }
+      }
+    } catch (err: any) {
+      console.error('Error sending reward creation notifications:', err?.message || err);
+    }
   }
 
   return savedReward;
