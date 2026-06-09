@@ -3,6 +3,8 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import NotificationService from '../services/notification';
 import Chat, { SenderRole } from '../models/chat';
 import Conversation from '../models/conversation';
+import { verifyAccessToken } from '../utils/jwt';
+import Logging from '../library/logging';
 
 interface CreateOrGetConversationInput {
   customerId: string;
@@ -36,10 +38,16 @@ interface SendMessagePayload {
 }
 
 export class ChatService {
-  private io?: SocketIOServer;
+  private static ioInstance?: SocketIOServer;
 
   constructor(io?: SocketIOServer) {
-    this.io = io;
+    if (io) {
+      ChatService.ioInstance = io;
+    }
+  }
+
+  private get io(): SocketIOServer | undefined {
+    return ChatService.ioInstance;
   }
 
   private validateObjectId(id: string, fieldName: string): void {
@@ -172,7 +180,26 @@ export class ChatService {
       data: notificationData
     });
 
-    return Chat.findById(message._id).populate('customer').populate('restaurant');
+    const populatedMessage = await Chat.findById(message._id).populate('customer').populate('restaurant');
+
+    if (populatedMessage && this.io) {
+      const restaurantId = this.getEntityId(populatedMessage.restaurant);
+      const customerId = this.getEntityId(populatedMessage.customer);
+
+      this.io.to(`conversation:${conversationId}`).emit('chat:newMessage', populatedMessage);
+
+      this.io.to(`restaurant:${restaurantId}`).emit('chat:conversationUpdated', {
+        conversationId,
+        message: populatedMessage
+      });
+
+      this.io.to(`customer:${customerId}`).emit('chat:conversationUpdated', {
+        conversationId,
+        message: populatedMessage
+      });
+    }
+
+    return populatedMessage;
   }
 
   public async markMessageAsRead(messageId: string, userId: string) {
@@ -225,6 +252,28 @@ export class ChatService {
     if (!this.io) {
       throw new Error('Socket.io server instance is required');
     }
+
+    // Middleware to authenticate socket connection via token
+    this.io.use((socket: Socket, next: (err?: any) => void) => {
+      const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
+
+      if (!token) {
+        Logging.warning('Socket connection attempt without token');
+        return next(new Error('Authentication error: Token missing'));
+      }
+
+      try {
+        const decoded = verifyAccessToken(token);
+        if (decoded.type !== 'access') {
+          return next(new Error('Authentication error: Invalid token type'));
+        }
+        (socket as any).user = decoded;
+        next();
+      } catch (err) {
+        Logging.error('Socket authentication failed');
+        next(new Error('Authentication error: Invalid or expired token'));
+      }
+    });
 
     this.io.on('connection', (socket: Socket) => {
       console.log(`Socket connected: ${socket.id}`);
@@ -304,22 +353,6 @@ export class ChatService {
             });
             return;
           }
-
-          const restaurantId = this.getEntityId((message as any).restaurant);
-
-          const customerId = this.getEntityId((message as any).customer);
-
-          this.io!.to(`conversation:${conversationId}`).emit('chat:newMessage', message);
-
-          this.io!.to(`restaurant:${restaurantId}`).emit('chat:conversationUpdated', {
-            conversationId,
-            message
-          });
-
-          this.io!.to(`customer:${customerId}`).emit('chat:conversationUpdated', {
-            conversationId,
-            message
-          });
         } catch (error: any) {
           socket.emit('chat:error', {
             message: error.message || 'Error sending message'
