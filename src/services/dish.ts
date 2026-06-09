@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import { DishModel, IDish } from '../models/dish';
 import { RestaurantModel } from '../models/restaurant';
+import { CustomerModel } from '../models/customer';
+import { PointsWalletModel } from '../models/pointsWallet';
+import NotificationService from './notification';
 
 const createDish = async (data: Partial<IDish>) => {
   const dish = new DishModel({
@@ -11,9 +14,46 @@ const createDish = async (data: Partial<IDish>) => {
   const savedDish = await dish.save();
 
   if (data.restaurant_id) {
-    await RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
+    const restaurant = await RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
       $push: { dishes: savedDish._id }
     });
+
+    // Send notifications to eligible customers
+    try {
+      const restaurantName = restaurant?.profile?.name || 'Restaurant';
+
+      // Get all customer IDs that have points from this restaurant
+      const walletCustomerIds = await PointsWalletModel.find({
+        restaurant_id: data.restaurant_id,
+        points: { $gt: 0 }
+      }).distinct('customer_id');
+
+      // Find active customers who either have this restaurant as a favorite OR have points
+      const targetCustomerIds = await CustomerModel.find({
+        $or: [{ favoriteRestaurants: data.restaurant_id }, { _id: { $in: walletCustomerIds } }],
+        deletedAt: null
+      }).distinct('_id');
+
+      // Send a notification to each target customer
+      for (const customerId of targetCustomerIds) {
+        try {
+          await NotificationService.createAndSendNotification({
+            customer_id: customerId as any,
+            restaurant_id: data.restaurant_id as any,
+            type: 'new_dish',
+            title: `Nou plat a ${restaurantName}!`,
+            message: `S'ha afegit un nou plat: "${savedDish.name}". Vine a provar-lo!`,
+            data: {
+              dish_id: savedDish._id as any
+            }
+          });
+        } catch (innerErr: any) {
+          console.warn(`Failed to send new dish notification to customer ${customerId}:`, innerErr?.message || innerErr);
+        }
+      }
+    } catch (err: any) {
+      console.error('Error sending new dish notifications:', err?.message || err);
+    }
   }
 
   return savedDish;
