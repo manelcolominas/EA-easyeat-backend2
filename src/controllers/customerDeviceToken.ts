@@ -23,9 +23,7 @@ const unregister = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { token } = req.body;
     const result = await CustomerDeviceTokenService.unregisterToken(token);
-    return result
-      ? res.status(200).json({ message: 'Token unregistered' })
-      : res.status(404).json({ message: 'Token not found' });
+    return result ? res.status(200).json({ message: 'Token unregistered' }) : res.status(404).json({ message: 'Token not found' });
   } catch (error) {
     return next(error);
   }
@@ -38,9 +36,7 @@ const unregister = async (req: Request, res: Response, next: NextFunction) => {
 const readToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = await CustomerDeviceTokenService.getToken(req.params.tokenId);
-    return token
-      ? res.status(200).json(token)
-      : res.status(404).json({ message: 'Token not found' });
+    return token ? res.status(200).json(token) : res.status(404).json({ message: 'Token not found' });
   } catch (error) {
     return next(error);
   }
@@ -84,9 +80,7 @@ const ping = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { token } = req.body;
     const result = await CustomerDeviceTokenService.refreshLastSeen(token);
-    return result
-      ? res.status(200).json(result)
-      : res.status(404).json({ message: 'Token not found or inactive' });
+    return result ? res.status(200).json(result) : res.status(404).json({ message: 'Token not found or inactive' });
   } catch (error) {
     return next(error);
   }
@@ -99,9 +93,7 @@ const ping = async (req: Request, res: Response, next: NextFunction) => {
 const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deleted = await CustomerDeviceTokenService.hardDeleteToken(req.params.tokenId);
-    return deleted
-      ? res.status(200).json({ message: 'Token permanently deleted' })
-      : res.status(404).json({ message: 'Token not found' });
+    return deleted ? res.status(200).json({ message: 'Token permanently deleted' }) : res.status(404).json({ message: 'Token not found' });
   } catch (error) {
     return next(error);
   }

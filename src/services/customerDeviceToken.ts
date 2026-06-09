@@ -25,11 +25,7 @@ const registerToken = async (data: Pick<ICustomerDeviceToken, 'customer_id' | 't
  * Returns null when the token is not found.
  */
 const unregisterToken = async (token: string) => {
-  return await CustomerDeviceTokenModel.findOneAndUpdate(
-    { token, deletedAt: null },
-    { $set: { active: false, deletedAt: new Date() } },
-    { new: true }
-  );
+  return await CustomerDeviceTokenModel.findOneAndUpdate({ token, deletedAt: null }, { $set: { active: false, deletedAt: new Date() } }, { new: true });
 };
 
 /**
@@ -50,10 +46,7 @@ const getTokensByCustomer = async (customer_id: string) => {
  * Paginated list of every active token (admin use).
  */
 const getAllTokens = async (skip: number, limit: number): Promise<{ tokens: ICustomerDeviceToken[]; total: number }> => {
-  const [tokens, total] = await Promise.all([
-    CustomerDeviceTokenModel.find({ deletedAt: null }).lean().skip(skip).limit(limit),
-    CustomerDeviceTokenModel.countDocuments({ deletedAt: null })
-  ]);
+  const [tokens, total] = await Promise.all([CustomerDeviceTokenModel.find({ deletedAt: null }).lean().skip(skip).limit(limit), CustomerDeviceTokenModel.countDocuments({ deletedAt: null })]);
   return { tokens, total };
 };
 
@@ -62,11 +55,7 @@ const getAllTokens = async (skip: number, limit: number): Promise<{ tokens: ICus
  * to confirm the device is still active.
  */
 const refreshLastSeen = async (token: string) => {
-  return await CustomerDeviceTokenModel.findOneAndUpdate(
-    { token, active: true, deletedAt: null },
-    { $set: { lastSeenAt: new Date() } },
-    { new: true }
-  );
+  return await CustomerDeviceTokenModel.findOneAndUpdate({ token, active: true, deletedAt: null }, { $set: { lastSeenAt: new Date() } }, { new: true });
 };
 
 /**
