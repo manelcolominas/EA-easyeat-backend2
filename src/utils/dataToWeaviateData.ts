@@ -1,7 +1,7 @@
-import { IRestaurantWeaviate, IRestaurant } from "../models/restaurant";
-import { IDishWeaviate, IDish } from "../models/dish";
-import { IReviewWeaviate, IReview } from "../models/review";
-import { IRewardWeaviate, IReward } from "../models/reward";
+import { IRestaurantWeaviate, IRestaurant } from '../models/restaurant';
+import { IDishWeaviate, IDish } from '../models/dish';
+import { IReviewWeaviate, IReview } from '../models/review';
+import { IRewardWeaviate, IReward } from '../models/reward';
 
 export function restaurantToWeaviate(data: Partial<IRestaurant>): IRestaurantWeaviate {
   const result: Partial<IRestaurantWeaviate> = {};
@@ -15,7 +15,7 @@ export function restaurantToWeaviate(data: Partial<IRestaurant>): IRestaurantWea
     if (data.profile.description !== undefined) result.description = data.profile.description;
     if (data.profile.category !== undefined) result.categories = data.profile.category;
     if (data.profile.globalRating !== undefined) result.globalRating = data.profile.globalRating;
-    
+
     if (data.profile.location) {
       if (data.profile.location.city !== undefined) result.city = data.profile.location.city;
       if (data.profile.location.address !== undefined) result.address = data.profile.location.address;
@@ -70,7 +70,7 @@ export function reviewToWeaviate(data: Partial<IReview>): IReviewWeaviate {
     result.customerId = data.customer_id.toString();
   }
   if (data.globalRating !== undefined) result.globalRating = data.globalRating;
-  
+
   if (data.ratings) {
     if (data.ratings.foodQuality !== undefined) result.foodQualityRating = data.ratings.foodQuality;
     if (data.ratings.staffService !== undefined) result.staffServiceRating = data.ratings.staffService;
@@ -95,9 +95,8 @@ export function rewardToWeaviate(data: Partial<IReward>): IRewardWeaviate {
   }
   if (data.name !== undefined) result.name = data.name;
   if (data.description !== undefined) result.description = data.description;
-  
-  if (data.pointsRequired !== undefined)
-    result.pointsRequired = data.pointsRequired;
+
+  if (data.pointsRequired !== undefined) result.pointsRequired = data.pointsRequired;
 
   if (data.expiry !== undefined) {
     result.expiry = data.expiry instanceof Date ? data.expiry.toISOString() : new Date(data.expiry).toISOString();

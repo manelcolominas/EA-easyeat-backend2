@@ -19,7 +19,6 @@ export const generate = async (req: Request, res: Response): Promise<void> => {
 
     const data = await llmResponse.json();
     res.status(200).json({ message: 'LLM response received', data });
-
   } catch (error: any) {
     const message = error?.message || 'Error generating text from LLM';
     res.status(500).json({ message, error });

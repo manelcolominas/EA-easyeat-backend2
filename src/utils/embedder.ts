@@ -2,9 +2,7 @@ let embedderPromise: Promise<any> | null = null;
 
 function getEmbedder() {
   if (!embedderPromise) {
-    embedderPromise = import('@xenova/transformers').then(({ pipeline }) =>
-      pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
-    );
+    embedderPromise = import('@xenova/transformers').then(({ pipeline }) => pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2'));
   }
   return embedderPromise;
 }

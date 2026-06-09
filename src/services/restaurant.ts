@@ -187,7 +187,7 @@ const restoreRestaurant = async (restaurant_id: string): Promise<IRestaurant | n
     { new: true }
   ).lean();
 
-  result != null && await insertRestaurantVector(restaurantToWeaviate(result as Partial<IRestaurant>));
+  if (result != null) await insertRestaurantVector(restaurantToWeaviate(result as Partial<IRestaurant>));
 
   return result;
 };

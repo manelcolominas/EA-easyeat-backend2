@@ -5,18 +5,8 @@ import bcrypt from 'bcrypt';
 import Logging from '../library/logging';
 
 // Weaviate imports
-import {
-  insertRestaurantVector,
-  insertDishVector,
-  insertReviewVector,
-  insertRewardVector
-} from '../services/weaviate.service';
-import {
-  restaurantToWeaviate,
-  dishToWeaviate,
-  reviewToWeaviate,
-  rewardToWeaviate
-} from './dataToWeaviateData';
+import { insertRestaurantVector, insertDishVector, insertReviewVector, insertRewardVector } from '../services/weaviate.service';
+import { restaurantToWeaviate, dishToWeaviate, reviewToWeaviate, rewardToWeaviate } from './dataToWeaviateData';
 import { initWeaviate } from '../services/weaviate-init.service';
 import { getWeaviateClient } from '../config/weaviate';
 
@@ -172,10 +162,7 @@ export const insertData = async () => {
 
     // 1. Restaurants
     const restaurants = await RestaurantModel.find({
-      $or: [
-        { deletedAt: null },
-        { deletedAt: { $exists: false } }
-      ]
+      $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }]
     });
     Logging.info(`Found ${restaurants.length} active restaurants in MongoDB. Seeding to Weaviate...`);
     for (const r of restaurants) {
@@ -189,10 +176,7 @@ export const insertData = async () => {
 
     // 2. Dishes
     const dishes = await DishModel.find({
-      $and: [
-        { $or: [ { deletedAt: null }, { deletedAt: { $exists: false } } ] },
-        { $or: [ { deleted: { $ne: true } } ] }
-      ]
+      $and: [{ $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] }, { $or: [{ deleted: { $ne: true } }] }]
     });
     Logging.info(`Found ${dishes.length} active dishes in MongoDB. Seeding to Weaviate...`);
     for (const d of dishes) {
@@ -206,10 +190,7 @@ export const insertData = async () => {
 
     // 3. Reviews
     const reviews = await ReviewModel.find({
-      $and: [
-        { deleted: { $ne: true } },
-        { $or: [ { deletedAt: null }, { deletedAt: { $exists: false } } ] }
-      ]
+      $and: [{ deleted: { $ne: true } }, { $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] }]
     });
     Logging.info(`Found ${reviews.length} active reviews in MongoDB. Seeding to Weaviate...`);
     for (const rev of reviews) {
@@ -223,10 +204,7 @@ export const insertData = async () => {
 
     // 4. Rewards
     const rewards = await RewardModel.find({
-      $and: [
-        { $or: [ { deletedAt: null }, { deletedAt: { $exists: false } } ] },
-        { $or: [ { deleted: { $ne: true } } ] }
-      ]
+      $and: [{ $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] }, { $or: [{ deleted: { $ne: true } }] }]
     });
     Logging.info(`Found ${rewards.length} active rewards in MongoDB. Seeding to Weaviate...`);
     for (const rew of rewards) {

@@ -21,23 +21,15 @@ export async function generateText(model: string, prompt: string): Promise<Respo
   const rewardsResult = await searchRewards(embeddedPrompt);
 
   // Collect all unique restaurantIds referenced in dishes, reviews and rewards
-  const allReferencedRestaurantIds = [
-    ...dishesResult.restaurantIds,
-    ...reviewsResult.restaurantIds,
-    ...rewardsResult.restaurantIds,
-  ];
+  const allReferencedRestaurantIds = [...dishesResult.restaurantIds, ...reviewsResult.restaurantIds, ...rewardsResult.restaurantIds];
   const uniqueRestaurantIds = [...new Set(allReferencedRestaurantIds)];
 
   // Fetch all referenced restaurants from Weaviate so the LLM always has full context
   const referencedRestaurants = await getRestaurantsByMongoIds(uniqueRestaurantIds);
 
   // Merge semantic-search restaurants with referenced restaurants (deduplicated by mongoId)
-  const semanticRestaurantIds = new Set(
-    restaurantsResult.map((r) => r.mongoId as string).filter(Boolean)
-  );
-  const additionalRestaurants = referencedRestaurants.filter(
-    (r) => !semanticRestaurantIds.has(r.mongoId as string)
-  );
+  const semanticRestaurantIds = new Set(restaurantsResult.map((r) => r.mongoId as string).filter(Boolean));
+  const additionalRestaurants = referencedRestaurants.filter((r) => !semanticRestaurantIds.has(r.mongoId as string));
   const allRestaurants = [...restaurantsResult, ...additionalRestaurants];
 
   const restaurants = JSON.stringify(allRestaurants);
@@ -49,7 +41,7 @@ export async function generateText(model: string, prompt: string): Promise<Respo
   Dish data: ${dishes}
   Review data: ${reviews}
   Reward data: ${rewards}`;
-  
+
   const request: LLMGenerateRequest = {
     model: model,
     prompt: `
@@ -75,13 +67,13 @@ export async function generateText(model: string, prompt: string): Promise<Respo
     
     User question: ${prompt}
     Response:`,
-    stream: false,
+    stream: false
   };
 
   const res = await fetch(LLM_API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
+    body: JSON.stringify(request)
   });
 
   return res;
