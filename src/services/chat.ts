@@ -137,7 +137,7 @@ export class ChatService {
       throw new Error('Message content cannot be empty');
     }
 
-    const conversation = await Conversation.findById(conversationId);
+    const conversation = await Conversation.findById(conversationId).populate('restaurant');
 
     if (!conversation) {
       throw new Error('Conversation not found');
@@ -164,21 +164,27 @@ export class ChatService {
       }
     );
 
-    const notificationData: any = {
-      // keep ids as ObjectId (models expect ObjectId types); the notification service
-      // will stringify values when preparing FCM payload
-      message_id: message._id,
-      conversation_id: conversation._id
-    };
+    // Only send push notification to the customer when the restaurant side
+    // (employee or owner) sends a message, not when the customer messages themselves.
+    if (senderRole === 'employee' || senderRole === 'owner') {
+      const notificationData: any = {
+        // keep ids as ObjectId (models expect ObjectId types); the notification service
+        // will stringify values when preparing FCM payload
+        message_id: message._id,
+        conversation_id: conversation._id
+      };
 
-    await NotificationService.createAndSendNotification({
-      customer_id: conversation.customer,
-      restaurant_id: conversation.restaurant,
-      type: 'new_message',
-      title: 'Nou missatge',
-      message: 'T’han enviat un nou missatge al xat.',
-      data: notificationData
-    });
+      const restaurantName = (conversation.restaurant as any)?.profile?.name || 'Un restaurant';
+
+      await NotificationService.createAndSendNotification({
+        customer_id: conversation.customer,
+        restaurant_id: (conversation.restaurant as any)?._id ?? conversation.restaurant,
+        type: 'new_message',
+        title: `Nou missatge de ${restaurantName}`,
+        message: contenido.trim(),
+        data: notificationData
+      });
+    }
 
     const populatedMessage = await Chat.findById(message._id).populate('customer').populate('restaurant');
 

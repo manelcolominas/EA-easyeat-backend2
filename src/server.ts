@@ -25,6 +25,7 @@ import authRoutes from './routes/auth';
 import chatRoutes from './routes/chat';
 import supportRoutes from './routes/support';
 import notificationRoutes from './routes/notification';
+import customerDeviceTokenRoutes from './routes/customerDeviceToken';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -100,6 +101,7 @@ const StartServer = () => {
   router.use('/chat', chatRoutes);
   router.use('/support', supportRoutes);
   router.use('/notifications', notificationRoutes);
+  router.use('/customerDeviceTokens', customerDeviceTokenRoutes);
 
   router.use((req, res) => {
     Logging.error(new Error(`Not found: ${req.url}`));
