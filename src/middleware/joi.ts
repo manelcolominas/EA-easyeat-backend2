@@ -12,6 +12,7 @@ import { IStatistics } from '../models/statistics';
 import { IVisit } from '../models/visit';
 import { IDish } from '../models/dish';
 import { IDishRating } from '../models/dishRating';
+import { ICustomerDeviceToken } from '../models/customerDeviceToken';
 
 import Logging from '../library/logging';
 
@@ -450,5 +451,10 @@ export const Schemas = {
       description: Joi.string().optional().max(1000),
       data: Joi.object().optional()
     })
+  },
+
+  customerDeviceToken: {
+    register: Joi.object({ customer_id: Joi.string().required(), token: Joi.string().required(), platform: Joi.string().valid('android', 'ios', 'web') }),
+    unregister: Joi.object({ token: Joi.string().required() })
   }
 };
