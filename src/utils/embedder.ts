@@ -1,4 +1,3 @@
-// embedder.ts
 let embedderPromise: Promise<any> | null = null;
 
 function getEmbedder() {

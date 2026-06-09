@@ -17,6 +17,10 @@ export async function initWeaviate(): Promise<void> {
     (c) => c.name === "Review"
   );
 
+  const rewardExsist = collections.find(
+    (c) => c.name === "Reward"
+  );
+
   if (!restaurantExists) {
     await client.collections.create({
       name: "Restaurant",
@@ -45,15 +49,15 @@ export async function initWeaviate(): Promise<void> {
         { name: "name", dataType: "text" },
         { name: "description", dataType: "text" },
         { name: "section", dataType: "text" },
-        { name: "price", dataType: "text" },
+        { name: "price", dataType: "number" },
         { name: "ingredients", dataType: "text[]" },
         { name: "allergens", dataType: "text[]" },
         { name: "dietaryFlags", dataType: "text[]" },
         { name: "flavorProfile", dataType: "text[]" },
         { name: "cuisineTags", dataType: "text[]" },
-        { name: "avgRating", dataType: "text" },
+        { name: "avgRating", dataType: "number" },
       ]
-    })
+    });
   }
 
   if (!reviewExists) {
@@ -71,6 +75,20 @@ export async function initWeaviate(): Promise<void> {
         { name: "comment", dataType: "text" },
         { name: "createdAt", dataType: "text" },
       ]
-    })
+    });
+  }
+
+  if (!rewardExsist) {
+    await client.collections.create({
+      name: "Reward",
+      properties: [
+        { name: "mongoId", dataType: "text" },
+        { name: "restaurantId", dataType: "text" },
+        { name: "name", dataType: "text" },
+        { name: "description", dataType: "text" },
+        { name: "pointsRequired", dataType: "number" },
+        { name: "expiry", dataType: "text" },
+      ]
+    });
   }
 }

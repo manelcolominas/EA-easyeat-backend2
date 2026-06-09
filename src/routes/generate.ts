@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/generate:
+ * /llm/generate:
  *   post:
  *     summary: Generate text using an external LLM service
  *     tags: [LLM]
@@ -25,16 +25,6 @@ const router = express.Router();
  *               prompt:
  *                 type: string
  *                 example: "Recomana'm un restaurant de menjar italià a Barcelona"
- *               temperature:
- *                 type: number
- *               maxTokens:
- *                 type: number
- *               topP:
- *                 type: number
- *               stop:
- *                 type: array
- *                 items:
- *                   type: string
  *     responses:
  *       200:
  *         description: Generated text returned successfully

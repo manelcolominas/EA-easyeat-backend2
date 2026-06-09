@@ -12,6 +12,16 @@ export interface IReward {
   timesRedeemed?: number;
 }
 
+// Weaviate interface
+export interface IRewardWeaviate {
+  id: string;
+  restaurantId: string;
+  name: string;
+  description: string;
+  pointsRequired: number;
+  expiry?: string;
+}
+
 // 2️⃣ Schema
 const rewardSchema = new Schema<IReward>(
   {

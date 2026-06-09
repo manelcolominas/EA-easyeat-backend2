@@ -24,6 +24,7 @@ import dishRatingRoutes from './routes/dishRating';
 import authRoutes from './routes/auth';
 import chatRoutes from './routes/chat';
 import supportRoutes from './routes/support';
+import llmRoutes from './routes/generate';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -100,6 +101,7 @@ const StartServer = () => {
   router.use('/dish-ratings', dishRatingRoutes);
   router.use('/chat', chatRoutes);
   router.use('/support', supportRoutes);
+  router.use('/llm', llmRoutes);
 
   router.use((req, res) => {
     Logging.error(new Error(`Not found: ${req.url}`));

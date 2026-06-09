@@ -40,7 +40,8 @@ export const config = {
   },
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   llm: {
-    url: process.env.LLM_API_URL || 'http://localhost:8080/api/generate'
+    url: process.env.LLM_API_URL || 'http://10.4.119.50:8080/api/generate',
+    model: process.env.MODEL || 'qwen2.5:14b',
   },
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || ''
