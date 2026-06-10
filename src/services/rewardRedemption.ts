@@ -3,6 +3,8 @@ import { RewardRedemptionModel, IRewardRedemption } from '../models/rewardRedemp
 import { CustomerModel } from '../models/customer';
 import { RewardModel } from '../models/reward';
 import { PointsWalletModel } from '../models/pointsWallet';
+import { RestaurantModel } from '../models/restaurant';
+import NotificationService from './notification';
 
 type RedeemRewardPayload = {
   customer_id: string;
@@ -150,6 +152,12 @@ const redeemReward = async (data: RedeemRewardPayload) => {
         };
       });
 
+      if (response && response.redemption) {
+        triggerRedemptionNotification(response.redemption, response.pointsBefore - response.pointsAfter).catch((err) => {
+          console.error('Error sending redemption notification:', err);
+        });
+      }
+
       return response;
     } catch (error: any) {
       if (isTransactionUnsupportedError(error)) {
@@ -159,6 +167,33 @@ const redeemReward = async (data: RedeemRewardPayload) => {
     }
   } finally {
     await session.endSession();
+  }
+};
+
+const triggerRedemptionNotification = async (redemption: any, pointsUsed: number) => {
+  try {
+    const customer = await CustomerModel.findById(redemption.customer_id);
+    if (!customer) return;
+
+    const reward = await RewardModel.findById(redemption.reward_id);
+    if (!reward) return;
+
+    const restaurant = await RestaurantModel.findById(redemption.restaurant_id);
+    const restaurantName = restaurant?.profile?.name || 'Restaurant';
+
+    await NotificationService.createAndSendNotification({
+      customer_id: customer._id,
+      restaurant_id: redemption.restaurant_id,
+      type: 'points_awarded',
+      title: 'Recompensa bescanviada!',
+      message: `Has bescanviat ${pointsUsed} punts per la recompensa "${reward.name}" a ${restaurantName}.`,
+      data: {
+        reward_id: reward._id,
+        points_amount: pointsUsed
+      }
+    });
+  } catch (err: any) {
+    console.error('Error sending redemption notification:', err?.message || err);
   }
 };
 
@@ -374,6 +409,10 @@ const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
     redemption.status = 'redeemed';
     redemption.redeemedAt = new Date() as any;
     await redemption.save();
+
+    triggerRedemptionNotification(redemption, pointsUsed).catch((err) => {
+      console.error('Error sending redemption notification (no trans):', err);
+    });
 
     return {
       message: 'Reward redeemed successfully (without transaction)',

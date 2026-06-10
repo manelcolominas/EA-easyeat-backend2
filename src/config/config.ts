@@ -41,5 +41,12 @@ export const config = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || ''
+  },
+  // Firebase service account credentials (optional)
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID || '',
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
+    // Private key may contain newlines that are escaped in env files
+    privateKey: process.env.FIREBASE_PRIVATE_KEY || ''
   }
 };

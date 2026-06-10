@@ -12,6 +12,7 @@ import { IStatistics } from '../models/statistics';
 import { IVisit } from '../models/visit';
 import { IDish } from '../models/dish';
 import { IDishRating } from '../models/dishRating';
+import { ICustomerDeviceToken } from '../models/customerDeviceToken';
 
 import Logging from '../library/logging';
 
@@ -429,5 +430,31 @@ export const Schemas = {
     update: Joi.object<IDishRating>({
       rating: Joi.number().min(0).max(10)
     })
+  },
+
+  notification: {
+    create: Joi.object({
+      customer_id: Joi.string().required().messages({ 'string.empty': 'customer_id is required' }),
+      restaurant_id: Joi.string().optional().allow(null),
+      type: Joi.string().valid('points_expiring', 'new_reward', 'new_dish', 'reactivation_offer', 'promotion', 'new_message', 'review_liked', 'points_awarded').required(),
+      title: Joi.string().required().max(100),
+      message: Joi.string().required().max(500),
+      description: Joi.string().optional().max(1000),
+      data: Joi.object().optional()
+    }),
+    update: Joi.object({
+      customer_id: Joi.string().optional(),
+      restaurant_id: Joi.string().optional().allow(null),
+      type: Joi.string().valid('points_expiring', 'new_reward', 'new_dish', 'reactivation_offer', 'promotion', 'new_message', 'review_liked', 'points_awarded').optional(),
+      title: Joi.string().optional().max(100),
+      message: Joi.string().optional().max(500),
+      description: Joi.string().optional().max(1000),
+      data: Joi.object().optional()
+    })
+  },
+
+  customerDeviceToken: {
+    register: Joi.object({ customer_id: Joi.string().required(), token: Joi.string().required(), platform: Joi.string().valid('android', 'ios', 'web') }),
+    unregister: Joi.object({ token: Joi.string().required() })
   }
 };
