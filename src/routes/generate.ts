@@ -1,5 +1,6 @@
 import express from 'express';
 import { generate } from '../controllers/generate';
+import { authenticate } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -33,6 +34,6 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/generate', generate);
+router.post('/generate', authenticate, generate);
 
 export default router;
