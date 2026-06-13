@@ -28,7 +28,12 @@ export const verifyGoogleToken = async (idToken: string) => {
       picture: payload.picture || ''
     };
   } catch (error) {
-    throw new Error(`Failed to verify Google token: ${error}`);
+    const wrappedError = new Error('Failed to verify Google token') as Error & {
+      cause?: unknown;
+    };
+
+    wrappedError.cause = error;
+    throw wrappedError;
   }
 };
 
@@ -60,7 +65,12 @@ export const findOrCreateCustomerFromGoogle = async (googleData: { id: string; e
     await customer.save();
     return customer;
   } catch (error) {
-    throw new Error(`Failed to find or create customer: ${error}`);
+    const wrappedError = new Error('Failed to find or create customer') as Error & {
+      cause?: unknown;
+    };
+
+    wrappedError.cause = error;
+    throw wrappedError;
   }
 };
 

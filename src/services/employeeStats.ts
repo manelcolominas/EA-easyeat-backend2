@@ -18,7 +18,12 @@ const saveEmployeeStatistics = async (employee_id: string, stats: Partial<IEmplo
     const employeeId = new Types.ObjectId(employee_id);
     return await EmployeeStatsModel.findOneAndUpdate({ employee_id: employeeId }, { ...stats, employee_id: employeeId }, { upsert: true, new: true, runValidators: true });
   } catch (error) {
-    throw new Error(`Failed to save employee statistics: ${error}`);
+    const wrappedError = new Error('Failed to save customer statistics') as Error & {
+      cause?: unknown;
+    };
+
+    wrappedError.cause = error;
+    throw wrappedError;
   }
 };
 

@@ -425,16 +425,22 @@ const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
     try {
       wallet.points = pointsBefore;
       await wallet.save();
-    } catch {}
+    } catch (_error) {
+      void _error;
+    }
 
     try {
       reward.timesRedeemed = Math.max(0, Number(reward.timesRedeemed ?? 1) - 1);
       await reward.save();
-    } catch {}
+    } catch (_error) {
+      void _error;
+    }
 
     try {
       await RewardRedemptionModel.findByIdAndDelete(redemption._id);
-    } catch {}
+    } catch (_error) {
+      void _error;
+    }
 
     throw error;
   }

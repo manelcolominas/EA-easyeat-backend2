@@ -140,7 +140,7 @@ const pointsRedemption = async (data: Partial<IVisit>) => {
     maxPointsVisit: restaurant.profile.maxPointsVisit || 500
   };
 
-  let pointsToAssign = 0;
+  let pointsToAssign: number;
 
   if (pointsSystem.method === 'simple') {
     pointsToAssign = Math.floor((billAmount ?? 0) * (pointsSystem.pointsPerEuro || 10));

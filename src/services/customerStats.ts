@@ -18,7 +18,12 @@ const saveCustomerStatistics = async (customer_id: string, stats: Partial<ICusto
     const customerId = new Types.ObjectId(customer_id);
     return await CustomerStatsModel.findOneAndUpdate({ customer_id: customerId }, { ...stats, customer_id: customerId }, { upsert: true, new: true, runValidators: true });
   } catch (error) {
-    throw new Error(`Failed to save customer statistics: ${error}`);
+    const wrappedError = new Error('Failed to save customer statistics') as Error & {
+      cause?: unknown;
+    };
+
+    wrappedError.cause = error;
+    throw wrappedError;
   }
 };
 

@@ -139,7 +139,7 @@ export interface RestaurantModelType extends Model<IRestaurant, RestaurantQueryH
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** International phone number (allows spaces and hyphens) */
-const PHONE_REGEX = /^\+?[1-9][\d\s\-]{1,18}$/i;
+const PHONE_REGEX = /^\+?[1-9][\d\s-]{1,18}$/;
 
 /** Simple RFC-5322-like e-mail check */
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;

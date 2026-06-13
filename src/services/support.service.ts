@@ -63,7 +63,7 @@ export class SupportService {
         Logging.error(`Gemini Response Error: ${JSON.stringify(error.response.data)}`);
       }
       console.error(error); // This will show in the terminal
-      throw new Error('Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, inténtalo de nuevo más tarde.');
+      throw Object.assign(new Error('Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, inténtalo de nuevo más tarde.'), { cause: error });
     }
   }
 }
