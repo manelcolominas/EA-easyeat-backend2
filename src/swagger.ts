@@ -13,6 +13,12 @@ const options: Options = {
     servers: [
       {
         url: `http://localhost:${config.server.port}`
+      },
+      {
+        url: 'https://ea-easyeat-backend2.onrender.com'
+      },
+      {
+        url: 'https://ea2-api.upc.edu'
       }
     ],
     components: {
