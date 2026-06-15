@@ -1,10 +1,3 @@
-# Mínim 2
-## Estat
-
-Base de dades de Weaviate implementada amb embeddings i generació del missatge cap a la LLM
-
-Falta per implementar el xat dins del frontend i comprovar que tot funciona
-
 # EASY-EAT API
 
 ## 💻 Regles del Backend
