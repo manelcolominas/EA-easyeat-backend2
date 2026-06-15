@@ -24,6 +24,7 @@ import chatRoutes from './routes/chat';
 import supportRoutes from './routes/support';
 import notificationRoutes from './routes/notification';
 import customerDeviceTokenRoutes from './routes/customerDeviceToken';
+import llmRoutes from './routes/generate';
 
 const app = express();
 
@@ -86,6 +87,7 @@ app.use('/chat', chatRoutes);
 app.use('/support', supportRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/customerDeviceTokens', customerDeviceTokenRoutes);
+app.use('/llm', llmRoutes);
 
 app.use((req, res) => {
   Logging.error(new Error(`Not found: ${req.url}`));

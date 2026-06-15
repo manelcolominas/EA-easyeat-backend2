@@ -6,6 +6,7 @@ import app from './app';
 import { config } from './config/config';
 import Logging from './library/logging';
 import { insertData } from './utils/dataSeeder';
+import { initWeaviate } from './services/weaviate-init.service';
 import { ChatService } from './services/chat';
 
 const startServer = async () => {
@@ -13,6 +14,7 @@ const startServer = async () => {
     await mongoose.connect(config.mongo.url, { retryWrites: true, w: 'majority' });
 
     Logging.info('Mongo connected successfully.');
+    await initWeaviate();
     await insertData();
 
     const httpServer = http.createServer(app);

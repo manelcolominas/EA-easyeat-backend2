@@ -9,6 +9,9 @@ import { RewardModel, IReward } from '../models/reward';
 import { ReviewModel, IReview } from '../models/review';
 import { StatisticsModel, IStatistics } from '../models/statistics';
 import { VisitModel, IVisit } from '../models/visit';
+import { insertRestaurantVector, updateRestaurantVector, deleteRestaurantVector } from './weaviate.service';
+import { restaurantToWeaviate } from '../utils/dataToWeaviateData';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
 // ─────────────────────────────────────────────────────────────────────────────
@@ -27,7 +30,11 @@ interface ReviewAverageResult {
 // ─────────────────────────────────────────────────────────────────────────────
 const createRestaurant = async (data: Partial<IRestaurant>): Promise<IRestaurant> => {
   const restaurant = new RestaurantModel(data);
-  return restaurant.save();
+  const result = await restaurant.save();
+
+  await insertRestaurantVector(restaurantToWeaviate(result));
+
+  return result;
 };
 
 const getRestaurantGlobalRating = async (restaurantId: string): Promise<number> => {
@@ -142,7 +149,11 @@ const updateRestaurant = async (restaurant_id: string, data: Partial<IRestaurant
   const restaurant = await RestaurantModel.findById(restaurant_id).active();
   if (!restaurant) return null;
   restaurant.set(data);
-  return restaurant.save();
+  const result = await restaurant.save();
+
+  await updateRestaurantVector(restaurant_id, restaurantToWeaviate(data));
+
+  return result;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -154,11 +165,15 @@ const updateRestaurant = async (restaurant_id: string, data: Partial<IRestaurant
  * Returns null if the restaurant is not found OR is already soft-deleted.
  */
 const softDeleteRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
-  return RestaurantModel.findOneAndUpdate(
+  const result = RestaurantModel.findOneAndUpdate(
     { _id: restaurant_id, deletedAt: null }, // guard: only active docs
     { deletedAt: new Date() },
     { new: true }
   ).lean();
+
+  await deleteRestaurantVector(restaurant_id);
+
+  return result;
 };
 
 /**
@@ -166,11 +181,15 @@ const softDeleteRestaurant = async (restaurant_id: string): Promise<IRestaurant 
  * Returns null if the restaurant is not found OR is already active.
  */
 const restoreRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
-  return RestaurantModel.findOneAndUpdate(
+  const result = RestaurantModel.findOneAndUpdate(
     { _id: restaurant_id, deletedAt: { $ne: null } }, // guard: only deleted docs
     { deletedAt: null },
     { new: true }
   ).lean();
+
+  if (result != null) await insertRestaurantVector(restaurantToWeaviate(result as Partial<IRestaurant>));
+
+  return result;
 };
 
 /**
@@ -178,7 +197,11 @@ const restoreRestaurant = async (restaurant_id: string): Promise<IRestaurant | n
  * Use only for admin operations or GDPR erasure requests.
  */
 const hardDeleteRestaurant = async (restaurant_id: string): Promise<IRestaurant | null> => {
-  return RestaurantModel.findByIdAndDelete(restaurant_id).lean();
+  const result = RestaurantModel.findByIdAndDelete(restaurant_id).lean();
+
+  await deleteRestaurantVector(restaurant_id);
+
+  return result;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

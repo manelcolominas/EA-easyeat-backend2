@@ -22,6 +22,22 @@ export interface IDish {
   ratingsCount?: number;
 }
 
+// Weaviate interface for AI queries
+export interface IDishWeaviate {
+  id: string; // MongoDB ObjectId string
+  restaurantId: string; // MongoDB ObjectId string
+  name: string;
+  description?: string;
+  section: 'Starters' | 'Mains' | 'Desserts' | 'Drinks' | 'Sides' | 'Specials';
+  price: number;
+  ingredients?: string[];
+  allergens?: string[];
+  dietaryFlags?: string[];
+  flavorProfile?: string[];
+  cuisineTags?: string[];
+  avgRating?: number;
+}
+
 // Schema
 const dishSchema = new Schema<IDish>(
   {
