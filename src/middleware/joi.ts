@@ -13,6 +13,7 @@ import { IVisit } from '../models/visit';
 import { IDish } from '../models/dish';
 import { IDishRating } from '../models/dishRating';
 
+
 import Logging from '../library/logging';
 
 export const ValidateJoi = (schema: ObjectSchema, property: 'body' | 'query' | 'params' = 'body') => {
@@ -429,5 +430,20 @@ export const Schemas = {
     update: Joi.object<IDishRating>({
       rating: Joi.number().min(0).max(10)
     })
-  }
+  },
+  report: {
+    createParams: Joi.object({
+      restaurantId: objectId.required()
+    }),
+    create: Joi.object({
+      reason: Joi.string().trim().min(3).max(500).required()
+    }),
+  },
+  updateParams: Joi.object({
+    reportId: objectId.required()
+  }),
+
+  update: Joi.object({
+    reason: Joi.string().trim().min(3).max(500).required()
+  }),
 };

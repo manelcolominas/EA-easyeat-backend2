@@ -17,6 +17,9 @@ import visitRoutes from './routes/visit';
 import badgeRoutes from './routes/badge';
 import dishRoutes from './routes/dish';
 import employeeRoutes from './routes/employee';
+
+import reportRoutes from './routes/report';
+
 import pointsWallets from './routes/pointsWallet';
 import rewardRedemption from './routes/rewardRedemption';
 import statistics from './routes/statistics';
@@ -29,6 +32,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 
 import { ChatService } from './services/chat';
+
 
 const router = express();
 const corsOptions = {
@@ -98,6 +102,7 @@ const StartServer = () => {
   router.use('/dish-ratings', dishRatingRoutes);
   router.use('/chat', chatRoutes);
   router.use('/support', supportRoutes);
+  router.use('/reports', reportRoutes);
 
   router.use((req, res) => {
     Logging.error(new Error(`Not found: ${req.url}`));
