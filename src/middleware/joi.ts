@@ -14,6 +14,7 @@ import { IDish } from '../models/dish';
 import { IDishRating } from '../models/dishRating';
 import { ICustomerDeviceToken } from '../models/customerDeviceToken';
 
+
 import Logging from '../library/logging';
 
 export const ValidateJoi = (schema: ObjectSchema, property: 'body' | 'query' | 'params' = 'body') => {
@@ -456,5 +457,21 @@ export const Schemas = {
   customerDeviceToken: {
     register: Joi.object({ customer_id: Joi.string().required(), token: Joi.string().required(), platform: Joi.string().valid('android', 'ios', 'web') }),
     unregister: Joi.object({ token: Joi.string().required() })
-  }
+  },
+
+  report: {
+    createParams: Joi.object({
+      restaurantId: objectId.required()
+    }),
+    create: Joi.object({
+      reason: Joi.string().trim().min(3).max(500).required()
+    }),
+  },
+  updateParams: Joi.object({
+    reportId: objectId.required()
+  }),
+
+  update: Joi.object({
+    reason: Joi.string().trim().min(3).max(500).required()
+  }),
 };
