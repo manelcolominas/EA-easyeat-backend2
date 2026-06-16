@@ -102,7 +102,7 @@ const StartServer = () => {
   router.use('/dish-ratings', dishRatingRoutes);
   router.use('/chat', chatRoutes);
   router.use('/support', supportRoutes);
-  router.use('/reports', reportRoutes);
+  router.use('/', reportRoutes);
 
   router.use((req, res) => {
     Logging.error(new Error(`Not found: ${req.url}`));
