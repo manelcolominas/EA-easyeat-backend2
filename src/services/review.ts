@@ -144,22 +144,13 @@ const likeReview = async (reviewId: string, userId: string): Promise<IReview> =>
     ...ACTIVE_REVIEW_FILTER
   });
 
-  if (exists) {
-    throw new Error('You have already liked this review');
-  }
+  const updateQuery = exists ? { $inc: { likes: -1 }, $pull: { likedBy: userObjectId } } : { $inc: { likes: 1 }, $addToSet: { likedBy: userObjectId } };
 
-  // Increment likes and add user to likedBy array
-  const updated = await ReviewModel.findOneAndUpdate(
-    { _id: reviewId, ...ACTIVE_REVIEW_FILTER },
-    {
-      $inc: { likes: 1 },
-      $addToSet: { likedBy: userObjectId }
-    },
-    { new: true }
-  ).lean();
+  // Update likes and likedBy array
+  const updated = await ReviewModel.findOneAndUpdate({ _id: reviewId, ...ACTIVE_REVIEW_FILTER }, updateQuery, { new: true }).lean();
 
   // If update succeeded, send a notification (best-effort)
-  if (updated) {
+  if (updated && !exists) {
     try {
       await NotificationService.createAndSendNotification({
         // Cast ids to any so typing differences (ObjectId vs string) don't fail here
