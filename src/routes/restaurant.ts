@@ -313,6 +313,12 @@ router.get('/near-by', controller.getRestaurantsNearby);
  *         schema:
  *           type: integer
  *           default: 10
+ *       - in: query
+ *         name: owner_id
+ *         schema:
+ *           type: string
+ *         description: Filter restaurants by owner ID
+ *         example: "65f1c2a1b2c3d4e5f6783001"
  *     responses:
  *       200:
  *         description: OK

@@ -97,17 +97,25 @@ const getDeletedRestaurant = async (restaurantId: string): Promise<IRestaurant |
   return RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } }).lean();
 };
 
-const getAllRestaurants = async (skip: number, limit: number): Promise<{ restaurants: IRestaurant[]; total: number }> => {
+const getAllRestaurants = async (skip: number, limit: number, ownerId?: string): Promise<{ restaurants: IRestaurant[]; total: number }> => {
+  const filter: Record<string, unknown> = { deletedAt: null };
+
+  if (ownerId !== undefined) {
+    if (!mongoose.Types.ObjectId.isValid(ownerId)) {
+      return { restaurants: [], total: 0 };
+    }
+    filter.owner_id = new mongoose.Types.ObjectId(ownerId);
+  }
+
   const [restaurants, total] = await Promise.all([
-    RestaurantModel.find()
-      .active()
+    RestaurantModel.find(filter)
       .select(
         'profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable profile.location.coordinates'
       )
       .skip(skip)
       .limit(limit)
       .lean<IRestaurant[]>(),
-    RestaurantModel.countDocuments({ deletedAt: null })
+    RestaurantModel.countDocuments(filter)
   ]);
 
   const formattedRestaurants = restaurants.map((r) => ({

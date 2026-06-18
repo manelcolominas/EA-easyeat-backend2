@@ -108,6 +108,7 @@ export interface IRestaurantProfile {
 
 export interface IRestaurant {
   _id?: Types.ObjectId;
+  owner_id?: Types.ObjectId;
   profile: IRestaurantProfile;
   employees?: Types.ObjectId[];
   dishes?: Types.ObjectId[];
@@ -273,6 +274,7 @@ const restaurantSchema = new Schema<IRestaurant, RestaurantModelType, {}, Restau
         maxPointsVisit: { type: Number, default: 500 }
       }
     },
+    owner_id: { type: Schema.Types.ObjectId, ref: 'Employee' },
     employees: [{ type: Schema.Types.ObjectId, ref: 'Employee' }],
     dishes: [{ type: Schema.Types.ObjectId, ref: 'Dish' }],
     rewards: [{ type: Schema.Types.ObjectId, ref: 'Reward' }],
@@ -303,6 +305,7 @@ restaurantSchema.index({ 'profile.globalRating': -1 }); // sort by globalRating
 restaurantSchema.index({ 'profile.category': 1 }); // filter by category
 restaurantSchema.index({ 'profile.location.city': 1 }); // filter by city
 restaurantSchema.index({ deletedAt: 1 }); // active-restaurant filter
+restaurantSchema.index({ owner_id: 1 }); // filter by owner
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Query helper – .active()

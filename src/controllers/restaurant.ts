@@ -48,7 +48,9 @@ const readDeletedRestaurant = async (req: Request, res: Response, next: NextFunc
 const readAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
-    const { restaurants, total } = await RestaurantService.getAllRestaurants(skip, limit);
+    // TODO: future security improvement may validate owner_id against the authenticated owner in req.user.
+    const ownerId = typeof req.query.owner_id === 'string' ? req.query.owner_id : undefined;
+    const { restaurants, total } = await RestaurantService.getAllRestaurants(skip, limit, ownerId);
     return res.status(200).json({
       data: restaurants,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
