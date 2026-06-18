@@ -55,12 +55,12 @@ const router = express.Router();
  *     tags: [Reports]
  */
 router.post(
-    '/restaurants/:restaurantId/report',
-    authenticate,
-    requireRole('customer', 'admin'),
-    ValidateJoi(Schemas.report.createParams, 'params'),
-    ValidateJoi(Schemas.report.create),
-    controller.createReport
+  '/restaurants/:restaurantId/report',
+  authenticate,
+  requireRole('customer', 'admin'),
+  ValidateJoi(Schemas.report.createParams, 'params'),
+  ValidateJoi(Schemas.report.create),
+  controller.createReport
 );
 
 /**
@@ -70,12 +70,7 @@ router.post(
  *     summary: Lists all reports
  *     tags: [Reports]
  */
-router.get(
-    '/reports',
-    authenticate,
-    requireRole('admin'),
-    controller.readAllReports
-);
+router.get('/reports', authenticate, requireRole('admin'), controller.readAllReports);
 
 /**
  * @openapi
@@ -84,14 +79,7 @@ router.get(
  *     summary: Updates a report by ID
  *     tags: [Reports]
  */
-router.put(
-    '/reports/:reportId',
-    authenticate,
-    requireRole('admin'),
-    ValidateJoi(Schemas.updateParams, 'params'),
-    ValidateJoi(Schemas.update),
-    controller.updateReport
-);
+router.put('/reports/:reportId', authenticate, requireRole('admin'), ValidateJoi(Schemas.updateParams, 'params'), ValidateJoi(Schemas.update), controller.updateReport);
 
 /**
  * @openapi
@@ -100,12 +88,6 @@ router.put(
  *     summary: Deletes a report by ID
  *     tags: [Reports]
  */
-router.delete(
-    '/reports/:reportId',
-    authenticate,
-    requireRole('admin'),
-    ValidateJoi(Schemas.updateParams, 'params'),
-    controller.deleteReport
-);
+router.delete('/reports/:reportId', authenticate, requireRole('admin'), ValidateJoi(Schemas.updateParams, 'params'), controller.deleteReport);
 
 export default router;

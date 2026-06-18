@@ -48,6 +48,7 @@ plataforma completa per a aplicacions de gestió de restaurants i sistemes de fi
 - Node.js (versió 14 o superior)
 - MongoDB (local o en la núvol)
 - npm o yarn
+- Docker
 
 ## Instal·lació
 
@@ -75,6 +76,14 @@ SERVER_PORT=1337
 
 ```bash
 npm run build
+```
+
+5. Engega la DB de Weaviate (per utilitzar el LLM de la UPC es necessita estar dins la xarxa de la UPC):
+
+```bash
+cd "weaviate docker compose"
+docker compose up -d
+cd ..
 ```
 
 ## Ús

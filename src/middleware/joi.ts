@@ -14,7 +14,6 @@ import { IDish } from '../models/dish';
 import { IDishRating } from '../models/dishRating';
 import { ICustomerDeviceToken } from '../models/customerDeviceToken';
 
-
 import Logging from '../library/logging';
 
 export const ValidateJoi = (schema: ObjectSchema, property: 'body' | 'query' | 'params' = 'body') => {
@@ -465,7 +464,7 @@ export const Schemas = {
     }),
     create: Joi.object({
       reason: Joi.string().trim().min(3).max(500).required()
-    }),
+    })
   },
   updateParams: Joi.object({
     reportId: objectId.required()
@@ -473,5 +472,5 @@ export const Schemas = {
 
   update: Joi.object({
     reason: Joi.string().trim().min(3).max(500).required()
-  }),
+  })
 };
