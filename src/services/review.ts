@@ -56,7 +56,7 @@ const getAllDeletedReviews = async (skip: number, limit: number): Promise<{ revi
 };
 
 const updateReview = async (reviewId: string, data: Partial<IReview>): Promise<IReview> => {
-  const { _id, customer_id, restaurant_id, ...safeData } = data;
+  const { _id, customer_id, restaurant_id, likes, likedBy, ...safeData } = data;
   return ReviewModel.findOneAndUpdate({ _id: reviewId, ...ACTIVE_REVIEW_FILTER }, safeData, { new: true, runValidators: true }).lean();
 };
 
@@ -134,12 +134,23 @@ const getDeletedReviewsByCustomer = async (customerId: string, skip: number, lim
 
 // ─── Like ─────────────────────────────────────────────────────────────────────
 
-const likeReview = async (reviewId: string): Promise<IReview> => {
-  // Increment likes and return the updated review
-  const updated = await ReviewModel.findOneAndUpdate({ _id: reviewId, ...ACTIVE_REVIEW_FILTER }, { $inc: { likes: 1 } }, { new: true }).lean();
+const likeReview = async (reviewId: string, userId: string): Promise<IReview> => {
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  // Check if user has already liked this review
+  const exists = await ReviewModel.findOne({
+    _id: reviewId,
+    likedBy: userObjectId,
+    ...ACTIVE_REVIEW_FILTER
+  });
+
+  const updateQuery = exists ? { $inc: { likes: -1 }, $pull: { likedBy: userObjectId } } : { $inc: { likes: 1 }, $addToSet: { likedBy: userObjectId } };
+
+  // Update likes and likedBy array
+  const updated = await ReviewModel.findOneAndUpdate({ _id: reviewId, ...ACTIVE_REVIEW_FILTER }, updateQuery, { new: true }).lean();
 
   // If update succeeded, send a notification (best-effort)
-  if (updated) {
+  if (updated && !exists) {
     try {
       await NotificationService.createAndSendNotification({
         // Cast ids to any so typing differences (ObjectId vs string) don't fail here

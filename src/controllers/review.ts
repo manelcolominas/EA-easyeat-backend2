@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
 import ReviewService from '../services/review';
 import { getPaginationOptions } from '../utils/pagination';
 
@@ -161,9 +162,13 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const likeReview = async (req: Request, res: Response, next: NextFunction) => {
+const likeReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const review = await ReviewService.likeReview(req.params.review_id);
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    const review = await ReviewService.likeReview(req.params.review_id, userId);
     return res.status(200).json(review);
   } catch (error) {
     return next(error);

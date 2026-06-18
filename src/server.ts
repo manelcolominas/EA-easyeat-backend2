@@ -14,8 +14,13 @@ const startServer = async () => {
     await mongoose.connect(config.mongo.url, { retryWrites: true, w: 'majority' });
 
     Logging.info('Mongo connected successfully.');
-    await initWeaviate();
-    await insertData();
+    try {
+      await initWeaviate();
+      await insertData();
+    } catch (weaviateError) {
+      Logging.error('Weaviate initialization failed, but starting server anyway:');
+      Logging.error(weaviateError);
+    }
 
     const httpServer = http.createServer(app);
 
