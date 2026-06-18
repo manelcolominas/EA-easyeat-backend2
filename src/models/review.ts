@@ -21,6 +21,7 @@ export interface IReview {
 
   comment?: string;
   likes?: number;
+  likedBy?: Types.ObjectId[];
 
   // 🔥 NUEVO (soft delete)
   deleted?: boolean;
@@ -60,6 +61,7 @@ const reviewSchema = new Schema<IReview>(
     },
     comment: { type: String, trim: true },
     likes: { type: Number, default: 0 },
+    likedBy: [{ type: Schema.Types.ObjectId, ref: 'Customer', default: [] }],
     // 🔥 SOFT DELETE
     deleted: { type: Boolean, default: false }
   },

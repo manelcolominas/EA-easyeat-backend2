@@ -414,4 +414,6 @@ router.patch('/:review_id/restore', authenticate, requireRole('admin'), controll
  */
 router.delete('/:review_id/hard', authenticate, requireRole('admin'), controller.hardDeleteReview);
 
+router.post('/:review_id/like', authenticate, controller.likeReview);
+
 export default router;
