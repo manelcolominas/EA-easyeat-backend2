@@ -4,7 +4,7 @@ import { getPaginationOptions } from '../utils/pagination';
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
-const createCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const createCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const savedCustomer = await CustomerService.createCustomer(req.body);
     return res.status(201).json(savedCustomer);
@@ -15,7 +15,7 @@ const createCustomer = async (req: Request, res: Response, next: NextFunction) =
 
 // ─── Read (single) ────────────────────────────────────────────────────────────
 
-const readCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const customer = await CustomerService.getCustomer(customer_id);
@@ -25,7 +25,7 @@ const readCustomer = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const readDeletedCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const customer = await CustomerService.getDeletedCustomer(customer_id);
@@ -35,7 +35,7 @@ const readDeletedCustomer = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-const readCustomerFull = async (req: Request, res: Response, next: NextFunction) => {
+const readCustomerFull = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const customer = await CustomerService.getCustomerFull(customer_id);
@@ -45,7 +45,7 @@ const readCustomerFull = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readDeletedCustomerFull = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedCustomerFull = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const customer = await CustomerService.getDeletedCustomerFull(customer_id);
@@ -55,7 +55,7 @@ const readDeletedCustomerFull = async (req: Request, res: Response, next: NextFu
   }
 };
 
-const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -70,7 +70,7 @@ const getCustomerAllBadges = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -85,7 +85,7 @@ const getCustomerAllFavouriteRestaurants = async (req: Request, res: Response, n
   }
 };
 
-const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -100,7 +100,7 @@ const getCustomerAllReviews = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -115,7 +115,7 @@ const getCustomerAllVisits = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -130,7 +130,7 @@ const getCustomerAllDeletedVisits = async (req: Request, res: Response, next: Ne
   }
 };
 
-const getCustomerAllPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomerAllPointsWallet = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -144,7 +144,7 @@ const getCustomerAllPointsWallet = async (req: Request, res: Response, next: Nex
     return res.status(500).json({ error });
   }
 };
-const getCustomersByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomersByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { restaurant_id } = req.params;
 
   try {
@@ -162,7 +162,7 @@ const getCustomersByRestaurant = async (req: Request, res: Response, next: NextF
 
 // ─── Read (paginated list) ────────────────────────────────────────────────────
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { data, total } = await CustomerService.getAllCustomers(skip, limit);
@@ -176,7 +176,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { data, total } = await CustomerService.getAllDeletedCustomers(skip, limit);
@@ -192,7 +192,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 
-const updateCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const updateCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const updatedCustomer = await CustomerService.updateCustomer(customer_id, req.body);
@@ -208,7 +208,7 @@ const updateCustomer = async (req: Request, res: Response, next: NextFunction) =
  * DELETE /customers/:customer_id
  * Marks the customer as inactive without removing the document.
  */
-const softDeleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const customer = await CustomerService.softDeleteCustomer(customer_id);
@@ -224,7 +224,7 @@ const softDeleteCustomer = async (req: Request, res: Response, next: NextFunctio
  * PATCH /customers/:customer_id/restore
  * Reverses a soft-delete, making the customer active again.
  */
-const restoreCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const restoreCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const customer = await CustomerService.restoreCustomer(customer_id);
@@ -240,7 +240,7 @@ const restoreCustomer = async (req: Request, res: Response, next: NextFunction) 
  * DELETE /customers/:customer_id/hard
  * Permanently removes the document. Requires admin privileges.
  */
-const hardDeleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const hardDeleteCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const customer = await CustomerService.hardDeleteCustomer(customer_id);

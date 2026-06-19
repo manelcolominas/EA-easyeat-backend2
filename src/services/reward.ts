@@ -5,7 +5,7 @@ import { CustomerModel } from '../models/customer';
 import { PointsWalletModel } from '../models/pointsWallet';
 import NotificationService from './notification';
 
-const createReward = async (data: Partial<IReward>) => {
+const createReward = async (data: Partial<IReward>): Promise<IReward> => {
   const reward = new RewardModel({
     _id: new mongoose.Types.ObjectId(),
     ...data
@@ -60,11 +60,11 @@ const createReward = async (data: Partial<IReward>) => {
   return savedReward;
 };
 
-const getReward = async (reward_id: string) => {
+const getReward = async (reward_id: string): Promise<IReward | null> => {
   return await RewardModel.findById(reward_id);
 };
 
-const getDeletedReward = async (reward_id: string) => {
+const getDeletedReward = async (reward_id: string): Promise<IReward | null> => {
   return await RewardModel.findOne({ _id: reward_id, active: false }).lean();
 };
 
@@ -79,19 +79,19 @@ const getAllDeletedRewards = async (skip: number, limit: number): Promise<{ rewa
   return { rewards, total };
 };
 
-const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
   const query = { restaurant_id, active: true };
   const [rewards, total] = await Promise.all([RewardModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).lean<IReward[]>(), RewardModel.countDocuments(query)]);
   return { rewards, total };
 };
 
-const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ rewards: IReward[]; total: number }> => {
   const query = { restaurant_id, active: false };
   const [rewards, total] = await Promise.all([RewardModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).lean<IReward[]>(), RewardModel.countDocuments(query)]);
   return { rewards, total };
 };
 
-const updateReward = async (reward_id: string, data: Partial<IReward>) => {
+const updateReward = async (reward_id: string, data: Partial<IReward>): Promise<IReward | null> => {
   const reward = await RewardModel.findById(reward_id);
 
   if (reward) {
@@ -102,15 +102,15 @@ const updateReward = async (reward_id: string, data: Partial<IReward>) => {
   return null;
 };
 
-const softDeleteReward = async (reward_id: string) => {
+const softDeleteReward = async (reward_id: string): Promise<IReward | null> => {
   return await RewardModel.findByIdAndUpdate(reward_id, { active: false }, { new: true }).lean();
 };
 
-const restoreReward = async (reward_id: string) => {
+const restoreReward = async (reward_id: string): Promise<IReward | null> => {
   return await RewardModel.findByIdAndUpdate(reward_id, { active: true }, { new: true }).lean();
 };
 
-const hardDeleteReward = async (reward_id: string) => {
+const hardDeleteReward = async (reward_id: string): Promise<IReward | null> => {
   const deletedReward = await RewardModel.findByIdAndDelete(reward_id);
   if (deletedReward && deletedReward.restaurant_id) {
     await RestaurantModel.findByIdAndUpdate(deletedReward.restaurant_id, {

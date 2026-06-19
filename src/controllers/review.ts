@@ -4,7 +4,7 @@ import ReviewService from '../services/review';
 import { getPaginationOptions } from '../utils/pagination';
 
 // Create review
-const createReview = async (req: Request, res: Response, next: NextFunction) => {
+const createReview = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const savedReview = await ReviewService.createReview(req.body);
     return res.status(201).json(savedReview);
@@ -14,7 +14,7 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 // Obtain a review by ID
-const readReview = async (req: Request, res: Response, next: NextFunction) => {
+const readReview = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const review = await ReviewService.getReview(req.params.review_id);
     return review ? res.status(200).json(review) : res.status(404).json({ message: 'Review not found' });
@@ -23,7 +23,7 @@ const readReview = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readDeletedReview = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedReview = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const review = await ReviewService.getDeletedReview(req.params.review_id);
     return review ? res.status(200).json(review) : res.status(404).json({ message: 'Review not found' });
@@ -33,7 +33,7 @@ const readDeletedReview = async (req: Request, res: Response, next: NextFunction
 };
 
 // Obtain all reviews
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { reviews, total } = await ReviewService.getAllReviews(skip, limit);
@@ -46,7 +46,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { reviews, total } = await ReviewService.getAllDeletedReviews(skip, limit);
@@ -60,7 +60,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
 };
 
 // Update review
-const updateReview = async (req: Request, res: Response, next: NextFunction) => {
+const updateReview = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const updatedReview = await ReviewService.updateReview(req.params.review_id, req.body);
     return updatedReview ? res.status(200).json(updatedReview) : res.status(404).json({ message: 'Review not found' });
@@ -70,7 +70,7 @@ const updateReview = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 // Delete review
-const softDeleteReview = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteReview = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const deleted = await ReviewService.softDeleteReview(req.params.review_id);
 
@@ -80,7 +80,7 @@ const softDeleteReview = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const restoreReview = async (req: Request, res: Response, next: NextFunction) => {
+const restoreReview = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restored = await ReviewService.restoreReview(req.params.review_id);
 
@@ -90,7 +90,7 @@ const restoreReview = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-const hardDeleteReview = async (req: Request, res: Response, next: NextFunction) => {
+const hardDeleteReview = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const deleted = await ReviewService.hardDeleteReview(req.params.review_id);
 
@@ -101,7 +101,7 @@ const hardDeleteReview = async (req: Request, res: Response, next: NextFunction)
 };
 
 // Obtain reviews by restaurant
-const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { reviews, total } = await ReviewService.getReviewsByRestaurant(req.params.restaurant_id, skip, limit);
@@ -114,7 +114,7 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { reviews, total } = await ReviewService.getDeletedReviewsByRestaurant(req.params.restaurant_id, skip, limit);
@@ -128,7 +128,7 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
 };
 
 // Obtain reviews by customer
-const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { customer_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -145,7 +145,7 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { customer_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -162,7 +162,7 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const likeReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const likeReview = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const userId = req.user?.id;
     if (!userId) {

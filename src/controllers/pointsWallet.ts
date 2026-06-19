@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import PointsWalletService from '../services/pointsWallet';
 import { getPaginationOptions } from '../utils/pagination';
 
-const createPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
+const createPointsWallet = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const savedWallet = await PointsWalletService.createPointsWallet(req.body);
     return res.status(201).json(savedWallet);
@@ -11,7 +11,7 @@ const createPointsWallet = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-const readPointsWallet = async (req: Request, res: Response, next: NextFunction) => {
+const readPointsWallet = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { walletId } = req.params;
   try {
     const wallet = await PointsWalletService.getPointsWallet(walletId);
@@ -21,7 +21,7 @@ const readPointsWallet = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { wallets, total } = await PointsWalletService.getAllPointsWallets(skip, limit);
@@ -34,7 +34,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const updatePointsWallet = async (req: Request, res: Response, next: NextFunction) => {
+const updatePointsWallet = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { walletId } = req.params;
   try {
     const updatedWallet = await PointsWalletService.updatePointsWallet(walletId, req.body);
@@ -44,7 +44,7 @@ const updatePointsWallet = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-const deletePointsWallet = async (req: Request, res: Response, next: NextFunction) => {
+const deletePointsWallet = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { walletId } = req.params;
   try {
     const wallet = await PointsWalletService.deletePointsWallet(walletId);

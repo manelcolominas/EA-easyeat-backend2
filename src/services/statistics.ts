@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { StatisticsModel, IStatistics } from '../models/statistics';
 import { RestaurantModel } from '../models/restaurant';
 
-const createStatistics = async (data: Partial<IStatistics>) => {
+const createStatistics = async (data: Partial<IStatistics>): Promise<IStatistics> => {
   const statistics = new StatisticsModel({
     _id: new mongoose.Types.ObjectId(),
     ...data
@@ -19,7 +19,7 @@ const createStatistics = async (data: Partial<IStatistics>) => {
   return savedStatistics;
 };
 
-const getStatistics = async (statistics_id: string) => {
+const getStatistics = async (statistics_id: string): Promise<IStatistics | null> => {
   return await StatisticsModel.findById(statistics_id);
 };
 
@@ -28,11 +28,11 @@ const getAllStatistics = async (skip: number, limit: number): Promise<{ statisti
   return { statistics, total };
 };
 
-const getByRestaurant = async (restaurant_id: string) => {
+const getByRestaurant = async (restaurant_id: string): Promise<IStatistics | null> => {
   return await StatisticsModel.findOne({ restaurant_id });
 };
 
-const updateStatistics = async (statistics_id: string, data: Partial<IStatistics>) => {
+const updateStatistics = async (statistics_id: string, data: Partial<IStatistics>): Promise<IStatistics | null> => {
   const statistics = await StatisticsModel.findById(statistics_id);
 
   if (statistics) {
@@ -43,7 +43,7 @@ const updateStatistics = async (statistics_id: string, data: Partial<IStatistics
   return null;
 };
 
-const deleteStatistics = async (statistics_id: string) => {
+const deleteStatistics = async (statistics_id: string): Promise<IStatistics | null> => {
   const deleted = await StatisticsModel.findByIdAndDelete(statistics_id);
 
   if (deleted && deleted.restaurant_id) {

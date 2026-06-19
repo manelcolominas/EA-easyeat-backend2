@@ -16,7 +16,7 @@ const chatSchema = Joi.object({
     .optional()
 });
 
-export const handleChat = async (req: Request, res: Response) => {
+export const handleChat = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { error, value } = chatSchema.validate(req.body);
 

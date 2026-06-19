@@ -5,7 +5,7 @@ import { CustomerModel } from '../models/customer';
 import { PointsWalletModel } from '../models/pointsWallet';
 import NotificationService from './notification';
 
-const createDish = async (data: Partial<IDish>) => {
+const createDish = async (data: Partial<IDish>): Promise<IDish> => {
   const dish = new DishModel({
     _id: new mongoose.Types.ObjectId(),
     ...data
@@ -59,11 +59,11 @@ const createDish = async (data: Partial<IDish>) => {
   return savedDish;
 };
 
-const getDish = async (dish_id: string) => {
+const getDish = async (dish_id: string): Promise<IDish | null> => {
   return await DishModel.findById(dish_id);
 };
 
-const getDeletedDish = async (dish_id: string) => {
+const getDeletedDish = async (dish_id: string): Promise<IDish | null> => {
   return await DishModel.findOne({ _id: dish_id, active: false }).lean();
 };
 
@@ -77,19 +77,19 @@ const getAllDeletedDishes = async (skip: number, limit: number): Promise<{ dishe
   return { dishes, total };
 };
 
-const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
   const query = { restaurant_id, active: true };
   const [dishes, total] = await Promise.all([DishModel.find(query).skip(skip).limit(limit).lean<IDish[]>(), DishModel.countDocuments(query)]);
   return { dishes, total };
 };
 
-const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ dishes: IDish[]; total: number }> => {
   const query = { restaurant_id, active: false };
   const [dishes, total] = await Promise.all([DishModel.find(query).skip(skip).limit(limit).lean<IDish[]>(), DishModel.countDocuments(query)]);
   return { dishes, total };
 };
 
-const updateDish = async (dish_id: string, data: Partial<IDish>) => {
+const updateDish = async (dish_id: string, data: Partial<IDish>): Promise<IDish | null> => {
   const dish = await DishModel.findById(dish_id);
 
   if (dish) {
@@ -100,15 +100,15 @@ const updateDish = async (dish_id: string, data: Partial<IDish>) => {
   return null;
 };
 
-const softDeleteDish = async (dish_id: string) => {
+const softDeleteDish = async (dish_id: string): Promise<IDish | null> => {
   return await DishModel.findByIdAndUpdate(dish_id, { active: false }, { new: true }).lean();
 };
 
-const restoreDish = async (dish_id: string) => {
+const restoreDish = async (dish_id: string): Promise<IDish | null> => {
   return await DishModel.findByIdAndUpdate(dish_id, { active: true }, { new: true }).lean();
 };
 
-const hardDeleteDish = async (dish_id: string) => {
+const hardDeleteDish = async (dish_id: string): Promise<IDish | null> => {
   const deletedDish = await DishModel.findByIdAndDelete(dish_id);
 
   if (deletedDish && deletedDish.restaurant_id) {

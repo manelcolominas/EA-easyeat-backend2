@@ -1,4 +1,4 @@
-import { Schema, model, QueryWithHelpers, HydratedDocument } from 'mongoose';
+import { Schema, model, QueryWithHelpers, HydratedDocument, Types } from 'mongoose';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
@@ -6,6 +6,7 @@ const SALT_ROUNDS = 10;
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 export interface IAdmin {
+  _id?: Types.ObjectId;
   email: string;
   password?: string;
   name: string;

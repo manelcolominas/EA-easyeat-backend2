@@ -19,7 +19,7 @@ const buildVisitMatch = (restaurantId: mongoose.Types.ObjectId) => ({
   $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }]
 });
 
-const createStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const createStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const saved = await StatisticsService.createStatistics(req.body);
     return res.status(201).json(saved);
@@ -28,7 +28,7 @@ const createStatistics = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const readStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { statistics_id } = req.params;
   try {
     const statistics = await StatisticsService.getStatistics(statistics_id);
@@ -38,7 +38,7 @@ const readStatistics = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { statistics, total } = await StatisticsService.getAllStatistics(skip, limit);
@@ -51,7 +51,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { restaurant_id } = req.params;
   try {
     const statistics = await StatisticsService.getByRestaurant(restaurant_id);
@@ -61,7 +61,7 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const updateStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const updateStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { statistics_id } = req.params;
   try {
     const updated = await StatisticsService.updateStatistics(statistics_id, req.body);
@@ -71,7 +71,7 @@ const updateStatistics = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const deleteStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const deleteStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { statistics_id } = req.params;
   try {
     const statistics = await StatisticsService.deleteStatistics(statistics_id);
@@ -81,7 +81,7 @@ const deleteStatistics = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const visitsPerHour = async (req: Request, res: Response, next: NextFunction) => {
+const visitsPerHour = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const restaurantObjectId = getRestaurantObjectId(req);
 
   if (!restaurantObjectId) {
@@ -107,7 +107,7 @@ const visitsPerHour = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-const averagePoints = async (req: Request, res: Response, next: NextFunction) => {
+const averagePoints = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const restaurantObjectId = getRestaurantObjectId(req);
 
   if (!restaurantObjectId) {
@@ -144,7 +144,7 @@ const averagePoints = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-const loyalCustomers = async (req: Request, res: Response, next: NextFunction) => {
+const loyalCustomers = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const restaurantObjectId = getRestaurantObjectId(req);
   const minVisits = Number.parseInt((req.query.minVisits as string) || '3', 10);
 

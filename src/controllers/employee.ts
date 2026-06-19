@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import EmployeeService from '../services/employee';
 import { getPaginationOptions } from '../utils/pagination';
 
-const createEmployee = async (req: Request, res: Response) => {
+const createEmployee = async (req: Request, res: Response): Promise<Response> => {
   try {
     const employee = await EmployeeService.createEmployee(req.body);
     return res.status(201).json(employee);
@@ -11,7 +11,7 @@ const createEmployee = async (req: Request, res: Response) => {
   }
 };
 
-const readEmployee = async (req: Request, res: Response) => {
+const readEmployee = async (req: Request, res: Response): Promise<Response> => {
   try {
     const employee = await EmployeeService.getEmployee(req.params.employee_id);
     return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'Employee not found' });
@@ -20,7 +20,7 @@ const readEmployee = async (req: Request, res: Response) => {
   }
 };
 
-const readDeletedEmployee = async (req: Request, res: Response) => {
+const readDeletedEmployee = async (req: Request, res: Response): Promise<Response> => {
   try {
     const employee = await EmployeeService.getDeletedEmployee(req.params.employee_id);
     return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'Employee not found' });
@@ -29,7 +29,7 @@ const readDeletedEmployee = async (req: Request, res: Response) => {
   }
 };
 
-const readAll = async (req: Request, res: Response) => {
+const readAll = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { employees, total } = await EmployeeService.getAllEmployees(skip, limit);
@@ -43,7 +43,7 @@ const readAll = async (req: Request, res: Response) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response) => {
+const readAllDeleted = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { employees, total } = await EmployeeService.getAllDeletedEmployees(skip, limit);
@@ -57,7 +57,7 @@ const readAllDeleted = async (req: Request, res: Response) => {
   }
 };
 
-const readByRestaurant = async (req: Request, res: Response) => {
+const readByRestaurant = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -72,7 +72,7 @@ const readByRestaurant = async (req: Request, res: Response) => {
   }
 };
 
-const readDeletedByRestaurant = async (req: Request, res: Response) => {
+const readDeletedByRestaurant = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -87,7 +87,7 @@ const readDeletedByRestaurant = async (req: Request, res: Response) => {
   }
 };
 
-const getEmployeesByRestaurantStats = async (req: Request, res: Response) => {
+const getEmployeesByRestaurantStats = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const employees = await EmployeeService.getByRestaurantWithStats(restaurant_id);
@@ -98,7 +98,7 @@ const getEmployeesByRestaurantStats = async (req: Request, res: Response) => {
   }
 };
 
-const updateEmployee = async (req: Request, res: Response) => {
+const updateEmployee = async (req: Request, res: Response): Promise<Response> => {
   try {
     const employee = await EmployeeService.updateEmployee(req.params.employee_id, req.body);
     return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'Employee not found' });
@@ -107,7 +107,7 @@ const updateEmployee = async (req: Request, res: Response) => {
   }
 };
 
-const softDeleteEmployee = async (req: Request, res: Response) => {
+const softDeleteEmployee = async (req: Request, res: Response): Promise<Response> => {
   try {
     const employee = await EmployeeService.softDeleteEmployee(req.params.employee_id);
     return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'Employee not found' });
@@ -116,7 +116,7 @@ const softDeleteEmployee = async (req: Request, res: Response) => {
   }
 };
 
-const restoreEmployee = async (req: Request, res: Response) => {
+const restoreEmployee = async (req: Request, res: Response): Promise<Response> => {
   try {
     const employee = await EmployeeService.restoreEmployee(req.params.employee_id);
     return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'Employee not found' });
@@ -125,7 +125,7 @@ const restoreEmployee = async (req: Request, res: Response) => {
   }
 };
 
-const hardDeleteEmployee = async (req: Request, res: Response) => {
+const hardDeleteEmployee = async (req: Request, res: Response): Promise<Response> => {
   try {
     const employee = await EmployeeService.hardDeleteEmployee(req.params.employee_id);
     return employee ? res.status(200).json(employee) : res.status(404).json({ message: 'Employee not found' });
