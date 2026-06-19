@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import RewardRedemptionService from '../services/rewardRedemption';
 import { getPaginationOptions } from '../utils/pagination';
+import { getSharedIdempotencyService } from 'express-idempotency';
+import Logging from '../library/logging';
 
 const createRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -12,10 +14,17 @@ const createRewardRedemption = async (req: Request, res: Response, next: NextFun
 };
 
 const redeemReward = async (req: Request, res: Response, next: NextFunction) => {
+  const idempotencyService = getSharedIdempotencyService();
+  Logging.info(`Idempotency key: ${idempotencyService.extractIdempotencyKeyFromReq(req)}`);
+  if (idempotencyService.isHit(req)) {
+    return;
+  }
+
   try {
     const result = await RewardRedemptionService.redeemReward(req.body);
     return res.status(201).json(result);
   } catch (error: any) {
+    await idempotencyService.reportError(req);
     return res.status(error?.status || 500).json({
       message: error?.message || 'Error redeeming reward'
     });
