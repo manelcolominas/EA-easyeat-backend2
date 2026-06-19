@@ -25,6 +25,7 @@
     "cors": "^2.8.6",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "express-idempotency": "^2.0.0",
     "firebase-admin": "^13.10.0",
     "google-auth-library": "^10.7.0",
     "joi": "^17.6.0",

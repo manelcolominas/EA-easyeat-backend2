@@ -1,8 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import VisitService from '../services/visit';
 import { getPaginationOptions } from '../utils/pagination';
+import { getSharedIdempotencyService } from 'express-idempotency';
+import Logging from '../library/logging';
 
 const createVisit = async (req: Request, res: Response, next: NextFunction) => {
+  const idempotencyService = getSharedIdempotencyService();
+  Logging.info(`Idempotency key: ${idempotencyService.extractIdempotencyKeyFromReq(req)}`);
+  if (idempotencyService.isHit(req)) {
+    return;
+  }
+
   try {
     const savedVisit = await VisitService.createVisit(req.body);
 
@@ -18,6 +26,7 @@ const createVisit = async (req: Request, res: Response, next: NextFunction) => {
 
     return res.status(201).json(response);
   } catch (error: any) {
+    await idempotencyService.reportError(req);
     return res.status(500).json({
       message: error.message || 'Internal Server Error',
       error: process.env.NODE_ENV === 'development' ? error : {}

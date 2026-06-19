@@ -2,6 +2,7 @@ import express from 'express';
 import controller from '../controllers/rewardRedemption';
 import { Schemas, ValidateJoi } from '../middleware/joi';
 import { authenticate, requireRestaurantAccess, requireRole, requireSelfOrAdmin } from '../middleware/auth';
+import { idempotency } from 'express-idempotency';
 
 const router = express.Router();
 
@@ -130,7 +131,7 @@ const router = express.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), ValidateJoi(Schemas.rewardRedemption.redeem), controller.redeemReward);
+router.post('/', idempotency(), authenticate, requireRole('admin', 'owner', 'staff'), ValidateJoi(Schemas.rewardRedemption.redeem), controller.redeemReward);
 
 /**
  * @openapi
