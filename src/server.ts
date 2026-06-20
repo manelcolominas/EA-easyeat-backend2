@@ -124,14 +124,8 @@ const StartServer = () => {
   const chatService = new ChatService(io);
   chatService.inicializarSockets();
 
-  httpServer.listen(config.server.port, () => {
-    Logging.info(`Server is running on port ${config.server.port}`);
+  // Escuchar en '0.0.0.0' para permitir conexiones desde dispositivos de la misma red (como el móvil)
+  httpServer.listen(config.server.port, '0.0.0.0', () => {
+    Logging.info(`Server is running on port ${config.server.port} (0.0.0.0)`);
   });
-
-  /*
-    // Per provar amb mòbil real a la mateixa xarxa:
-    httpServer.listen(config.server.port, '0.0.0.0', () => {
-        Logging.info(`Server is running on port ${config.server.port}`);
-    });
-    */
 };
