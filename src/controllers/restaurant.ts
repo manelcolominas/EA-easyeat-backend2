@@ -422,6 +422,17 @@ const getDeletedRestaurantReviews = async (req: Request, res: Response, next: Ne
   }
 };
 
+const searchRestaurants = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+  try {
+    const { term, minRating } = req.query;
+    const ratingNum = minRating ? parseFloat(minRating as string) : undefined;
+    const restaurants = await RestaurantService.searchRestaurants(typeof term === 'string' ? term : undefined, ratingNum);
+    return res.status(200).json(restaurants);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
@@ -457,5 +468,6 @@ export default {
   getVisits,
   getDeletedRestaurantVisits,
   getReviews,
-  getDeletedRestaurantReviews
+  getDeletedRestaurantReviews,
+  searchRestaurants
 };
