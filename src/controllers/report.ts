@@ -3,7 +3,7 @@ import ReportService from '../services/report';
 import { getPaginationOptions } from '../utils/pagination';
 import { AuthRequest } from '../middleware/auth';
 
-const createReport = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const createReport = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId: any = req.params.restaurantId;
     const userId: any = req.user?.id;
@@ -22,7 +22,7 @@ const createReport = async (req: AuthRequest, res: Response, next: NextFunction)
   }
 };
 
-const updateReport = async (req: Request, res: Response, next: NextFunction) => {
+const updateReport = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const updated = await ReportService.updateReport(req.params.reportId, req.body);
 
@@ -32,7 +32,7 @@ const updateReport = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const readAllReports = async (req: Request, res: Response, next: NextFunction) => {
+const readAllReports = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { reports, total } = await ReportService.getAllReports(skip, limit);
@@ -45,7 +45,7 @@ const readAllReports = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const deleteReport = async (req: Request, res: Response, next: NextFunction) => {
+const deleteReport = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const deleted = await ReportService.deleteReport(req.params.reportId);
 

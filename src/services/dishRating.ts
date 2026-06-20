@@ -110,7 +110,7 @@ const getDishRatingSummary = async (dish_id: string): Promise<RateSummary> => {
   };
 };
 
-const getTopDishByRestaurant = async (restaurant_id: string) => {
+const getTopDishByRestaurant = async (restaurant_id: string): Promise<null | { name: string; averageRating: number; totalRatings: number }> => {
   if (!mongoose.Types.ObjectId.isValid(restaurant_id)) return null;
 
   const pipeline: PipelineStage[] = [

@@ -6,7 +6,7 @@ import { config } from '../config/config';
 import Logging from '../library/logging';
 import { verifyGoogleToken, findOrCreateCustomerFromGoogle, generateGoogleTokens } from '../services/googleAuth';
 
-export const loginAdmin = async (req: Request, res: Response) => {
+export const loginAdmin = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { email, password, role = 'admin' } = req.body;
 
@@ -95,7 +95,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
   }
 };
 
-export const registerAdmin = async (req: Request, res: Response) => {
+export const registerAdmin = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { email, password, name } = req.body;
 
@@ -128,7 +128,7 @@ export const registerAdmin = async (req: Request, res: Response) => {
   }
 };
 
-export const refresh = async (req: Request, res: Response) => {
+export const refresh = async (req: Request, res: Response): Promise<Response> => {
   try {
     const incomingRefreshToken: string | undefined = req.cookies?.[config.cookies.refreshName];
 
@@ -161,7 +161,7 @@ export const refresh = async (req: Request, res: Response) => {
  * POST /auth/logout
  * Clears the httpOnly refresh cookie, effectively ending the session.
  */
-export const logout = (_req: Request, res: Response) => {
+export const logout = (_req: Request, res: Response): Response => {
   res.clearCookie(config.cookies.refreshName, config.cookies.options);
   return res.status(200).json({ message: 'Logged out successfully' });
 };
@@ -170,7 +170,7 @@ export const logout = (_req: Request, res: Response) => {
  * POST /auth/login/google
  * Login or create customer using Google OAuth token
  */
-export const loginGoogle = async (req: Request, res: Response) => {
+export const loginGoogle = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { idToken } = req.body;
 
@@ -212,7 +212,7 @@ export const loginGoogle = async (req: Request, res: Response) => {
  * POST /auth/register/google
  * Register customer using Google OAuth token
  */
-export const registerGoogle = async (req: Request, res: Response) => {
+export const registerGoogle = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { idToken } = req.body;
 

@@ -13,7 +13,7 @@ type EmployeeStatsResult = IEmployee & {
   };
 };
 
-const createEmployee = async (data: Partial<IEmployee>) => {
+const createEmployee = async (data: Partial<IEmployee>): Promise<IEmployee> => {
   if (!data.profile?.email) {
     throw new Error('Email is required');
   }
@@ -46,11 +46,11 @@ const createEmployee = async (data: Partial<IEmployee>) => {
   return savedEmployee;
 };
 
-const getEmployee = async (employee_id: string) => {
+const getEmployee = async (employee_id: string): Promise<IEmployee | null> => {
   return await EmployeeModel.findById(employee_id).select('-profile.password');
 };
 
-const getDeletedEmployee = async (employee_id: string) => {
+const getDeletedEmployee = async (employee_id: string): Promise<IEmployee | null> => {
   return await EmployeeModel.findOne({ _id: employee_id, isActive: false }).select('-profile.password');
 };
 
@@ -72,7 +72,7 @@ const getAllDeletedEmployees = async (skip: number, limit: number): Promise<{ em
   return { employees, total };
 };
 
-const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
   const query = {
     restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
     isActive: true
@@ -83,7 +83,7 @@ const getByRestaurant = async (restaurant_id: string, skip: number, limit: numbe
   return { employees, total };
 };
 
-const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ employees: IEmployee[]; total: number }> => {
   const query = {
     restaurant_id: new mongoose.Types.ObjectId(restaurant_id),
     isActive: false
@@ -171,7 +171,7 @@ const getByRestaurantWithStats = async (restaurant_id: string): Promise<Employee
   });
 };
 
-const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => {
+const updateEmployee = async (employee_id: string, data: Partial<IEmployee>): Promise<IEmployee | null> => {
   const employee = await EmployeeModel.findById(employee_id);
 
   if (!employee) return null;
@@ -195,15 +195,15 @@ const updateEmployee = async (employee_id: string, data: Partial<IEmployee>) => 
   return await employee.save();
 };
 
-const softDeleteEmployee = async (employee_id: string) => {
+const softDeleteEmployee = async (employee_id: string): Promise<IEmployee | null> => {
   return await EmployeeModel.findByIdAndUpdate(employee_id, { isActive: false }, { new: true }).select('-profile.password');
 };
 
-const restoreEmployee = async (employee_id: string) => {
+const restoreEmployee = async (employee_id: string): Promise<IEmployee | null> => {
   return await EmployeeModel.findByIdAndUpdate(employee_id, { isActive: true }, { new: true }).select('-profile.password');
 };
 
-const hardDeleteEmployee = async (employee_id: string) => {
+const hardDeleteEmployee = async (employee_id: string): Promise<IEmployee | null> => {
   const deletedEmployee = await EmployeeModel.findByIdAndDelete(employee_id);
 
   if (deletedEmployee?.restaurant_id) {

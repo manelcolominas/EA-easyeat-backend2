@@ -6,7 +6,7 @@ import { getPaginationOptions } from '../utils/pagination';
  * POST /customerDeviceTokens/register
  * Register (upsert) a device token for the authenticated customer.
  */
-const register = async (req: Request, res: Response, next: NextFunction) => {
+const register = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const token = await CustomerDeviceTokenService.registerToken(req.body);
     return res.status(201).json(token);
@@ -19,7 +19,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
  * POST /customerDeviceTokens/unregister
  * Soft-deactivate a device token.
  */
-const unregister = async (req: Request, res: Response, next: NextFunction) => {
+const unregister = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { token } = req.body;
     const result = await CustomerDeviceTokenService.unregisterToken(token);
@@ -33,7 +33,7 @@ const unregister = async (req: Request, res: Response, next: NextFunction) => {
  * GET /customerDeviceTokens/:tokenId
  * Get a single token document by its _id.
  */
-const readToken = async (req: Request, res: Response, next: NextFunction) => {
+const readToken = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const token = await CustomerDeviceTokenService.getToken(req.params.tokenId);
     return token ? res.status(200).json(token) : res.status(404).json({ message: 'Token not found' });
@@ -46,7 +46,7 @@ const readToken = async (req: Request, res: Response, next: NextFunction) => {
  * GET /customerDeviceTokens/customer/:customer_id
  * List all active tokens for a given customer.
  */
-const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const tokens = await CustomerDeviceTokenService.getTokensByCustomer(req.params.customer_id);
     return res.status(200).json(tokens);
@@ -59,7 +59,7 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
  * GET /customerDeviceTokens
  * Paginated list of all tokens (admin only).
  */
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { tokens, total } = await CustomerDeviceTokenService.getAllTokens(skip, limit);
@@ -76,7 +76,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
  * PATCH /customerDeviceTokens/:tokenId/ping
  * Update lastSeenAt for a token — call on app foreground/startup.
  */
-const ping = async (req: Request, res: Response, next: NextFunction) => {
+const ping = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const { token } = req.body;
     const result = await CustomerDeviceTokenService.refreshLastSeen(token);
@@ -90,7 +90,7 @@ const ping = async (req: Request, res: Response, next: NextFunction) => {
  * DELETE /customerDeviceTokens/:tokenId
  * Permanently remove a token document (admin only).
  */
-const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
+const hardDelete = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const deleted = await CustomerDeviceTokenService.hardDeleteToken(req.params.tokenId);
     return deleted ? res.status(200).json({ message: 'Token permanently deleted' }) : res.status(404).json({ message: 'Token not found' });

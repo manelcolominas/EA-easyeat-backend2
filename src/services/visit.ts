@@ -1,17 +1,17 @@
 import { VisitModel, IVisit } from '../models/visit';
 import { pointsRedemption } from '../utils/pointsRedemption';
 
-const createVisit = async (data: Partial<IVisit>) => {
+const createVisit = async (data: Partial<IVisit>): Promise<IVisit> => {
   const { _id, pointsEarned, deletedAt, ...visitData } = data;
 
   return await pointsRedemption(visitData);
 };
 
-const getVisit = async (visit_id: string) => {
+const getVisit = async (visit_id: string): Promise<IVisit | null> => {
   return await VisitModel.findById(visit_id).populate('customer_id', 'name email').populate('restaurant_id', 'profile.name profile.location.city profile.location.address');
 };
 
-const getDeletedVisit = async (visit_id: string) => {
+const getDeletedVisit = async (visit_id: string): Promise<IVisit | null> => {
   return await VisitModel.findOne({ _id: visit_id, deletedAt: { $ne: null } })
     .populate('customer_id', 'name email')
     .populate('restaurant_id', 'profile.name profile.location.city profile.location.address');
@@ -47,7 +47,7 @@ const getAllDeletedVisits = async (skip: number, limit: number): Promise<{ visit
   return { visits, total };
 };
 
-const getByCustomer = async (customer_id: string, skip: number, limit: number) => {
+const getByCustomer = async (customer_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
   const query = { customer_id, deletedAt: null };
   const [visits, total] = await Promise.all([
     VisitModel.find(query).populate('restaurant_id', 'profile.name profile.location.city profile.location.address').sort({ date: -1 }).skip(skip).limit(limit).lean<IVisit[]>(),
@@ -56,7 +56,7 @@ const getByCustomer = async (customer_id: string, skip: number, limit: number) =
   return { visits, total };
 };
 
-const getDeletedByCustomer = async (customer_id: string, skip: number, limit: number) => {
+const getDeletedByCustomer = async (customer_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
   const query = { customer_id, deletedAt: { $ne: null } };
   const [visits, total] = await Promise.all([
     VisitModel.find(query).populate('restaurant_id', 'profile.name profile.location.city profile.location.address').sort({ date: -1 }).skip(skip).limit(limit).lean<IVisit[]>(),
@@ -65,7 +65,7 @@ const getDeletedByCustomer = async (customer_id: string, skip: number, limit: nu
   return { visits, total };
 };
 
-const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
   const query = { restaurant_id, deletedAt: null };
   const [visits, total] = await Promise.all([
     VisitModel.find(query).populate('customer_id', 'name email').sort({ date: -1 }).skip(skip).limit(limit).lean<IVisit[]>(),
@@ -74,7 +74,7 @@ const getByRestaurant = async (restaurant_id: string, skip: number, limit: numbe
   return { visits, total };
 };
 
-const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ visits: IVisit[]; total: number }> => {
   const query = { restaurant_id, deletedAt: { $ne: null } };
   const [visits, total] = await Promise.all([
     VisitModel.find(query).populate('customer_id', 'name email').sort({ date: -1 }).skip(skip).limit(limit).lean<IVisit[]>(),
@@ -83,7 +83,7 @@ const getDeletedByRestaurant = async (restaurant_id: string, skip: number, limit
   return { visits, total };
 };
 
-const updateVisit = async (visit_id: string, data: Partial<IVisit>) => {
+const updateVisit = async (visit_id: string, data: Partial<IVisit>): Promise<IVisit | null> => {
   const visit = await VisitModel.findById(visit_id);
 
   if (visit) {
@@ -94,15 +94,15 @@ const updateVisit = async (visit_id: string, data: Partial<IVisit>) => {
   return null;
 };
 
-const softDeleteVisit = async (visit_id: string) => {
+const softDeleteVisit = async (visit_id: string): Promise<IVisit | null> => {
   return await VisitModel.findByIdAndUpdate(visit_id, { deletedAt: new Date() }, { new: true }).lean();
 };
 
-const restoreVisit = async (visit_id: string) => {
+const restoreVisit = async (visit_id: string): Promise<IVisit | null> => {
   return await VisitModel.findByIdAndUpdate(visit_id, { deletedAt: null }, { new: true }).lean();
 };
 
-const hardDeleteVisit = async (visit_id: string) => {
+const hardDeleteVisit = async (visit_id: string): Promise<IVisit | null> => {
   return await VisitModel.findByIdAndDelete(visit_id);
 };
 

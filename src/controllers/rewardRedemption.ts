@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import RewardRedemptionService from '../services/rewardRedemption';
 import { getPaginationOptions } from '../utils/pagination';
+import { getSharedIdempotencyService } from 'express-idempotency';
+import Logging from '../library/logging';
 
-const createRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
+const createRewardRedemption = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const saved = await RewardRedemptionService.createRewardRedemption(req.body);
     return res.status(201).json(saved);
@@ -11,18 +13,25 @@ const createRewardRedemption = async (req: Request, res: Response, next: NextFun
   }
 };
 
-const redeemReward = async (req: Request, res: Response, next: NextFunction) => {
+const redeemReward = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+  const idempotencyService = getSharedIdempotencyService();
+  Logging.info(`Idempotency key: ${idempotencyService.extractIdempotencyKeyFromReq(req)}`);
+  if (idempotencyService.isHit(req)) {
+    return;
+  }
+
   try {
     const result = await RewardRedemptionService.redeemReward(req.body);
     return res.status(201).json(result);
   } catch (error: any) {
+    await idempotencyService.reportError(req);
     return res.status(error?.status || 500).json({
       message: error?.message || 'Error redeeming reward'
     });
   }
 };
 
-const readRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
+const readRewardRedemption = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { redemptionId } = req.params;
   try {
     const redemption = await RewardRedemptionService.getRewardRedemption(redemptionId);
@@ -32,7 +41,7 @@ const readRewardRedemption = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { redemptions, total } = await RewardRedemptionService.getAllRewardRedemptions(skip, limit);
@@ -46,7 +55,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { customer_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -60,7 +69,7 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -74,7 +83,7 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readByEmployee = async (req: Request, res: Response, next: NextFunction) => {
+const readByEmployee = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { employee_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -88,7 +97,7 @@ const readByEmployee = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readByReward = async (req: Request, res: Response, next: NextFunction) => {
+const readByReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { reward_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -103,7 +112,7 @@ const readByReward = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const updateStatus = async (req: Request, res: Response, next: NextFunction) => {
+const updateStatus = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { redemptionId } = req.params;
   const { status, employee_id, notes } = req.body;
 
@@ -119,7 +128,7 @@ const updateStatus = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const updateRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
+const updateRewardRedemption = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { redemptionId } = req.params;
   try {
     const updated = await RewardRedemptionService.updateRewardRedemption(redemptionId, req.body);
@@ -129,7 +138,7 @@ const updateRewardRedemption = async (req: Request, res: Response, next: NextFun
   }
 };
 
-const deleteRewardRedemption = async (req: Request, res: Response, next: NextFunction) => {
+const deleteRewardRedemption = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { redemptionId } = req.params;
 
   try {

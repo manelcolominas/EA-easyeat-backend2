@@ -10,7 +10,7 @@ import { getPaginationOptions } from '../utils/pagination';
  * Authenticated customers may only submit a rating under their own customer_id.
  * Admins may submit on behalf of any customer.
  */
-const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id, dish_id, rating } = req.body;
 
   // Enforce ownership: customer can only rate as themselves
@@ -36,7 +36,7 @@ const rateOrUpdateDish = async (req: AuthRequest, res: Response, next: NextFunct
 
 // ─── Get ratings for a dish (paginated) ──────────────────────────────────────
 
-const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const readByDish = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -52,7 +52,7 @@ const readByDish = async (req: AuthRequest, res: Response, next: NextFunction) =
 
 // ─── Get ratings for a customer (paginated) ──────────────────────────────────
 
-const readByCustomer = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const readByCustomer = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -72,7 +72,7 @@ const readByCustomer = async (req: AuthRequest, res: Response, next: NextFunctio
  * DELETE /dish-ratings/:id/soft
  * Customers can only delete their own rating. Admins can delete any.
  */
-const softDeleteRating = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const softDeleteRating = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response> => {
   const { id } = req.params;
   // Non-admin customers may only delete their own rating
   const customer_id = req.user?.role === 'admin' ? undefined : req.user?.id;
@@ -87,7 +87,7 @@ const softDeleteRating = async (req: AuthRequest, res: Response, next: NextFunct
 
 // ─── Rating summary for a dish ────────────────────────────────────────────────
 
-const getRatingSummary = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const getRatingSummary = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
 
   try {
@@ -98,7 +98,7 @@ const getRatingSummary = async (req: AuthRequest, res: Response, next: NextFunct
   }
 };
 
-const getTopDishByRestaurant = async (req: AuthRequest, res: Response) => {
+const getTopDishByRestaurant = async (req: AuthRequest, res: Response): Promise<Response> => {
   const { restaurant_id } = req.params;
 
   try {
@@ -114,7 +114,7 @@ const getTopDishByRestaurant = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const getTopDishesByRestaurant = async (req: AuthRequest, res: Response) => {
+const getTopDishesByRestaurant = async (req: AuthRequest, res: Response): Promise<Response> => {
   const { restaurant_id } = req.params;
 
   try {

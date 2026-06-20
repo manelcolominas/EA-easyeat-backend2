@@ -6,7 +6,7 @@ import { IReviewWeaviate } from '../models/review';
 import { IRewardWeaviate } from '../models/reward';
 import { CustomerModel } from '../models/customer';
 
-function toWeaviateRestaurant(data: IRestaurantWeaviate) {
+function toWeaviateRestaurant(data: IRestaurantWeaviate): Record<string, any> {
   const properties: Record<string, any> = {
     mongoId: data.id,
     name: data.name,
@@ -25,7 +25,7 @@ function toWeaviateRestaurant(data: IRestaurantWeaviate) {
   return properties;
 }
 
-function toWeaviateDish(data: IDishWeaviate) {
+function toWeaviateDish(data: IDishWeaviate): Record<string, any> {
   const properties: Record<string, any> = {
     mongoId: data.id,
     restaurantId: data.restaurantId,
@@ -45,7 +45,7 @@ function toWeaviateDish(data: IDishWeaviate) {
   return properties;
 }
 
-function toWeaviateReview(data: IReviewWeaviate) {
+function toWeaviateReview(data: IReviewWeaviate): Record<string, any> {
   const properties: Record<string, any> = {
     mongoId: data.id,
     restaurantId: data.restaurantId,
@@ -63,7 +63,7 @@ function toWeaviateReview(data: IReviewWeaviate) {
   return properties;
 }
 
-function toWeaviateReward(data: IRewardWeaviate) {
+function toWeaviateReward(data: IRewardWeaviate): Record<string, any> {
   const properties: Record<string, any> = {
     mongoId: data.id,
     restaurantId: data.restaurantId,

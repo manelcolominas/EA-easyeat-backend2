@@ -9,7 +9,7 @@ import { ReviewModel, IReview } from '../models/review';
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
-const createCustomer = async (data: Partial<ICustomer>) => {
+const createCustomer = async (data: Partial<ICustomer>): Promise<ICustomer> => {
   const customer = new CustomerModel({
     _id: new mongoose.Types.ObjectId(),
     ...data
@@ -19,15 +19,15 @@ const createCustomer = async (data: Partial<ICustomer>) => {
 
 // ─── Read (single) ────────────────────────────────────────────────────────────
 
-const getCustomer = async (customer_id: string) => {
+const getCustomer = async (customer_id: string): Promise<ICustomer | null> => {
   return CustomerModel.findById(customer_id);
 };
 
-const getDeletedCustomer = async (customer_id: string) => {
+const getDeletedCustomer = async (customer_id: string): Promise<ICustomer | null> => {
   return CustomerModel.findOne({ _id: customer_id, deletedAt: { $ne: null } });
 };
 
-const getCustomerFull = async (customer_id: string) => {
+const getCustomerFull = async (customer_id: string): Promise<ICustomer | null> => {
   return CustomerModel.findById(customer_id)
     .populate('pointsWallet')
     .populate('visitHistory')
@@ -45,7 +45,7 @@ const getCustomerFull = async (customer_id: string) => {
     .populate('reviews');
 };
 
-const getDeletedCustomerFull = async (customer_id: string) => {
+const getDeletedCustomerFull = async (customer_id: string): Promise<ICustomer | null> => {
   return CustomerModel.findOne({ _id: customer_id, deletedAt: { $ne: null } })
     .populate('pointsWallet')
     .populate('visitHistory')
@@ -195,7 +195,7 @@ const getCustomersByRestaurant = async (restaurant_id: string, skip: number, lim
 
 // ─── Update ───────────────────────────────────────────────────────────────────
 
-const updateCustomer = async (customer_id: string, data: Partial<ICustomer>) => {
+const updateCustomer = async (customer_id: string, data: Partial<ICustomer>): Promise<ICustomer | null> => {
   const customer = await CustomerModel.findOne({ _id: customer_id }).active();
   if (!customer) return null;
   customer.set(data);
@@ -204,19 +204,19 @@ const updateCustomer = async (customer_id: string, data: Partial<ICustomer>) => 
 
 // ─── Soft Delete ──────────────────────────────────────────────────────────────
 
-const softDeleteCustomer = async (customer_id: string) => {
+const softDeleteCustomer = async (customer_id: string): Promise<ICustomer | null> => {
   return softDeleteDocument(CustomerModel, customer_id);
 };
 
 // ─── Restore ─────────────────────────────────────────────────────────────────
 
-const restoreCustomer = async (customer_id: string) => {
+const restoreCustomer = async (customer_id: string): Promise<ICustomer | null> => {
   return restoreDocument(CustomerModel, customer_id);
 };
 
 // ─── Hard Delete (admin only) ─────────────────────────────────────────────────
 
-const hardDeleteCustomer = async (customer_id: string) => {
+const hardDeleteCustomer = async (customer_id: string): Promise<ICustomer | null> => {
   return CustomerModel.findByIdAndDelete(customer_id);
 };
 

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { RewardRedemptionModel, IRewardRedemption } from '../models/rewardRedemption';
 import { CustomerModel } from '../models/customer';
 import { RewardModel } from '../models/reward';
-import { PointsWalletModel } from '../models/pointsWallet';
+import { IPointsWallet, PointsWalletModel } from '../models/pointsWallet';
 import { RestaurantModel } from '../models/restaurant';
 import NotificationService from './notification';
 
@@ -19,7 +19,15 @@ type UpdateStatusPayload = {
   notes?: string;
 };
 
-const buildError = (status: number, message: string) => {
+interface IResponse {
+  message: string;
+  redemption: IRewardRedemption;
+  wallet: IPointsWallet;
+  pointsBefore: number;
+  pointsAfter: number;
+}
+
+const buildError = (status: number, message: string): Error => {
   const error = new Error(message) as Error & { status?: number };
   error.status = status;
   return error;
@@ -43,7 +51,7 @@ const getRewardExpiry = (reward: any): Date | null => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
-const createRewardRedemption = async (data: Partial<IRewardRedemption>) => {
+const createRewardRedemption = async (data: Partial<IRewardRedemption>): Promise<IRewardRedemption> => {
   const redemption = new RewardRedemptionModel({
     _id: new mongoose.Types.ObjectId(),
     ...data
@@ -52,11 +60,11 @@ const createRewardRedemption = async (data: Partial<IRewardRedemption>) => {
   return await redemption.save();
 };
 
-const redeemReward = async (data: RedeemRewardPayload) => {
+const redeemReward = async (data: RedeemRewardPayload): Promise<IResponse | null> => {
   const session = await mongoose.startSession();
 
   try {
-    let response: any = null;
+    let response!: IResponse;
 
     try {
       await session.withTransaction(async () => {
@@ -170,7 +178,7 @@ const redeemReward = async (data: RedeemRewardPayload) => {
   }
 };
 
-const triggerRedemptionNotification = async (redemption: any, pointsUsed: number) => {
+const triggerRedemptionNotification = async (redemption: any, pointsUsed: number): Promise<void> => {
   try {
     const customer = await CustomerModel.findById(redemption.customer_id);
     if (!customer) return;
@@ -197,7 +205,7 @@ const triggerRedemptionNotification = async (redemption: any, pointsUsed: number
   }
 };
 
-const getRewardRedemption = async (redemptionId: string) => {
+const getRewardRedemption = async (redemptionId: string): Promise<IRewardRedemption | null> => {
   return await RewardRedemptionModel.findById(redemptionId)
     .populate('customer_id', 'name email')
     .populate('reward_id', 'name description pointsRequired')
@@ -222,7 +230,7 @@ const getAllRewardRedemptions = async (skip: number, limit: number): Promise<{ r
   return { redemptions, total };
 };
 
-const getByCustomer = async (customer_id: string, skip: number, limit: number) => {
+const getByCustomer = async (customer_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
   const [redemptions, total] = await Promise.all([
     RewardRedemptionModel.find({ customer_id })
       .populate('reward_id', 'name description pointsRequired')
@@ -237,7 +245,7 @@ const getByCustomer = async (customer_id: string, skip: number, limit: number) =
   return { redemptions, total };
 };
 
-const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
   const [redemptions, total] = await Promise.all([
     RewardRedemptionModel.find({ restaurant_id })
       .populate('customer_id', 'name email')
@@ -252,7 +260,7 @@ const getByRestaurant = async (restaurant_id: string, skip: number, limit: numbe
   return { redemptions, total };
 };
 
-const getByEmployee = async (employee_id: string, skip: number, limit: number) => {
+const getByEmployee = async (employee_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
   const [redemptions, total] = await Promise.all([
     RewardRedemptionModel.find({ employee_id })
       .populate('customer_id', 'name')
@@ -267,7 +275,7 @@ const getByEmployee = async (employee_id: string, skip: number, limit: number) =
   return { redemptions, total };
 };
 
-const getByReward = async (reward_id: string, skip: number, limit: number) => {
+const getByReward = async (reward_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
   const [redemptions, total] = await Promise.all([
     RewardRedemptionModel.find({ reward_id })
       .populate('customer_id', 'name email')
@@ -282,7 +290,7 @@ const getByReward = async (reward_id: string, skip: number, limit: number) => {
   return { redemptions, total };
 };
 
-const updateRewardRedemption = async (redemptionId: string, data: Partial<IRewardRedemption>) => {
+const updateRewardRedemption = async (redemptionId: string, data: Partial<IRewardRedemption>): Promise<IRewardRedemption | null> => {
   const redemption = await RewardRedemptionModel.findById(redemptionId);
 
   if (!redemption) return null;
@@ -291,7 +299,7 @@ const updateRewardRedemption = async (redemptionId: string, data: Partial<IRewar
   return await redemption.save();
 };
 
-const updateStatus = async (redemptionId: string, data: UpdateStatusPayload) => {
+const updateStatus = async (redemptionId: string, data: UpdateStatusPayload): Promise<IRewardRedemption | null> => {
   const redemption = await RewardRedemptionModel.findById(redemptionId);
 
   if (!redemption) return null;
@@ -313,7 +321,7 @@ const updateStatus = async (redemptionId: string, data: UpdateStatusPayload) => 
   return await redemption.save();
 };
 
-const deleteRewardRedemption = async (redemptionId: string) => {
+const deleteRewardRedemption = async (redemptionId: string): Promise<IResponse | null> => {
   return await RewardRedemptionModel.findByIdAndDelete(redemptionId);
 };
 
@@ -322,7 +330,7 @@ const isTransactionUnsupportedError = (error: any): boolean => {
   return message.includes('Transaction numbers are only allowed on a replica set member or mongos');
 };
 
-const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
+const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload): Promise<IResponse | null> => {
   const { customer_id, reward_id, employee_id, notes } = data;
 
   if (!mongoose.Types.ObjectId.isValid(customer_id)) {
@@ -420,7 +428,7 @@ const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
       wallet,
       pointsBefore,
       pointsAfter: wallet.points
-    };
+    } as IResponse;
   } catch (error) {
     try {
       wallet.points = pointsBefore;

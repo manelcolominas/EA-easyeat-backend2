@@ -4,7 +4,7 @@ import { getPaginationOptions } from '../utils/pagination';
 
 // ─── CREATE ────────────────────────────────────────────────────────────────────
 
-const createNotification = async (req: Request, res: Response, next: NextFunction) => {
+const createNotification = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const savedNotification = await NotificationService.createNotification(req.body);
     return res.status(201).json(savedNotification);
@@ -15,7 +15,7 @@ const createNotification = async (req: Request, res: Response, next: NextFunctio
 
 // ─── READ ──────────────────────────────────────────────────────────────────────
 
-const readNotification = async (req: Request, res: Response, next: NextFunction) => {
+const readNotification = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const notification_id = req.params.notification_id;
 
   try {
@@ -26,7 +26,7 @@ const readNotification = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readDeletedNotification = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedNotification = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const notification_id = req.params.notification_id;
 
   try {
@@ -37,7 +37,7 @@ const readDeletedNotification = async (req: Request, res: Response, next: NextFu
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { notifications, total } = await NotificationService.getAllNotifications(skip, limit);
@@ -50,7 +50,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { notifications, total } = await NotificationService.getAllDeletedNotifications(skip, limit);
@@ -65,7 +65,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
 
 // ─── READ BY CUSTOMER ─────────────────────────────────────────────────────────
 
-const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { customer_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -80,7 +80,7 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readUnreadByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readUnreadByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { customer_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -95,7 +95,7 @@ const readUnreadByCustomer = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-const countUnread = async (req: Request, res: Response, next: NextFunction) => {
+const countUnread = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { customer_id } = req.params;
     const count = await NotificationService.countUnreadByCustomer(customer_id);
@@ -107,7 +107,7 @@ const countUnread = async (req: Request, res: Response, next: NextFunction) => {
 
 // ─── UPDATE ────────────────────────────────────────────────────────────────────
 
-const updateNotification = async (req: Request, res: Response, next: NextFunction) => {
+const updateNotification = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const notification_id = req.params.notification_id;
   try {
     const updatedNotification = await NotificationService.updateNotification(notification_id, req.body);
@@ -117,7 +117,7 @@ const updateNotification = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-const markAsRead = async (req: Request, res: Response, next: NextFunction) => {
+const markAsRead = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const notification_id = req.params.notification_id;
   try {
     const notification = await NotificationService.markAsRead(notification_id);
@@ -127,7 +127,7 @@ const markAsRead = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const markAllAsRead = async (req: Request, res: Response, next: NextFunction) => {
+const markAllAsRead = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { customer_id } = req.params;
     const result = await NotificationService.markAllAsReadByCustomer(customer_id);
@@ -139,7 +139,7 @@ const markAllAsRead = async (req: Request, res: Response, next: NextFunction) =>
 
 // ─── DELETE ────────────────────────────────────────────────────────────────────
 
-const softDeleteNotification = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteNotification = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const notification_id = req.params.notification_id;
   try {
     const notification = await NotificationService.softDeleteNotification(notification_id);
@@ -149,7 +149,7 @@ const softDeleteNotification = async (req: Request, res: Response, next: NextFun
   }
 };
 
-const restoreNotification = async (req: Request, res: Response, next: NextFunction) => {
+const restoreNotification = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const notification_id = req.params.notification_id;
   try {
     const notification = await NotificationService.restoreNotification(notification_id);
@@ -159,7 +159,7 @@ const restoreNotification = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-const hardDeleteNotification = async (req: Request, res: Response, next: NextFunction) => {
+const hardDeleteNotification = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const notification_id = req.params.notification_id;
   try {
     const notification = await NotificationService.hardDeleteNotification(notification_id);

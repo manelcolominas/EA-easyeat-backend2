@@ -1,8 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import VisitService from '../services/visit';
 import { getPaginationOptions } from '../utils/pagination';
+import { getSharedIdempotencyService } from 'express-idempotency';
+import Logging from '../library/logging';
 
-const createVisit = async (req: Request, res: Response, next: NextFunction) => {
+const createVisit = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+  const idempotencyService = getSharedIdempotencyService();
+  Logging.info(`Idempotency key: ${idempotencyService.extractIdempotencyKeyFromReq(req)}`);
+  if (idempotencyService.isHit(req)) {
+    return;
+  }
+
   try {
     const savedVisit = await VisitService.createVisit(req.body);
 
@@ -18,6 +26,7 @@ const createVisit = async (req: Request, res: Response, next: NextFunction) => {
 
     return res.status(201).json(response);
   } catch (error: any) {
+    await idempotencyService.reportError(req);
     return res.status(500).json({
       message: error.message || 'Internal Server Error',
       error: process.env.NODE_ENV === 'development' ? error : {}
@@ -25,7 +34,7 @@ const createVisit = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readVisit = async (req: Request, res: Response, next: NextFunction) => {
+const readVisit = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const visit_id = req.params.visit_id;
   try {
     const visit = await VisitService.getVisit(visit_id);
@@ -35,7 +44,7 @@ const readVisit = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readDeletedVisit = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedVisit = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const visit_id = req.params.visit_id;
   try {
     const visit = await VisitService.getDeletedVisit(visit_id);
@@ -45,7 +54,7 @@ const readDeletedVisit = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { visits, total } = await VisitService.getAllVisits(skip, limit);
@@ -59,7 +68,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { visits, total } = await VisitService.getAllDeletedVisits(skip, limit);
@@ -73,7 +82,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { customer_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -88,7 +97,7 @@ const readByCustomer = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { customer_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -103,7 +112,7 @@ const readDeletedByCustomer = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -118,7 +127,7 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -133,7 +142,7 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
   }
 };
 
-const updateVisit = async (req: Request, res: Response, next: NextFunction) => {
+const updateVisit = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const visit_id = req.params.visit_id;
   try {
     const updatedVisit = await VisitService.updateVisit(visit_id, req.body);
@@ -143,7 +152,7 @@ const updateVisit = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const softDeleteVisit = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteVisit = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const visit_id = req.params.visit_id;
   try {
     const visit = await VisitService.softDeleteVisit(visit_id);
@@ -153,7 +162,7 @@ const softDeleteVisit = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-const restoreVisit = async (req: Request, res: Response, next: NextFunction) => {
+const restoreVisit = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const visit_id = req.params.visit_id;
   try {
     const visit = await VisitService.restoreVisit(visit_id);
@@ -163,7 +172,7 @@ const restoreVisit = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const hardDeleteVisit = async (req: Request, res: Response, next: NextFunction) => {
+const hardDeleteVisit = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const visit_id = req.params.visit_id;
   try {
     const visit = await VisitService.hardDeleteVisit(visit_id);

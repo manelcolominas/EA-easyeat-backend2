@@ -6,7 +6,7 @@ import { getPaginationOptions } from '../utils/pagination';
 // CRUD
 // ─────────────────────────────────────────────────────────────────────────────
 
-const createRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const createRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const saved = await RestaurantService.createRestaurant(req.body);
     return res.status(201).json(saved);
@@ -27,7 +27,7 @@ const createRestaurant = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.getRestaurant(req.params.restaurantId);
     return restaurant ? res.status(200).json(restaurant) : res.status(404).json({ message: 'Restaurant not found.' });
@@ -36,7 +36,7 @@ const readRestaurant = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readDeletedRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.getDeletedRestaurant(req.params.restaurantId);
     return restaurant ? res.status(200).json(restaurant) : res.status(404).json({ message: 'Deleted restaurant not found.' });
@@ -45,7 +45,7 @@ const readDeletedRestaurant = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     // TODO: future security improvement may validate owner_id against the authenticated owner in req.user.
@@ -60,7 +60,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { restaurants, total } = await RestaurantService.getAllDeletedRestaurants(skip, limit);
@@ -73,7 +73,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const updateRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const updateRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.updateRestaurant(req.params.restaurantId, req.body);
     return restaurant ? res.status(200).json(restaurant) : res.status(404).json({ message: 'Restaurant not found.' });
@@ -103,7 +103,7 @@ const updateRestaurant = async (req: Request, res: Response, next: NextFunction)
  * Sets deletedAt = now. The restaurant disappears from all normal queries.
  * Returns 404 if already soft-deleted or not found.
  */
-const softDelete = async (req: Request, res: Response, next: NextFunction) => {
+const softDelete = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.softDeleteRestaurant(req.params.restaurantId);
     return restaurant ? res.status(200).json({ message: 'Restaurant deactivated.', restaurant }) : res.status(404).json({ message: 'Restaurant not found or already deactivated.' });
@@ -117,7 +117,7 @@ const softDelete = async (req: Request, res: Response, next: NextFunction) => {
  * Clears deletedAt, making the restaurant visible again.
  * Returns 404 if the restaurant is not found or is already active.
  */
-const restore = async (req: Request, res: Response, next: NextFunction) => {
+const restore = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.restoreRestaurant(req.params.restaurantId);
     return restaurant ? res.status(200).json({ message: 'Restaurant restored.', restaurant }) : res.status(404).json({ message: 'Restaurant not found or already active.' });
@@ -131,7 +131,7 @@ const restore = async (req: Request, res: Response, next: NextFunction) => {
  * Permanently removes the document from the database. Irreversible.
  * Use only for admin operations or GDPR erasure requests.
  */
-const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
+const hardDelete = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.hardDeleteRestaurant(req.params.restaurantId);
     return restaurant ? res.status(200).json({ message: 'Restaurant permanently deleted.', restaurant }) : res.status(404).json({ message: 'Restaurant not found.' });
@@ -144,7 +144,7 @@ const hardDelete = async (req: Request, res: Response, next: NextFunction) => {
 // Read variants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const getRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
+const getRestaurantCustomers = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { customers, total } = await RestaurantService.getRestaurantCustomers(req.params.restaurantId, skip, limit);
@@ -157,7 +157,7 @@ const getRestaurantCustomers = async (req: Request, res: Response, next: NextFun
   }
 };
 
-const getDeletedRestaurantCustomers = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantCustomers = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { customers, total } = await RestaurantService.getDeletedRestaurantCustomers(req.params.restaurantId, skip, limit);
@@ -170,7 +170,7 @@ const getDeletedRestaurantCustomers = async (req: Request, res: Response, next: 
   }
 };
 
-const getRestaurantFull = async (req: Request, res: Response, next: NextFunction) => {
+const getRestaurantFull = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.getRestaurantFull(req.params.restaurantId);
     return restaurant ? res.status(200).json(restaurant) : res.status(404).json({ message: 'Restaurant not found.' });
@@ -179,7 +179,7 @@ const getRestaurantFull = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-const getRestaurantDetailedForCustomerFrontend = async (req: Request, res: Response, next: NextFunction) => {
+const getRestaurantDetailedForCustomerFrontend = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.getRestaurantDetailedForCustomerFrontend(req.params.restaurantId);
     return restaurant ? res.status(200).json(restaurant) : res.status(404).json({ message: 'Restaurant not found.' });
@@ -188,7 +188,7 @@ const getRestaurantDetailedForCustomerFrontend = async (req: Request, res: Respo
   }
 };
 
-const getDeletedRestaurantFull = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantFull = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurant = await RestaurantService.getDeletedRestaurantFull(req.params.restaurantId);
     return restaurant ? res.status(200).json(restaurant) : res.status(404).json({ message: 'Deleted restaurant not found.' });
@@ -197,7 +197,7 @@ const getDeletedRestaurantFull = async (req: Request, res: Response, next: NextF
   }
 };
 
-const getRestaurantsNearby = async (req: Request, res: Response, next: NextFunction) => {
+const getRestaurantsNearby = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { lng, lat, maxDistance } = req.query;
   if (!lng || !lat) return res.status(400).json({ message: 'lng and lat query params are required.' });
 
@@ -209,7 +209,7 @@ const getRestaurantsNearby = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-const getBadges = async (req: Request, res: Response, next: NextFunction) => {
+const getBadges = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { badges, total } = await RestaurantService.getBadges(req.params.restaurantId, skip, limit);
@@ -222,7 +222,7 @@ const getBadges = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getDeletedRestaurantBadges = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantBadges = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { badges, total } = await RestaurantService.getDeletedRestaurantBadges(req.params.restaurantId, skip, limit);
@@ -235,7 +235,7 @@ const getDeletedRestaurantBadges = async (req: Request, res: Response, next: Nex
   }
 };
 
-const getStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const getStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const statistics = await RestaurantService.getStatistics(req.params.restaurantId);
     return res.status(200).json(statistics);
@@ -244,7 +244,7 @@ const getStatistics = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-const getDeletedRestaurantStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const statistics = await RestaurantService.getDeletedRestaurantStatistics(req.params.restaurantId);
     return res.status(200).json(statistics);
@@ -253,7 +253,7 @@ const getDeletedRestaurantStatistics = async (req: Request, res: Response, next:
   }
 };
 
-const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
+const getTopDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const restaurantId = req.params.restaurantId;
     const topDish = await RestaurantService.getTopDishByRestaurant(restaurantId);
@@ -271,7 +271,7 @@ const getTopDish = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
+const getFiltered = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { lng, lat, radiusMeters, categories, minGlobalRating, city, openNow, openAt } = req.query;
 
@@ -292,7 +292,7 @@ const getFiltered = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
+const getEmployees = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { employees, total } = await RestaurantService.getEmployees(req.params.restaurantId, skip, limit);
@@ -305,7 +305,7 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { employees, total } = await RestaurantService.getDeletedRestaurantEmployees(req.params.restaurantId, skip, limit);
@@ -318,7 +318,7 @@ const getDeletedRestaurantEmployees = async (req: Request, res: Response, next: 
   }
 };
 
-const getDishes = async (req: Request, res: Response, next: NextFunction) => {
+const getDishes = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { dishes, total } = await RestaurantService.getDishes(req.params.restaurantId, skip, limit);
@@ -331,7 +331,7 @@ const getDishes = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getDeletedRestaurantDishes = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantDishes = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { dishes, total } = await RestaurantService.getDeletedRestaurantDishes(req.params.restaurantId, skip, limit);
@@ -344,7 +344,7 @@ const getDeletedRestaurantDishes = async (req: Request, res: Response, next: Nex
   }
 };
 
-const getRewards = async (req: Request, res: Response, next: NextFunction) => {
+const getRewards = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { rewards, total } = await RestaurantService.getRewards(req.params.restaurantId, skip, limit);
@@ -357,7 +357,7 @@ const getRewards = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getDeletedRestaurantRewards = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantRewards = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { rewards, total } = await RestaurantService.getDeletedRestaurantRewards(req.params.restaurantId, skip, limit);
@@ -370,7 +370,7 @@ const getDeletedRestaurantRewards = async (req: Request, res: Response, next: Ne
   }
 };
 
-const getVisits = async (req: Request, res: Response, next: NextFunction) => {
+const getVisits = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { visits, total } = await RestaurantService.getVisits(req.params.restaurantId, skip, limit);
@@ -383,7 +383,7 @@ const getVisits = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getDeletedRestaurantVisits = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantVisits = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { visits, total } = await RestaurantService.getDeletedRestaurantVisits(req.params.restaurantId, skip, limit);
@@ -396,7 +396,7 @@ const getDeletedRestaurantVisits = async (req: Request, res: Response, next: Nex
   }
 };
 
-const getReviews = async (req: Request, res: Response, next: NextFunction) => {
+const getReviews = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { reviews, total } = await RestaurantService.getReviews(req.params.restaurantId, skip, limit);
@@ -409,7 +409,7 @@ const getReviews = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getDeletedRestaurantReviews = async (req: Request, res: Response, next: NextFunction) => {
+const getDeletedRestaurantReviews = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { reviews, total } = await RestaurantService.getDeletedRestaurantReviews(req.params.restaurantId, skip, limit);

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { PointsWalletModel, IPointsWallet } from '../models/pointsWallet';
 import { CustomerModel } from '../models/customer';
 
-const createPointsWallet = async (data: Partial<IPointsWallet>) => {
+const createPointsWallet = async (data: Partial<IPointsWallet>): Promise<IPointsWallet> => {
   const wallet = new PointsWalletModel({
     _id: new mongoose.Types.ObjectId(),
     ...data
@@ -19,7 +19,7 @@ const createPointsWallet = async (data: Partial<IPointsWallet>) => {
   return savedWallet;
 };
 
-const getPointsWallet = async (walletId: string) => {
+const getPointsWallet = async (walletId: string): Promise<IPointsWallet | null> => {
   return await PointsWalletModel.findById(walletId);
 };
 
@@ -28,7 +28,7 @@ const getAllPointsWallets = async (skip: number, limit: number): Promise<{ walle
   return { wallets, total };
 };
 
-const updatePointsWallet = async (walletId: string, data: Partial<IPointsWallet>) => {
+const updatePointsWallet = async (walletId: string, data: Partial<IPointsWallet>): Promise<IPointsWallet | null> => {
   const wallet = await PointsWalletModel.findById(walletId);
 
   if (wallet) {
@@ -39,7 +39,7 @@ const updatePointsWallet = async (walletId: string, data: Partial<IPointsWallet>
   return null;
 };
 
-const deletePointsWallet = async (walletId: string) => {
+const deletePointsWallet = async (walletId: string): Promise<IPointsWallet | null> => {
   const deletedWallet = await PointsWalletModel.findByIdAndDelete(walletId);
 
   if (deletedWallet && deletedWallet.customer_id) {

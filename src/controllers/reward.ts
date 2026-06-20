@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import RewardService from '../services/reward';
 import { getPaginationOptions } from '../utils/pagination';
 
-const createReward = async (req: Request, res: Response, next: NextFunction) => {
+const createReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const savedReward = await RewardService.createReward(req.body);
     return res.status(201).json(savedReward);
@@ -11,7 +11,7 @@ const createReward = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const readReward = async (req: Request, res: Response, next: NextFunction) => {
+const readReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const reward_id = req.params.reward_id;
 
   try {
@@ -22,7 +22,7 @@ const readReward = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readDeletedReward = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const reward_id = req.params.reward_id;
 
   try {
@@ -33,7 +33,7 @@ const readDeletedReward = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { rewards, total } = await RewardService.getAllRewards(skip, limit);
@@ -46,7 +46,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { rewards, total } = await RewardService.getAllDeletedRewards(skip, limit);
@@ -59,7 +59,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -74,7 +74,7 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -89,7 +89,7 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
   }
 };
 
-const updateReward = async (req: Request, res: Response, next: NextFunction) => {
+const updateReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const reward_id = req.params.reward_id;
   try {
     const updatedReward = await RewardService.updateReward(reward_id, req.body);
@@ -99,7 +99,7 @@ const updateReward = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const softDeleteReward = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const reward_id = req.params.reward_id;
   try {
     const reward = await RewardService.softDeleteReward(reward_id);
@@ -109,7 +109,7 @@ const softDeleteReward = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const restoreReward = async (req: Request, res: Response, next: NextFunction) => {
+const restoreReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const reward_id = req.params.reward_id;
   try {
     const reward = await RewardService.restoreReward(reward_id);
@@ -119,7 +119,7 @@ const restoreReward = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-const hardDeleteReward = async (req: Request, res: Response, next: NextFunction) => {
+const hardDeleteReward = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const reward_id = req.params.reward_id;
   try {
     const reward = await RewardService.hardDeleteReward(reward_id);

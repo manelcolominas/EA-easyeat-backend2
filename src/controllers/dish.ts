@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import DishService from '../services/dish';
 import { getPaginationOptions } from '../utils/pagination';
 
-const createDish = async (req: Request, res: Response, next: NextFunction) => {
+const createDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const savedDish = await DishService.createDish(req.body);
     return res.status(201).json(savedDish);
@@ -11,7 +11,7 @@ const createDish = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readDish = async (req: Request, res: Response, next: NextFunction) => {
+const readDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
   try {
     const dish = await DishService.getDish(dish_id);
@@ -21,7 +21,7 @@ const readDish = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readDeletedDish = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
   try {
     const dish = await DishService.getDeletedDish(dish_id);
@@ -31,7 +31,7 @@ const readDeletedDish = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-const readAll = async (req: Request, res: Response, next: NextFunction) => {
+const readAll = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { dishes, total } = await DishService.getAllDishes(skip, limit);
@@ -44,7 +44,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const readAllDeleted = async (req: Request, res: Response, next: NextFunction) => {
+const readAllDeleted = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { page, limit, skip } = getPaginationOptions(req.query);
     const { dishes, total } = await DishService.getAllDeletedDishes(skip, limit);
@@ -57,7 +57,7 @@ const readAllDeleted = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const readByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -72,7 +72,7 @@ const readByRestaurant = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction) => {
+const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   try {
     const { restaurant_id } = req.params;
     const { page, limit, skip } = getPaginationOptions(req.query);
@@ -87,7 +87,7 @@ const readDeletedByRestaurant = async (req: Request, res: Response, next: NextFu
   }
 };
 
-const updateDish = async (req: Request, res: Response, next: NextFunction) => {
+const updateDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
   try {
     const updatedDish = await DishService.updateDish(dish_id, req.body);
@@ -97,7 +97,7 @@ const updateDish = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const softDeleteDish = async (req: Request, res: Response, next: NextFunction) => {
+const softDeleteDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
   try {
     const dish = await DishService.softDeleteDish(dish_id);
@@ -107,7 +107,7 @@ const softDeleteDish = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const restoreDish = async (req: Request, res: Response, next: NextFunction) => {
+const restoreDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
   try {
     const dish = await DishService.restoreDish(dish_id);
@@ -117,7 +117,7 @@ const restoreDish = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const hardDeleteDish = async (req: Request, res: Response, next: NextFunction) => {
+const hardDeleteDish = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { dish_id } = req.params;
   try {
     const dish = await DishService.hardDeleteDish(dish_id);

@@ -4,7 +4,7 @@ import { CustomerDeviceTokenModel, ICustomerDeviceToken } from '../models/custom
  * Register (upsert) a device token for a customer.
  * If the token already exists it is re-activated and its metadata updated.
  */
-const registerToken = async (data: Pick<ICustomerDeviceToken, 'customer_id' | 'token' | 'platform'>) => {
+const registerToken = async (data: Pick<ICustomerDeviceToken, 'customer_id' | 'token' | 'platform'>): Promise<ICustomerDeviceToken | null> => {
   return await CustomerDeviceTokenModel.findOneAndUpdate(
     { token: data.token },
     {
@@ -24,21 +24,21 @@ const registerToken = async (data: Pick<ICustomerDeviceToken, 'customer_id' | 't
  * Soft-deactivate a device token (sets active=false + deletedAt).
  * Returns null when the token is not found.
  */
-const unregisterToken = async (token: string) => {
+const unregisterToken = async (token: string): Promise<ICustomerDeviceToken | null> => {
   return await CustomerDeviceTokenModel.findOneAndUpdate({ token, deletedAt: null }, { $set: { active: false, deletedAt: new Date() } }, { new: true });
 };
 
 /**
  * Return a single token document by its MongoDB _id.
  */
-const getToken = async (tokenId: string) => {
+const getToken = async (tokenId: string): Promise<ICustomerDeviceToken | null> => {
   return await CustomerDeviceTokenModel.findOne({ _id: tokenId, deletedAt: null }).lean();
 };
 
 /**
  * Return all active tokens for a given customer.
  */
-const getTokensByCustomer = async (customer_id: string) => {
+const getTokensByCustomer = async (customer_id: string): Promise<ICustomerDeviceToken[] | null> => {
   return await CustomerDeviceTokenModel.find({ customer_id, active: true, deletedAt: null }).lean();
 };
 
@@ -54,14 +54,14 @@ const getAllTokens = async (skip: number, limit: number): Promise<{ tokens: ICus
  * Update lastSeenAt to now — call this whenever the token is used
  * to confirm the device is still active.
  */
-const refreshLastSeen = async (token: string) => {
+const refreshLastSeen = async (token: string): Promise<ICustomerDeviceToken | null> => {
   return await CustomerDeviceTokenModel.findOneAndUpdate({ token, active: true, deletedAt: null }, { $set: { lastSeenAt: new Date() } }, { new: true });
 };
 
 /**
  * Hard-delete a token document permanently (admin / cleanup use).
  */
-const hardDeleteToken = async (tokenId: string) => {
+const hardDeleteToken = async (tokenId: string): Promise<ICustomerDeviceToken | null> => {
   return await CustomerDeviceTokenModel.findByIdAndDelete(tokenId);
 };
 

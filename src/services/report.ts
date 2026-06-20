@@ -1,13 +1,13 @@
 import { ReportModel, IReport } from '../models/report';
 
-const createReport = async (data: Partial<IReport>) => {
+const createReport = async (data: Partial<IReport>): Promise<IReport> => {
   const report = new ReportModel({
     ...data
   });
   return await report.save();
 };
 
-const updateReport = async (reportId: string, data: Partial<IReport>) => {
+const updateReport = async (reportId: string, data: Partial<IReport>): Promise<IReport | null> => {
   const report = await ReportModel.findById(reportId);
 
   if (report) {
@@ -26,7 +26,7 @@ const getAllReports = async (skip: number, limit: number): Promise<{ reports: IR
   return { reports, total };
 };
 
-const deleteReport = async (reportId: string) => {
+const deleteReport = async (reportId: string): Promise<IReport | null> => {
   return await ReportModel.findByIdAndDelete(reportId);
 };
 
