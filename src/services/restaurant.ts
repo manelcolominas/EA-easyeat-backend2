@@ -551,6 +551,25 @@ const getFilteredRestaurants = async (params: RestaurantFilterParams): Promise<R
   return RestaurantModel.aggregate<RestaurantWithDistance>(pipeline).exec();
 };
 
+const searchRestaurants = async (term?: string, minRating?: number): Promise<IRestaurant[]> => {
+  const filter: Record<string, any> = { deletedAt: null };
+
+  if (minRating !== undefined && !isNaN(minRating)) {
+    filter['profile.globalRating'] = { $gte: minRating };
+  }
+
+  if (term && term.trim().length > 0) {
+    const cleanTerm = term.trim();
+    const searchRegex = new RegExp(cleanTerm, 'i');
+    filter.$or = [{ 'profile.name': searchRegex }, { 'profile.category': searchRegex }, { 'profile.location.city': searchRegex }, { 'profile.location.address': searchRegex }];
+  }
+
+  return RestaurantModel.find(filter)
+    .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
+    .limit(30)
+    .lean<IRestaurant[]>();
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
@@ -587,5 +606,6 @@ export default {
   getReviews,
   getDeletedRestaurantReviews,
   updateGlobalRating,
-  getFilteredRestaurants
+  getFilteredRestaurants,
+  searchRestaurants
 };

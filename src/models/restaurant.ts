@@ -300,6 +300,25 @@ restaurantSchema.index({ 'profile.location.coordinates': '2dsphere' });
 // 2. Unique name per city (case-insensitive enforced at app layer via trim/lowercase)
 restaurantSchema.index({ 'profile.name': 1, 'profile.location.city': 1 }, { unique: true, name: 'unique_name_per_city' });
 
+// Text index for multi-field search
+restaurantSchema.index(
+  {
+    'profile.name': 'text',
+    'profile.category': 'text',
+    'profile.location.city': 'text',
+    'profile.location.address': 'text'
+  },
+  {
+    weights: {
+      'profile.name': 10,
+      'profile.category': 5,
+      'profile.location.city': 3,
+      'profile.location.address': 1
+    },
+    name: 'restaurant_text_search_idx'
+  }
+);
+
 // 3. Performance – common query fields
 restaurantSchema.index({ 'profile.globalRating': -1 }); // sort by globalRating
 restaurantSchema.index({ 'profile.category': 1 }); // filter by category

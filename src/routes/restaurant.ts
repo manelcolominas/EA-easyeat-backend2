@@ -439,6 +439,35 @@ router.get('/filter', controller.getFiltered);
 
 /**
  * @openapi
+ * /restaurants/search:
+ *   get:
+ *     summary: Searches restaurants by term and rating
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: term
+ *         schema:
+ *           type: string
+ *         description: Search query term
+ *       - in: query
+ *         name: minRating
+ *         schema:
+ *           type: number
+ *         description: Minimum globalRating filter
+ *     responses:
+ *       200:
+ *         description: List of matching restaurants
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Restaurant'
+ */
+router.get('/search', controller.searchRestaurants);
+
+/**
+ * @openapi
  * /restaurants/{restaurantId}:
  *   get:
  *     summary: Gets a restaurant by ID thought for the app mobile
