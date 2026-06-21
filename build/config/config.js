@@ -10,7 +10,7 @@ const dotenv_1 = __importDefault(require('dotenv'));
 dotenv_1.default.config();
 const MONGO_URL = process.env.MONGO_URI || '';
 const SERVER_PORT = process.env.SERVER_PORT ? Number(process.env.SERVER_PORT) : 1337;
-const DEFAULT_CORS_ORIGINS = ['https://ea2.upc.edu', 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:49671'];
+const DEFAULT_CORS_ORIGINS = ['https://ea2.upc.edu', 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:49671', 'http://localhost:4200'];
 const CORS_ORIGINS = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',')
       .map((origin) => origin.trim())

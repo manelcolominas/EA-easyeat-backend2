@@ -44,7 +44,7 @@ const options = {
       }
     ]
   },
-  apis: [path_1.default.join(__dirname, 'routes', '*.js')]
+  apis: [path_1.default.join(__dirname, 'routes', '*.{ts,js}').replace(/\\/g, '/')]
 };
 exports.swaggerSpec = (0, swagger_jsdoc_1.default)(options);
 //# sourceMappingURL=swagger.js.map
