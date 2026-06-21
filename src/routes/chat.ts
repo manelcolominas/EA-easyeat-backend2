@@ -40,10 +40,7 @@ const router = express.Router();
  *       500:
  *         description: Error interno del servidor
  */
-router.post(
-    '/conversations',
-    ChatController.createOrGetConversation
-);
+router.post('/conversations', ChatController.createOrGetConversation);
 
 /**
  * @swagger
@@ -66,10 +63,7 @@ router.post(
  *       500:
  *         description: Error interno del servidor
  */
-router.get(
-    '/conversations/customer/:customerId',
-    ChatController.getCustomerConversations
-);
+router.get('/conversations/customer/:customerId', ChatController.getCustomerConversations);
 
 /**
  * @swagger
@@ -92,10 +86,7 @@ router.get(
  *       500:
  *         description: Error interno del servidor
  */
-router.get(
-    '/conversations/restaurant/:restaurantId',
-    ChatController.getRestaurantConversations
-);
+router.get('/conversations/restaurant/:restaurantId', ChatController.getRestaurantConversations);
 
 /**
  * @swagger
@@ -118,10 +109,7 @@ router.get(
  *       500:
  *         description: Error interno del servidor
  */
-router.get(
-    '/conversations/:conversationId/messages',
-    ChatController.getConversationMessages
-);
+router.get('/conversations/:conversationId/messages', ChatController.getConversationMessages);
 
 /**
  * @swagger
@@ -167,10 +155,7 @@ router.get(
  *       500:
  *         description: Error interno del servidor
  */
-router.post(
-    '/conversations/:conversationId/messages',
-    ChatController.createMessage
-);
+router.post('/conversations/:conversationId/messages', ChatController.createMessage);
 
 /**
  * @swagger
@@ -207,10 +192,7 @@ router.post(
  *       500:
  *         description: Error interno del servidor
  */
-router.patch(
-    '/messages/:messageId/read',
-    ChatController.markMessageAsRead
-);
+router.patch('/messages/:messageId/read', ChatController.markMessageAsRead);
 
 /**
  * @swagger
@@ -245,10 +227,7 @@ router.patch(
  *       500:
  *         description: Error interno del servidor
  */
-router.patch(
-    '/conversations/:conversationId/read',
-    ChatController.markConversationAsRead
-);
+router.patch('/conversations/:conversationId/read', ChatController.markConversationAsRead);
 
 /**
  * @swagger
@@ -273,9 +252,6 @@ router.patch(
  *       500:
  *         description: Error interno del servidor
  */
-router.delete(
-    '/messages/:messageId',
-    ChatController.deleteMessage
-);
+router.delete('/messages/:messageId', ChatController.deleteMessage);
 
 export default router;

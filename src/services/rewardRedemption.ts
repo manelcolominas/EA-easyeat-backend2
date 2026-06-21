@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 import { RewardRedemptionModel, IRewardRedemption } from '../models/rewardRedemption';
 import { CustomerModel } from '../models/customer';
 import { RewardModel } from '../models/reward';
-import { PointsWalletModel } from '../models/pointsWallet';
+import { IPointsWallet, PointsWalletModel } from '../models/pointsWallet';
+import { RestaurantModel } from '../models/restaurant';
+import NotificationService from './notification';
 
 type RedeemRewardPayload = {
   customer_id: string;
@@ -17,7 +19,15 @@ type UpdateStatusPayload = {
   notes?: string;
 };
 
-const buildError = (status: number, message: string) => {
+interface IResponse {
+  message: string;
+  redemption: IRewardRedemption;
+  wallet: IPointsWallet;
+  pointsBefore: number;
+  pointsAfter: number;
+}
+
+const buildError = (status: number, message: string): Error => {
   const error = new Error(message) as Error & { status?: number };
   error.status = status;
   return error;
@@ -41,7 +51,7 @@ const getRewardExpiry = (reward: any): Date | null => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
-const createRewardRedemption = async (data: Partial<IRewardRedemption>) => {
+const createRewardRedemption = async (data: Partial<IRewardRedemption>): Promise<IRewardRedemption> => {
   const redemption = new RewardRedemptionModel({
     _id: new mongoose.Types.ObjectId(),
     ...data
@@ -50,12 +60,11 @@ const createRewardRedemption = async (data: Partial<IRewardRedemption>) => {
   return await redemption.save();
 };
 
-
-const redeemReward = async (data: RedeemRewardPayload) => {
+const redeemReward = async (data: RedeemRewardPayload): Promise<IResponse | null> => {
   const session = await mongoose.startSession();
 
   try {
-    let response: any = null;
+    let response!: IResponse;
 
     try {
       await session.withTransaction(async () => {
@@ -123,16 +132,21 @@ const redeemReward = async (data: RedeemRewardPayload) => {
         wallet.points = wallet.points - pointsUsed;
         await wallet.save({ session });
 
-        const [redemption] = await RewardRedemptionModel.create([{
-          customer_id: customer._id,
-          restaurant_id: new mongoose.Types.ObjectId(restaurantId),
-          reward_id: reward._id,
-          employee_id: new mongoose.Types.ObjectId(employee_id),
-          pointsUsed,
-          status: 'redeemed',
-          redeemedAt: new Date(),
-          notes: notes?.trim() || ''
-        }], { session });
+        const [redemption] = await RewardRedemptionModel.create(
+          [
+            {
+              customer_id: customer._id,
+              restaurant_id: new mongoose.Types.ObjectId(restaurantId),
+              reward_id: reward._id,
+              employee_id: new mongoose.Types.ObjectId(employee_id),
+              pointsUsed,
+              status: 'redeemed',
+              redeemedAt: new Date(),
+              notes: notes?.trim() || ''
+            }
+          ],
+          { session }
+        );
 
         reward.timesRedeemed = Number(reward.timesRedeemed ?? 0) + 1;
         await reward.save({ session });
@@ -146,6 +160,12 @@ const redeemReward = async (data: RedeemRewardPayload) => {
         };
       });
 
+      if (response && response.redemption) {
+        triggerRedemptionNotification(response.redemption, response.pointsBefore - response.pointsAfter).catch((err) => {
+          console.error('Error sending redemption notification:', err);
+        });
+      }
+
       return response;
     } catch (error: any) {
       if (isTransactionUnsupportedError(error)) {
@@ -158,80 +178,119 @@ const redeemReward = async (data: RedeemRewardPayload) => {
   }
 };
 
-const getRewardRedemption = async (redemptionId: string) => {
+const triggerRedemptionNotification = async (redemption: any, pointsUsed: number): Promise<void> => {
+  try {
+    const customer = await CustomerModel.findById(redemption.customer_id);
+    if (!customer) return;
+
+    const reward = await RewardModel.findById(redemption.reward_id);
+    if (!reward) return;
+
+    const restaurant = await RestaurantModel.findById(redemption.restaurant_id);
+    const restaurantName = restaurant?.profile?.name || 'Restaurant';
+
+    await NotificationService.createAndSendNotification({
+      customer_id: customer._id,
+      restaurant_id: redemption.restaurant_id,
+      type: 'points_awarded',
+      title: 'Recompensa bescanviada!',
+      message: `Has bescanviat ${pointsUsed} punts per la recompensa "${reward.name}" a ${restaurantName}.`,
+      data: {
+        reward_id: reward._id,
+        points_amount: pointsUsed
+      }
+    });
+  } catch (err: any) {
+    console.error('Error sending redemption notification:', err?.message || err);
+  }
+};
+
+const getRewardRedemption = async (redemptionId: string): Promise<IRewardRedemption | null> => {
   return await RewardRedemptionModel.findById(redemptionId)
+    .populate('customer_id', 'name email')
+    .populate('reward_id', 'name description pointsRequired')
+    .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+    .populate('employee_id', 'name');
+};
+
+const getAllRewardRedemptions = async (skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
+  const [redemptions, total] = await Promise.all([
+    RewardRedemptionModel.find()
       .populate('customer_id', 'name email')
       .populate('reward_id', 'name description pointsRequired')
       .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
-      .populate('employee_id', 'name');
-};
-
-const getAllRewardRedemptions = async ( skip: number, limit: number ): Promise<{ redemptions: IRewardRedemption[], total: number }> => {
-  const [redemptions, total] = await Promise.all([
-    RewardRedemptionModel.find()
-        .populate('customer_id', 'name email')
-        .populate('reward_id', 'name description pointsRequired')
-        .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
-        .populate('employee_id', 'name')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean<IRewardRedemption[]>(),
+      .populate('employee_id', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean<IRewardRedemption[]>(),
     RewardRedemptionModel.countDocuments()
   ]);
 
   return { redemptions, total };
 };
 
-const getByCustomer = async (customer_id: string, skip: number, limit: number) => {
-    const [redemptions, total] = await Promise.all([
-        RewardRedemptionModel.find({ customer_id })
-            .populate('reward_id', 'name description pointsRequired')
-            .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
-            .populate('employee_id', 'name')
-            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
-        RewardRedemptionModel.countDocuments({ customer_id })
-    ]);
-    return { redemptions, total };
+const getByCustomer = async (customer_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
+  const [redemptions, total] = await Promise.all([
+    RewardRedemptionModel.find({ customer_id })
+      .populate('reward_id', 'name description pointsRequired')
+      .populate('restaurant_id', 'profile.name profile.location.city profile.location.address')
+      .populate('employee_id', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean<IRewardRedemption[]>(),
+    RewardRedemptionModel.countDocuments({ customer_id })
+  ]);
+  return { redemptions, total };
 };
 
-const getByRestaurant = async (restaurant_id: string, skip: number, limit: number) => {
-    const [redemptions, total] = await Promise.all([
-        RewardRedemptionModel.find({ restaurant_id })
-            .populate('customer_id', 'name email')
-            .populate('reward_id', 'name description pointsRequired')
-            .populate('employee_id', 'name email')
-            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
-        RewardRedemptionModel.countDocuments({ restaurant_id })
-    ]);
-    return { redemptions, total };
+const getByRestaurant = async (restaurant_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
+  const [redemptions, total] = await Promise.all([
+    RewardRedemptionModel.find({ restaurant_id })
+      .populate('customer_id', 'name email')
+      .populate('reward_id', 'name description pointsRequired')
+      .populate('employee_id', 'name email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean<IRewardRedemption[]>(),
+    RewardRedemptionModel.countDocuments({ restaurant_id })
+  ]);
+  return { redemptions, total };
 };
 
-const getByEmployee = async (employee_id: string, skip: number, limit: number) => {
-    const [redemptions, total] = await Promise.all([
-        RewardRedemptionModel.find({ employee_id })
-            .populate('customer_id', 'name')
-            .populate('reward_id', 'name')
-            .populate('restaurant_id', 'profile.name')
-            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
-        RewardRedemptionModel.countDocuments({ employee_id })
-    ]);
-    return { redemptions, total };
+const getByEmployee = async (employee_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
+  const [redemptions, total] = await Promise.all([
+    RewardRedemptionModel.find({ employee_id })
+      .populate('customer_id', 'name')
+      .populate('reward_id', 'name')
+      .populate('restaurant_id', 'profile.name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean<IRewardRedemption[]>(),
+    RewardRedemptionModel.countDocuments({ employee_id })
+  ]);
+  return { redemptions, total };
 };
 
-const getByReward = async (reward_id: string, skip: number, limit: number) => {
-    const [redemptions, total] = await Promise.all([
-        RewardRedemptionModel.find({ reward_id })
-            .populate('customer_id', 'name email')
-            .populate('restaurant_id', 'profile.name')
-            .populate('employee_id', 'name')
-            .sort({ createdAt: -1 }).skip(skip).limit(limit).lean<IRewardRedemption[]>(),
-        RewardRedemptionModel.countDocuments({ reward_id })
-    ]);
-    return { redemptions, total };
+const getByReward = async (reward_id: string, skip: number, limit: number): Promise<{ redemptions: IRewardRedemption[]; total: number }> => {
+  const [redemptions, total] = await Promise.all([
+    RewardRedemptionModel.find({ reward_id })
+      .populate('customer_id', 'name email')
+      .populate('restaurant_id', 'profile.name')
+      .populate('employee_id', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean<IRewardRedemption[]>(),
+    RewardRedemptionModel.countDocuments({ reward_id })
+  ]);
+  return { redemptions, total };
 };
 
-const updateRewardRedemption = async (redemptionId: string, data: Partial<IRewardRedemption>) => {
+const updateRewardRedemption = async (redemptionId: string, data: Partial<IRewardRedemption>): Promise<IRewardRedemption | null> => {
   const redemption = await RewardRedemptionModel.findById(redemptionId);
 
   if (!redemption) return null;
@@ -240,7 +299,7 @@ const updateRewardRedemption = async (redemptionId: string, data: Partial<IRewar
   return await redemption.save();
 };
 
-const updateStatus = async (redemptionId: string, data: UpdateStatusPayload) => {
+const updateStatus = async (redemptionId: string, data: UpdateStatusPayload): Promise<IRewardRedemption | null> => {
   const redemption = await RewardRedemptionModel.findById(redemptionId);
 
   if (!redemption) return null;
@@ -262,7 +321,7 @@ const updateStatus = async (redemptionId: string, data: UpdateStatusPayload) => 
   return await redemption.save();
 };
 
-const deleteRewardRedemption = async (redemptionId: string) => {
+const deleteRewardRedemption = async (redemptionId: string): Promise<IResponse | null> => {
   return await RewardRedemptionModel.findByIdAndDelete(redemptionId);
 };
 
@@ -271,7 +330,7 @@ const isTransactionUnsupportedError = (error: any): boolean => {
   return message.includes('Transaction numbers are only allowed on a replica set member or mongos');
 };
 
-const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
+const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload): Promise<IResponse | null> => {
   const { customer_id, reward_id, employee_id, notes } = data;
 
   if (!mongoose.Types.ObjectId.isValid(customer_id)) {
@@ -359,30 +418,40 @@ const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload) => {
     redemption.redeemedAt = new Date() as any;
     await redemption.save();
 
+    triggerRedemptionNotification(redemption, pointsUsed).catch((err) => {
+      console.error('Error sending redemption notification (no trans):', err);
+    });
+
     return {
       message: 'Reward redeemed successfully (without transaction)',
       redemption,
       wallet,
       pointsBefore,
       pointsAfter: wallet.points
-    };
+    } as IResponse;
   } catch (error) {
-  try {
-    wallet.points = pointsBefore;
-    await wallet.save();
-  } catch {}
+    try {
+      wallet.points = pointsBefore;
+      await wallet.save();
+    } catch (_error) {
+      void _error;
+    }
 
-  try {
-    reward.timesRedeemed = Math.max(0, Number(reward.timesRedeemed ?? 1) - 1);
-    await reward.save();
-  } catch {}
+    try {
+      reward.timesRedeemed = Math.max(0, Number(reward.timesRedeemed ?? 1) - 1);
+      await reward.save();
+    } catch (_error) {
+      void _error;
+    }
 
-  try {
-    await RewardRedemptionModel.findByIdAndDelete(redemption._id);
-  } catch {}
+    try {
+      await RewardRedemptionModel.findByIdAndDelete(redemption._id);
+    } catch (_error) {
+      void _error;
+    }
 
-  throw error;
-}
+    throw error;
+  }
 };
 
 export default {

@@ -2,7 +2,7 @@ import express from 'express';
 import controller from '../controllers/visit';
 import { Schemas, ValidateJoi } from '../middleware/joi';
 import { authenticate, requireRole, requireSelfOrAdmin, requireRestaurantAccess, requireCustomerAccess } from '../middleware/auth';
-
+import { idempotency } from 'express-idempotency';
 
 const router = express.Router();
 
@@ -92,7 +92,7 @@ const router = express.Router();
  *       201:
  *         description: Created
  */
-router.post('/', authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.visit.create), controller.createVisit);
+router.post('/', idempotency(), authenticate, requireRole('admin', 'owner', 'staff'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.visit.create), controller.createVisit);
 
 /**
  * @openapi

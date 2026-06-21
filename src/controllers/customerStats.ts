@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import CustomerStatsService from '../services/customerStats';
 
-const getCustomerStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const getCustomerStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     // Try to get existing stats
@@ -18,7 +18,7 @@ const getCustomerStatistics = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const calculateAndSaveCustomerStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const calculateAndSaveCustomerStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const stats = await CustomerStatsService.calculateAndSaveCustomerStatistics(customer_id);
@@ -31,7 +31,7 @@ const calculateAndSaveCustomerStatistics = async (req: Request, res: Response, n
   }
 };
 
-const recalculateCustomerStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const recalculateCustomerStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { customer_id } = req.params;
   try {
     const stats = await CustomerStatsService.calculateAndSaveCustomerStatistics(customer_id);
@@ -47,5 +47,5 @@ const recalculateCustomerStatistics = async (req: Request, res: Response, next: 
 export default {
   getCustomerStatistics,
   calculateAndSaveCustomerStatistics,
-  recalculateCustomerStatistics,
+  recalculateCustomerStatistics
 };

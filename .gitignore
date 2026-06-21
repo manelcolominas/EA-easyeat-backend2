@@ -1,2 +1,15 @@
-build/
+# Dependencias
 node_modules/
+
+# Variables de entorno
+.env
+
+# Credenciales sensibles (Google Wallet)
+src/config/google-wallet.json
+
+# Logs
+logs/
+*.log
+
+# Sistema
+.DS_Store

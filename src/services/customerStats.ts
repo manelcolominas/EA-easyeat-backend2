@@ -6,36 +6,37 @@ import { Types } from 'mongoose';
 /**
  * Get customer statistics from database
  */
-const getCustomerStatistics = async (customer_id: string) => {
-    return await CustomerStatsModel.findOne({ customer_id }).lean();
+const getCustomerStatistics = async (customer_id: string): Promise<ICustomerStats | null> => {
+  return await CustomerStatsModel.findOne({ customer_id }).lean();
 };
 
 /**
  * Save or update customer statistics
  */
-const saveCustomerStatistics = async (customer_id: string, stats: Partial<ICustomerStats>) => {
-    try {
-        const customerId = new Types.ObjectId(customer_id);
-        return await CustomerStatsModel.findOneAndUpdate(
-            { customer_id: customerId },
-            { ...stats, customer_id: customerId },
-            { upsert: true, new: true, runValidators: true }
-        );
-    } catch (error) {
-        throw new Error(`Failed to save customer statistics: ${error}`);
-    }
+const saveCustomerStatistics = async (customer_id: string, stats: Partial<ICustomerStats>): Promise<ICustomerStats | null> => {
+  try {
+    const customerId = new Types.ObjectId(customer_id);
+    return await CustomerStatsModel.findOneAndUpdate({ customer_id: customerId }, { ...stats, customer_id: customerId }, { upsert: true, new: true, runValidators: true });
+  } catch (error) {
+    const wrappedError = new Error('Failed to save customer statistics') as Error & {
+      cause?: unknown;
+    };
+
+    wrappedError.cause = error;
+    throw wrappedError;
+  }
 };
 
 /**
  * Calculate and save customer statistics
  */
-const calculateAndSaveCustomerStatistics = async (customer_id: string) => {
-    const stats = await calculateAllCustomerStats(customer_id);
-    return await saveCustomerStatistics(customer_id, stats);
+const calculateAndSaveCustomerStatistics = async (customer_id: string): Promise<ICustomerStats | null> => {
+  const stats = await calculateAllCustomerStats(customer_id);
+  return await saveCustomerStatistics(customer_id, stats);
 };
 
 export default {
-    getCustomerStatistics,
-    saveCustomerStatistics,
-    calculateAndSaveCustomerStatistics,
+  getCustomerStatistics,
+  saveCustomerStatistics,
+  calculateAndSaveCustomerStatistics
 };

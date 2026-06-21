@@ -46,7 +46,7 @@ const router = express.Router();
  *         type:
  *           type: string
  *           example: "visit_milestone"
- * 
+ *
  *     PaginatedBadges:
  *       type: object
  *       properties:

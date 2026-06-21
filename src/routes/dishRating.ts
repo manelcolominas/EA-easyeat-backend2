@@ -134,13 +134,7 @@ const router = express.Router();
  *       422:
  *         description: Validation error
  */
-router.post(
-    '/',
-    authenticate,
-    requireRole('customer', 'admin'),
-    ValidateJoi(Schemas.dishRating.create),
-    controller.rateOrUpdateDish
-);
+router.post('/', authenticate, requireRole('customer', 'admin'), ValidateJoi(Schemas.dishRating.create), controller.rateOrUpdateDish);
 
 // --- GET /dish-ratings/dish/:dish_id ----------------------------------------
 

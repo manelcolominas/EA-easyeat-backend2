@@ -21,12 +21,27 @@ export interface IReview {
 
   comment?: string;
   likes?: number;
+  likedBy?: Types.ObjectId[];
 
   // 🔥 NUEVO (soft delete)
   deleted?: boolean;
 
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+// Weaviate interface for AI queries
+export interface IReviewWeaviate {
+  id: string; // MongoDB ObjectId string
+  restaurantId: string; // MongoDB ObjectId string
+  customerId: string; // MongoDB ObjectId string
+  globalRating: number;
+  foodQualityRating?: number;
+  staffServiceRating?: number;
+  cleanlinessRating?: number;
+  environmentRating?: number;
+  comment?: string;
+  createdAt?: Date;
 }
 
 // 2️⃣ Schema
@@ -46,6 +61,7 @@ const reviewSchema = new Schema<IReview>(
     },
     comment: { type: String, trim: true },
     likes: { type: Number, default: 0 },
+    likedBy: [{ type: Schema.Types.ObjectId, ref: 'Customer', default: [] }],
     // 🔥 SOFT DELETE
     deleted: { type: Boolean, default: false }
   },
@@ -55,9 +71,7 @@ const reviewSchema = new Schema<IReview>(
 );
 
 // Evitar duplicados SOLO si no está eliminado
-reviewSchema.index( { customer_id: 1, restaurant_id: 1 },
-  { unique: true, partialFilterExpression: { deleted: false } }
-);
+reviewSchema.index({ customer_id: 1, restaurant_id: 1 }, { unique: true, partialFilterExpression: { deleted: false } });
 
 // Para búsquedas rápidas (paginación/filtros)
 reviewSchema.index({ customer_id: 1, deleted: 1 });
@@ -65,7 +79,6 @@ reviewSchema.index({ restaurant_id: 1, deleted: 1 });
 reviewSchema.index({ employee_id: 1, deleted: 1 });
 reviewSchema.index({ globalRating: -1 });
 reviewSchema.index({ likes: -1 });
-
 
 // 3️⃣ Model
 export const ReviewModel = model<IReview>('Review', reviewSchema);

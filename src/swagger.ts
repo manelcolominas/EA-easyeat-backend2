@@ -8,12 +8,18 @@ const options: Options = {
     info: {
       title: 'EASY-EAT API',
       version: '1.0.0',
-      description: 'REST API for Restaurants and Customers',
+      description: 'REST API for Restaurants and Customers'
     },
     servers: [
       {
-        url: `http://localhost:${config.server.port}`,
+        url: `http://localhost:${config.server.port}`
       },
+      {
+        url: 'https://ea-easyeat-backend2.onrender.com'
+      },
+      {
+        url: 'https://ea2-api.upc.edu'
+      }
     ],
     components: {
       securitySchemes: {
@@ -21,18 +27,18 @@ const options: Options = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'JWT Authorization header using the Bearer scheme',
-        },
-      },
+          description: 'JWT Authorization header using the Bearer scheme'
+        }
+      }
     },
     security: [
       {
-        bearerAuth: [],
-      },
-    ],
+        bearerAuth: []
+      }
+    ]
   },
 
-  apis: [path.join(__dirname, 'routes', '*.js')],
+  apis: [path.join(__dirname, 'routes', '*.js')]
 };
 
 export const swaggerSpec = swaggerJSDoc(options);

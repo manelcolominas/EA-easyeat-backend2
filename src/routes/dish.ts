@@ -91,7 +91,7 @@ const router = express.Router();
  *             updatedAt:
  *               type: string
  *               format: date-time
- * 
+ *
  *     PaginatedDishes:
  *       type: object
  *       properties:
@@ -191,10 +191,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
-    ValidateJoi(Schemas.dish.create),
-    controller.createDish
-);
+router.post('/', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.dish.create), controller.createDish);
 
 // ─── Read all ─────────────────────────────────────────────────────────────────
 
@@ -459,10 +456,7 @@ router.get('/:dish_id/deleted', authenticate, requireRole('admin'), controller.r
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
-    ValidateJoi(Schemas.dish.update),
-    controller.updateDish
-);
+router.put('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), ValidateJoi(Schemas.dish.update), controller.updateDish);
 
 // ─── Delete ───────────────────────────────────────────────────────────────────
 
@@ -505,9 +499,7 @@ router.put('/:dish_id', authenticate, requireRole('admin', 'owner'), requireRest
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:dish_id/soft', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'),
-    controller.softDeleteDish
-);
+router.delete('/:dish_id/soft', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurant_id'), controller.softDeleteDish);
 
 /**
  * @openapi

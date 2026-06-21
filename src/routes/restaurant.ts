@@ -144,7 +144,7 @@ const router = express.Router();
  *           type: array
  *           items:
  *             type: string
- *         reviews: 
+ *         reviews:
  *           type: array
  *           items:
  *             type: string
@@ -159,7 +159,7 @@ const router = express.Router();
  *         updatedAt:
  *           type: string
  *           format: date-time
- * 
+ *
  *     PaginatedRestaurants:
  *       type: object
  *       properties:
@@ -178,7 +178,7 @@ const router = express.Router();
  *               type: integer
  *             totalPages:
  *               type: integer
- * 
+ *
  *     PaginatedCustomers:
  *       type: object
  *       properties:
@@ -313,6 +313,12 @@ router.get('/near-by', controller.getRestaurantsNearby);
  *         schema:
  *           type: integer
  *           default: 10
+ *       - in: query
+ *         name: owner_id
+ *         schema:
+ *           type: string
+ *         description: Filter restaurants by owner ID
+ *         example: "65f1c2a1b2c3d4e5f6783001"
  *     responses:
  *       200:
  *         description: OK
@@ -348,7 +354,7 @@ router.get('/', controller.readAll);
  *             schema:
  *               $ref: '#/components/schemas/PaginatedRestaurants'
  */
-router.get('/deleted', authenticate, requireRole('admin'),controller.readAllDeleted);
+router.get('/deleted', authenticate, requireRole('admin'), controller.readAllDeleted);
 
 /**
  * @openapi
@@ -433,6 +439,35 @@ router.get('/filter', controller.getFiltered);
 
 /**
  * @openapi
+ * /restaurants/search:
+ *   get:
+ *     summary: Searches restaurants by term and rating
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: term
+ *         schema:
+ *           type: string
+ *         description: Search query term
+ *       - in: query
+ *         name: minRating
+ *         schema:
+ *           type: number
+ *         description: Minimum globalRating filter
+ *     responses:
+ *       200:
+ *         description: List of matching restaurants
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Restaurant'
+ */
+router.get('/search', controller.searchRestaurants);
+
+/**
+ * @openapi
  * /restaurants/{restaurantId}:
  *   get:
  *     summary: Gets a restaurant by ID thought for the app mobile
@@ -479,7 +514,7 @@ router.get('/:restaurantId', controller.readRestaurant);
  *       404:
  *         description: Deleted restaurant not found
  */
-router.get('/:restaurantId/deleted', authenticate, requireRole('admin'),controller.readDeletedRestaurant);
+router.get('/:restaurantId/deleted', authenticate, requireRole('admin'), controller.readDeletedRestaurant);
 
 /**
  * @openapi
@@ -927,10 +962,7 @@ router.get('/:restaurantId/badges/deleted', authenticate, requireRole('admin'), 
  *       404:
  *         description: Restaurant not found
  */
-router.get(
-    '/:restaurantId/statistics', authenticate, requireRole('admin', 'owner'),
-    requireRestaurantAccess('restaurantId'), controller.getStatistics
-);
+router.get('/:restaurantId/statistics', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurantId'), controller.getStatistics);
 
 /**
  * @openapi
@@ -970,10 +1002,7 @@ router.get('/:restaurantId/statistics/deleted', authenticate, requireRole('admin
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/employees', authenticate, requireRole('admin', 'owner'),
-    requireRestaurantAccess('restaurantId'),
-    controller.getEmployees
-);
+router.get('/:restaurantId/employees', authenticate, requireRole('admin', 'owner'), requireRestaurantAccess('restaurantId'), controller.getEmployees);
 
 /**
  * @openapi
@@ -1093,7 +1122,7 @@ router.get('/:restaurantId/rewards/deleted', authenticate, requireRole('admin'),
  *       404:
  *         description: Restaurant not found
  */
-router.get('/:restaurantId/visits',     controller.getVisits);
+router.get('/:restaurantId/visits', controller.getVisits);
 
 /**
  * @openapi

@@ -1,160 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Class Diagram</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
-<style>
-  body { margin: 0; padding: 20px; background: #fff; font-family: sans-serif; }
-  h2 { text-align: center; color: #333; }
-  .mermaid { display: flex; justify-content: center; }
-</style>
-</head>
-<body>
-<h2>Database Class Diagram</h2>
-<div class="mermaid">
-classDiagram
-    class Customer {
-        +ObjectId _id
-        +String name
-        +String email
-        +String passwordHash
-        +String[] profilePictures
-        +ObjectId[] pointsWallet
-        +ObjectId[] visitHistory
-        +ObjectId[] favoriteRestaurants
-        +ObjectId[] badges
-        +ObjectId[] reviews
-    }
-
-    class Restaurant {
-        +ObjectId _id
-        +String profile.name
-        +String profile.description
-        +Number profile.globalRating
-        +String[] profile.category
-        +Object profile.timetable
-        +String[] profile.image
-        +Object profile.contact
-        +String profile.location.city
-        +String profile.location.address
-        +String profile.location.googlePlaceId
-        +GeoJSON profile.location.coordinates
-        +ObjectId[] employees
-        +ObjectId[] rewards
-        +ObjectId statistics
-        +ObjectId[] badges
-    }
-
-    class Employee {
-        +ObjectId _id
-        +ObjectId restaurant_id
-        +String profile.name
-        +String profile.email
-        +String profile.phone
-        +String profile.passwordHash
-        +String profile.role
-        +Boolean active
-    }
-
-    class Badge {
-        +ObjectId _id
-        +String title
-        +String description
-        +String type
-    }
-
-    class Review {
-        +ObjectId _id
-        +ObjectId customer_id
-        +ObjectId restaurant_id
-        +Date date
-        +Number ratings.foodQuality
-        +Number ratings.staffService
-        +Number ratings.cleanliness
-        +Number ratings.environment
-        +String comment
-        +String[] photos
-        +Number likes
-        +Number extraPoints
-    }
-
-    class Visit {
-        +ObjectId _id
-        +ObjectId customer_id
-        +ObjectId restaurant_id
-        +Date date
-        +Number pointsEarned
-        +Number billAmount
-    }
-
-    class PointsWallet {
-        +ObjectId _id
-        +ObjectId customer_id
-        +ObjectId restaurant_id
-        +Number points
-    }
-
-    class Reward {
-        +ObjectId _id
-        +ObjectId restaurant_id
-        +String name
-        +String description
-        +Number pointsRequired
-        +Boolean active
-        +Date expiry
-        +Number timesRedeemed
-    }
-
-    class RewardRedemption {
-        +ObjectId _id
-        +ObjectId customer_id
-        +ObjectId restaurant_id
-        +ObjectId reward_id
-        +ObjectId employee_id
-        +Number pointsUsed
-        +String status
-        +Date redeemedAt
-        +String notes
-    }
-
-    class Statistics {
-        +ObjectId _id
-        +ObjectId restaurant_id
-        +Number totalPointsGiven
-        +Number loyalCustomers
-        +ObjectId[] mostRequestedRewards
-        +Number averagePointsPerVisit
-    }
-
-    Customer "1" --> "many" PointsWallet : has
-    Customer "1" --> "many" Visit : has
-    Customer "1" --> "many" Review : writes
-    Customer "many" --> "many" Badge : earns
-    Customer "many" --> "many" Restaurant : favorites
-
-    Restaurant "1" --> "many" Employee : employs
-    Restaurant "1" --> "many" Reward : offers
-    Restaurant "1" --> "1" Statistics : has
-    Restaurant "many" --> "many" Badge : awarded
-
-    PointsWallet "many" --> "1" Restaurant : belongs to
-
-    Visit "many" --> "1" Restaurant : at
-
-    Review "many" --> "1" Restaurant : for
-
-    Reward "many" --> "1" Restaurant : belongs to
-
-    RewardRedemption "many" --> "1" Customer : by
-    RewardRedemption "many" --> "1" Restaurant : at
-    RewardRedemption "many" --> "1" Reward : redeems
-    RewardRedemption "many" --> "1" Employee : approved by
-
-    Statistics "1" --> "many" Reward : tracks
-</div>
-<script>
-  mermaid.initialize({ startOnLoad: true, theme: 'default', classDiagram: { useMaxWidth: true } });
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Class Diagram</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        background: #fff;
+        font-family: sans-serif;
+      }
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+      .mermaid {
+        display: flex;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Database Class Diagram</h2>
+    <div class="mermaid">
+      classDiagram class Customer { +ObjectId _id +String name +String email +String passwordHash +String[] profilePictures +ObjectId[] pointsWallet +ObjectId[] visitHistory +ObjectId[]
+      favoriteRestaurants +ObjectId[] badges +ObjectId[] reviews } class Restaurant { +ObjectId _id +String profile.name +String profile.description +Number profile.globalRating +String[]
+      profile.category +Object profile.timetable +String[] profile.image +Object profile.contact +String profile.location.city +String profile.location.address +String profile.location.googlePlaceId
+      +GeoJSON profile.location.coordinates +ObjectId[] employees +ObjectId[] rewards +ObjectId statistics +ObjectId[] badges } class Employee { +ObjectId _id +ObjectId restaurant_id +String
+      profile.name +String profile.email +String profile.phone +String profile.passwordHash +String profile.role +Boolean active } class Badge { +ObjectId _id +String title +String description +String
+      type } class Review { +ObjectId _id +ObjectId customer_id +ObjectId restaurant_id +Date date +Number ratings.foodQuality +Number ratings.staffService +Number ratings.cleanliness +Number
+      ratings.environment +String comment +String[] photos +Number likes +Number extraPoints } class Visit { +ObjectId _id +ObjectId customer_id +ObjectId restaurant_id +Date date +Number pointsEarned
+      +Number billAmount } class PointsWallet { +ObjectId _id +ObjectId customer_id +ObjectId restaurant_id +Number points } class Reward { +ObjectId _id +ObjectId restaurant_id +String name +String
+      description +Number pointsRequired +Boolean active +Date expiry +Number timesRedeemed } class RewardRedemption { +ObjectId _id +ObjectId customer_id +ObjectId restaurant_id +ObjectId reward_id
+      +ObjectId employee_id +Number pointsUsed +String status +Date redeemedAt +String notes } class Statistics { +ObjectId _id +ObjectId restaurant_id +Number totalPointsGiven +Number loyalCustomers
+      +ObjectId[] mostRequestedRewards +Number averagePointsPerVisit } Customer "1" --> "many" PointsWallet : has Customer "1" --> "many" Visit : has Customer "1" --> "many" Review : writes Customer
+      "many" --> "many" Badge : earns Customer "many" --> "many" Restaurant : favorites Restaurant "1" --> "many" Employee : employs Restaurant "1" --> "many" Reward : offers Restaurant "1" --> "1"
+      Statistics : has Restaurant "many" --> "many" Badge : awarded PointsWallet "many" --> "1" Restaurant : belongs to Visit "many" --> "1" Restaurant : at Review "many" --> "1" Restaurant : for
+      Reward "many" --> "1" Restaurant : belongs to RewardRedemption "many" --> "1" Customer : by RewardRedemption "many" --> "1" Restaurant : at RewardRedemption "many" --> "1" Reward : redeems
+      RewardRedemption "many" --> "1" Employee : approved by Statistics "1" --> "many" Reward : tracks
+    </div>
+    <script>
+      mermaid.initialize({ startOnLoad: true, theme: 'default', classDiagram: { useMaxWidth: true } });
+    </script>
+  </body>
 </html>

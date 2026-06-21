@@ -1,124 +1,52 @@
-import express from 'express';
 import http from 'http';
 import mongoose from 'mongoose';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
 import { Server as SocketIOServer } from 'socket.io';
 
+import app from './app';
 import { config } from './config/config';
 import Logging from './library/logging';
 import { insertData } from './utils/dataSeeder';
-
-import restaurantRoutes from './routes/restaurant';
-import reviewRoutes from './routes/review';
-import customerRoutes from './routes/customer';
-import rewardRoutes from './routes/reward';
-import visitRoutes from './routes/visit';
-import badgeRoutes from './routes/badge';
-import dishRoutes from './routes/dish';
-import employeeRoutes from './routes/employee';
-import pointsWallets from './routes/pointsWallet';
-import rewardRedemption from './routes/rewardRedemption';
-import statistics from './routes/statistics';
-import dishRatingRoutes from './routes/dishRating';
-import authRoutes from './routes/auth';
-import chatRoutes from './routes/chat';
-
-import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from './swagger';
-
+import { initWeaviate } from './services/weaviate-init.service';
 import { ChatService } from './services/chat';
+import { googleWalletService } from './services/googleWallet.service';
 
-const router = express();
+const startServer = async () => {
+  try {
+    await mongoose.connect(config.mongo.url, { retryWrites: true, w: 'majority' });
 
-mongoose
-    .connect(config.mongo.url, { retryWrites: true, w: 'majority' })
-    .then(async () => {
-        Logging.info('Mongo connected successfully.');
-        await insertData();
-        StartServer();
-    })
-    .catch((error) => Logging.error(error));
+    Logging.info('Mongo connected successfully.');
+    try {
+      await initWeaviate();
+      await insertData();
+    } catch (weaviateError) {
+      Logging.error('Weaviate initialization failed, but starting server anyway:');
+      Logging.error(weaviateError);
+    }
 
-const StartServer = () => {
-    router.use((req, res, next) => {
-        Logging.info(
-            `Incomming - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`
-        );
-
-        res.on('finish', () => {
-            Logging.info(
-                `Result - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}] - STATUS: [${res.statusCode}]`
-            );
-        });
-
-        next();
+    // Initialize Google Wallet LoyaltyClass (fire and forget)
+    googleWalletService.createOrUpdateLoyaltyClass().catch((err) => {
+      Logging.error(`Google Wallet Init Error: ${err}`);
     });
 
-    router.use(express.urlencoded({ extended: true }));
-    router.use(express.json());
-    router.use(cookieParser());
-    router.use(cors());
-
-    router.use(
-        '/api',
-        swaggerUi.serve,
-        swaggerUi.setup(swaggerSpec, {
-            swaggerOptions: {
-                persistAuthorization: true,
-            },
-        })
-    );
-
-    router.use('/auth', authRoutes);
-
-    router.get('/ping', (req, res) => {
-        res.status(200).json({ hello: 'world' });
-    });
-
-    router.get('/favicon.ico', (_req, res) => {
-        res.status(204).end();
-    });
-
-    router.use('/restaurants', restaurantRoutes);
-    router.use('/reviews', reviewRoutes);
-    router.use('/customers', customerRoutes);
-    router.use('/rewards', rewardRoutes);
-    router.use('/visits', visitRoutes);
-    router.use('/badges', badgeRoutes);
-    router.use('/dishes', dishRoutes);
-    router.use('/employees', employeeRoutes);
-    router.use('/pointsWallets', pointsWallets);
-    router.use('/rewardRedemptions', rewardRedemption);
-    router.use('/statistics', statistics);
-    router.use('/dish-ratings', dishRatingRoutes);
-    router.use('/chat', chatRoutes);
-
-    router.use((req, res) => {
-        Logging.error(new Error(`Not found: ${req.url}`));
-        res.status(404).json({ message: 'Not found' });
-    });
-
-    const httpServer = http.createServer(router);
+    const httpServer = http.createServer(app);
 
     const io = new SocketIOServer(httpServer, {
-        cors: {
-            origin: '*',
-            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-        },
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+      }
     });
 
     const chatService = new ChatService(io);
     chatService.inicializarSockets();
 
-    httpServer.listen(config.server.port, () => {
-        Logging.info(`Server is running on port ${config.server.port}`);
-    });
-
-    /*
-    // Per provar amb mòbil real a la mateixa xarxa:
+    // Escuchar en '0.0.0.0' para permitir conexiones desde dispositivos de la misma red (como el móvil)
     httpServer.listen(config.server.port, '0.0.0.0', () => {
-        Logging.info(`Server is running on port ${config.server.port}`);
+      Logging.info(`Server is running on port ${config.server.port} (0.0.0.0)`);
     });
-    */
+  } catch (error) {
+    Logging.error(error);
+  }
+
+  startServer();
 };

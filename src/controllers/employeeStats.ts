@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import EmployeeStatsService from '../services/employeeStats';
 
-const getEmployeeStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const getEmployeeStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { employee_id } = req.params;
   try {
     // Try to get existing stats
@@ -18,7 +18,7 @@ const getEmployeeStatistics = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-const calculateAndSaveEmployeeStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const calculateAndSaveEmployeeStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { employee_id } = req.params;
   try {
     const stats = await EmployeeStatsService.calculateAndSaveEmployeeStatistics(employee_id);
@@ -31,7 +31,7 @@ const calculateAndSaveEmployeeStatistics = async (req: Request, res: Response, n
   }
 };
 
-const recalculateEmployeeStatistics = async (req: Request, res: Response, next: NextFunction) => {
+const recalculateEmployeeStatistics = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const { employee_id } = req.params;
   try {
     const stats = await EmployeeStatsService.calculateAndSaveEmployeeStatistics(employee_id);
@@ -47,5 +47,5 @@ const recalculateEmployeeStatistics = async (req: Request, res: Response, next: 
 export default {
   getEmployeeStatistics,
   calculateAndSaveEmployeeStatistics,
-  recalculateEmployeeStatistics,
+  recalculateEmployeeStatistics
 };

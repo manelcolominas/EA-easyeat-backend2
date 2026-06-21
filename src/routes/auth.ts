@@ -99,4 +99,58 @@ router.post('/refresh', controller.refresh);
  */
 router.post('/logout', controller.logout);
 
+/**
+ * @openapi
+ * /auth/login/google:
+ *   post:
+ *     summary: Log in with Google OAuth
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idToken
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *                 description: Google ID token from frontend authentication
+ *     responses:
+ *       200:
+ *         description: Google login successful — returns accessToken in body, refreshToken as httpOnly cookie
+ *       400:
+ *         description: Missing ID token
+ *       401:
+ *         description: Google authentication failed
+ */
+router.post('/login/google', controller.loginGoogle);
+
+/**
+ * @openapi
+ * /auth/register/google:
+ *   post:
+ *     summary: Register with Google OAuth
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idToken
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *                 description: Google ID token from frontend authentication
+ *     responses:
+ *       201:
+ *         description: Google registration successful — returns accessToken in body, refreshToken as httpOnly cookie
+ *       400:
+ *         description: Missing ID token or registration failed
+ */
+router.post('/register/google', controller.registerGoogle);
+
 export default router;

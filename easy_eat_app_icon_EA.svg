@@ -1,0 +1,32 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <clipPath id="iconClip">
+      <rect x="0" y="0" width="1024" height="1024" rx="224"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fons verd triangle superior-esquerra -->
+  <polygon points="0,0 1024,0 0,1024" fill="#18B97A" clip-path="url(#iconClip)"/>
+  <!-- Fons taronja triangle inferior-dreta -->
+  <polygon points="1024,0 1024,1024 0,1024" fill="#E8450A" clip-path="url(#iconClip)"/>
+
+  <!-- Línia diagonal subtil -->
+  <line x1="0" y1="0" x2="1024" y2="1024" stroke="white" stroke-width="4" opacity="0.12" clip-path="url(#iconClip)"/>
+
+  <!-- E -->
+  <text x="38" y="700"
+    font-family="'Arial Black', Arial, sans-serif"
+    font-size="580" font-weight="900"
+    fill="white" opacity="0.97">E</text>
+
+  <!-- Punt central -->
+  <circle cx="512" cy="520" r="34" fill="white" opacity="0.5"/>
+
+  <!-- A -->
+  <text x="490" y="700"
+    font-family="'Arial Black', Arial, sans-serif"
+    font-size="580" font-weight="900"
+    fill="white" opacity="0.97">A</text>
+
+</svg>

@@ -4,5 +4,8 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.wordWrap": "on",
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }
