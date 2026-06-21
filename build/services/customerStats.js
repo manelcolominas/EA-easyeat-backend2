@@ -54,7 +54,9 @@ const saveCustomerStatistics = (customer_id, stats) =>
         runValidators: true
       });
     } catch (error) {
-      throw new Error(`Failed to save customer statistics: ${error}`);
+      const wrappedError = new Error('Failed to save customer statistics');
+      wrappedError.cause = error;
+      throw wrappedError;
     }
   });
 /**

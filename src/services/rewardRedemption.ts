@@ -5,6 +5,7 @@ import { RewardModel } from '../models/reward';
 import { IPointsWallet, PointsWalletModel } from '../models/pointsWallet';
 import { RestaurantModel } from '../models/restaurant';
 import NotificationService from './notification';
+import Logging from '../library/logging';
 
 type RedeemRewardPayload = {
   customer_id: string;
@@ -162,7 +163,7 @@ const redeemReward = async (data: RedeemRewardPayload): Promise<IResponse | null
 
       if (response && response.redemption) {
         triggerRedemptionNotification(response.redemption, response.pointsBefore - response.pointsAfter).catch((err) => {
-          console.error('Error sending redemption notification:', err);
+          Logging.error('Error sending redemption notification:', err);
         });
       }
 
@@ -201,7 +202,7 @@ const triggerRedemptionNotification = async (redemption: any, pointsUsed: number
       }
     });
   } catch (err: any) {
-    console.error('Error sending redemption notification:', err?.message || err);
+    Logging.error('Error sending redemption notification:', err?.message || err);
   }
 };
 
@@ -419,7 +420,7 @@ const redeemRewardWithoutTransaction = async (data: RedeemRewardPayload): Promis
     await redemption.save();
 
     triggerRedemptionNotification(redemption, pointsUsed).catch((err) => {
-      console.error('Error sending redemption notification (no trans):', err);
+      Logging.error('Error sending redemption notification (no trans):', err);
     });
 
     return {

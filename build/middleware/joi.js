@@ -480,6 +480,44 @@ exports.Schemas = {
     update: joi_1.default.object({
       rating: joi_1.default.number().min(0).max(10)
     })
-  }
+  },
+  notification: {
+    create: joi_1.default.object({
+      customer_id: joi_1.default.string().required().messages({ 'string.empty': 'customer_id is required' }),
+      restaurant_id: joi_1.default.string().optional().allow(null),
+      type: joi_1.default.string().valid('points_expiring', 'new_reward', 'new_dish', 'reactivation_offer', 'promotion', 'new_message', 'review_liked', 'points_awarded').required(),
+      title: joi_1.default.string().required().max(100),
+      message: joi_1.default.string().required().max(500),
+      description: joi_1.default.string().optional().max(1000),
+      data: joi_1.default.object().optional()
+    }),
+    update: joi_1.default.object({
+      customer_id: joi_1.default.string().optional(),
+      restaurant_id: joi_1.default.string().optional().allow(null),
+      type: joi_1.default.string().valid('points_expiring', 'new_reward', 'new_dish', 'reactivation_offer', 'promotion', 'new_message', 'review_liked', 'points_awarded').optional(),
+      title: joi_1.default.string().optional().max(100),
+      message: joi_1.default.string().optional().max(500),
+      description: joi_1.default.string().optional().max(1000),
+      data: joi_1.default.object().optional()
+    })
+  },
+  customerDeviceToken: {
+    register: joi_1.default.object({ customer_id: joi_1.default.string().required(), token: joi_1.default.string().required(), platform: joi_1.default.string().valid('android', 'ios', 'web') }),
+    unregister: joi_1.default.object({ token: joi_1.default.string().required() })
+  },
+  report: {
+    createParams: joi_1.default.object({
+      restaurantId: objectId.required()
+    }),
+    create: joi_1.default.object({
+      reason: joi_1.default.string().trim().min(3).max(500).required()
+    })
+  },
+  updateParams: joi_1.default.object({
+    reportId: objectId.required()
+  }),
+  update: joi_1.default.object({
+    reason: joi_1.default.string().trim().min(3).max(500).required()
+  })
 };
 //# sourceMappingURL=joi.js.map

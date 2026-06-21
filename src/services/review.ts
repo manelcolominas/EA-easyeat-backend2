@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { ReviewModel, IReview } from '../models/review';
 import NotificationService from '../services/notification';
+import Logging from '../library/logging';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -165,7 +166,7 @@ const likeReview = async (reviewId: string, userId: string): Promise<IReview> =>
       });
     } catch (err) {
       // swallow notification errors to avoid breaking the like API
-      console.warn('Failed to send review liked notification', (err as any)?.message || err);
+      Logging.error('Failed to send review liked notification', (err as any)?.message || err);
     }
   }
 

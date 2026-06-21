@@ -6,15 +6,16 @@ import { RewardModel } from '../models/reward';
 import { DishModel } from '../models/dish';
 import { CustomerDeviceTokenModel } from '../models/customerDeviceToken';
 import NotificationService from '../services/notification';
+import Logging from '../library/logging';
 
 async function runTest() {
   try {
-    console.log('Connecting to MongoDB...');
+    Logging.info('Connecting to MongoDB...');
     await mongoose.connect(config.mongo.url);
-    console.log('Connected.');
+    Logging.info('Connected.');
 
     // 1. Find a customer with an active device token
-    console.log('Searching for registered customer device tokens...');
+    Logging.info('Searching for registered customer device tokens...');
     const latestTokenRecord = await CustomerDeviceTokenModel.findOne({
       active: true,
       deletedAt: null
@@ -26,12 +27,12 @@ async function runTest() {
     if (latestTokenRecord) {
       targetCustomerId = latestTokenRecord.customer_id;
       deviceToken = latestTokenRecord.token;
-      console.log(`Found active device token for Customer ID: ${targetCustomerId}`);
-      console.log(`Token snippet: ${deviceToken.substring(0, 15)}...`);
+      Logging.info(`Found active device token for Customer ID: ${targetCustomerId}`);
+      Logging.info(`Token snippet: ${deviceToken.substring(0, 15)}...`);
     } else {
-      console.log('⚠️ No active customer device tokens found!');
-      console.log('Please log in as a customer in the Flutter app to register a device token.');
-      console.log('Using a mock customer for testing database insertion only.');
+      Logging.info('⚠️ No active customer device tokens found!');
+      Logging.info('Please log in as a customer in the Flutter app to register a device token.');
+      Logging.info('Using a mock customer for testing database insertion only.');
       // Find any customer, or create a mock
       const anyCustomer = await CustomerModel.findOne({ deletedAt: null });
       if (anyCustomer) {
@@ -50,7 +51,7 @@ async function runTest() {
     // 2. Find or create a restaurant
     let restaurant = await RestaurantModel.findOne();
     if (!restaurant) {
-      console.log('Creating test restaurant...');
+      Logging.info('Creating test restaurant...');
       restaurant = new RestaurantModel({
         profile: {
           name: 'EasyEat Notification Test Restaurant',
@@ -66,12 +67,12 @@ async function runTest() {
       });
       await restaurant.save();
     }
-    console.log(`Using Restaurant: ${restaurant.profile.name} (${restaurant._id})`);
+    Logging.info(`Using Restaurant: ${restaurant.profile.name} (${restaurant._id})`);
 
     // 3. Find or create a reward
     let reward = await RewardModel.findOne({ restaurant_id: restaurant._id });
     if (!reward) {
-      console.log('Creating test reward...');
+      Logging.info('Creating test reward...');
       reward = new RewardModel({
         restaurant_id: restaurant._id,
         name: 'Tapa Gratuïta Test',
@@ -81,12 +82,12 @@ async function runTest() {
       });
       await reward.save();
     }
-    console.log(`Using Reward: ${reward.name} (${reward._id})`);
+    Logging.info(`Using Reward: ${reward.name} (${reward._id})`);
 
     // 4. Find or create a dish
     let dish = await DishModel.findOne({ restaurant_id: restaurant._id });
     if (!dish) {
-      console.log('Creating test dish...');
+      Logging.info('Creating test dish...');
       dish = new DishModel({
         restaurant_id: restaurant._id,
         name: 'Pasta Carbonara Test',
@@ -96,13 +97,13 @@ async function runTest() {
       });
       await dish.save();
     }
-    console.log(`Using Dish: ${dish.name} (${dish._id})`);
+    Logging.info(`Using Dish: ${dish.name} (${dish._id})`);
 
     // 5. Send notifications
-    console.log('\n--- SENDING TEST NOTIFICATIONS ---');
+    Logging.info('\n--- SENDING TEST NOTIFICATIONS ---');
 
     // Scenario 1: New Reward Created
-    console.log('Sending Scenario 1: New Reward...');
+    Logging.info('Sending Scenario 1: New Reward...');
     const notif1 = await NotificationService.createAndSendNotification({
       customer_id: targetCustomerId as any,
       restaurant_id: restaurant._id as any,
@@ -113,10 +114,10 @@ async function runTest() {
         reward_id: reward._id as any
       }
     });
-    console.log(`Notification 1 ID: ${notif1._id}, fcmSent: ${notif1.fcmSent}, fcmError: ${notif1.fcmError}`);
+    Logging.info(`Notification 1 ID: ${notif1._id}, fcmSent: ${notif1.fcmSent}, fcmError: ${notif1.fcmError}`);
 
     // Scenario 2: New Dish Created
-    console.log('Sending Scenario 2: New Dish...');
+    Logging.info('Sending Scenario 2: New Dish...');
     const notif2 = await NotificationService.createAndSendNotification({
       customer_id: targetCustomerId as any,
       restaurant_id: restaurant._id as any,
@@ -127,10 +128,10 @@ async function runTest() {
         dish_id: dish._id as any
       }
     });
-    console.log(`Notification 2 ID: ${notif2._id}, fcmSent: ${notif2.fcmSent}, fcmError: ${notif2.fcmError}`);
+    Logging.info(`Notification 2 ID: ${notif2._id}, fcmSent: ${notif2.fcmSent}, fcmError: ${notif2.fcmError}`);
 
     // Scenario 3: Points Expiring
-    console.log('Sending Scenario 3: Points Expiring...');
+    Logging.info('Sending Scenario 3: Points Expiring...');
     const notif3 = await NotificationService.createAndSendNotification({
       customer_id: targetCustomerId as any,
       restaurant_id: restaurant._id as any,
@@ -142,10 +143,10 @@ async function runTest() {
         expiry_date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) // 7 days from now
       }
     });
-    console.log(`Notification 3 ID: ${notif3._id}, fcmSent: ${notif3.fcmSent}, fcmError: ${notif3.fcmError}`);
+    Logging.info(`Notification 3 ID: ${notif3._id}, fcmSent: ${notif3.fcmSent}, fcmError: ${notif3.fcmError}`);
 
     // Scenario 4: Points Redeemed
-    console.log('Sending Scenario 4: Points Redeemed...');
+    Logging.info('Sending Scenario 4: Points Redeemed...');
     const notif4 = await NotificationService.createAndSendNotification({
       customer_id: targetCustomerId as any,
       restaurant_id: restaurant._id as any,
@@ -157,19 +158,19 @@ async function runTest() {
         points_amount: 50
       }
     });
-    console.log(`Notification 4 ID: ${notif4._id}, fcmSent: ${notif4.fcmSent}, fcmError: ${notif4.fcmError}`);
+    Logging.info(`Notification 4 ID: ${notif4._id}, fcmSent: ${notif4.fcmSent}, fcmError: ${notif4.fcmError}`);
 
-    console.log('\n--- VERIFICATION DONE ---');
+    Logging.info('\n--- VERIFICATION DONE ---');
     if (!latestTokenRecord) {
-      console.log('Note: Notifications saved to MongoDB but FCM was not sent because no active device token was registered.');
+      Logging.info('Note: Notifications saved to MongoDB but FCM was not sent because no active device token was registered.');
     } else {
-      console.log('Check your Flutter app or mobile notification shade. All 4 push notifications should have arrived!');
+      Logging.info('Check your Flutter app or mobile notification shade. All 4 push notifications should have arrived!');
     }
 
     await mongoose.disconnect();
     process.exit(0);
   } catch (error) {
-    console.error('Error running notification verification script:', error);
+    Logging.error('Error running notification verification script:', error);
     process.exit(1);
   }
 }

@@ -9,6 +9,7 @@ const express_1 = __importDefault(require('express'));
 const rewardRedemption_1 = __importDefault(require('../controllers/rewardRedemption'));
 const joi_1 = require('../middleware/joi');
 const auth_1 = require('../middleware/auth');
+const express_idempotency_1 = require('express-idempotency');
 const router = express_1.default.Router();
 /**
  * @openapi
@@ -134,7 +135,14 @@ const router = express_1.default.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner', 'staff'), (0, joi_1.ValidateJoi)(joi_1.Schemas.rewardRedemption.redeem), rewardRedemption_1.default.redeemReward);
+router.post(
+  '/',
+  (0, express_idempotency_1.idempotency)(),
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner', 'staff'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.rewardRedemption.redeem),
+  rewardRedemption_1.default.redeemReward
+);
 /**
  * @openapi
  * /rewardRedemptions/{redemptionId}:

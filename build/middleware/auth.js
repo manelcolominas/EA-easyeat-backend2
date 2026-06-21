@@ -51,6 +51,7 @@ const jwt_1 = require('../utils/jwt');
 const employee_1 = require('../models/employee');
 const mongoose_1 = __importDefault(require('mongoose'));
 const customer_1 = require('../models/customer');
+const logging_1 = __importDefault(require('../library/logging'));
 const normalizeRole = (role) => (typeof role === 'string' ? role.trim().toLowerCase() : '');
 /**
  * Verifies the Bearer access token and attaches the decoded payload to `req.user`.
@@ -67,7 +68,7 @@ const authenticate = (req, res, next) => {
     }
     const decoded = (0, jwt_1.verifyAccessToken)(token);
     if (decoded.type !== 'access') {
-      console.log('AUTH REJECTED: invalid token type', decoded.type);
+      logging_1.default.error('AUTH REJECTED: invalid token type', decoded.type);
       return res.status(401).json({ message: 'Invalid token type' });
     }
     if (
@@ -75,14 +76,14 @@ const authenticate = (req, res, next) => {
       !(decoded === null || decoded === void 0 ? void 0 : decoded.email) ||
       !(decoded === null || decoded === void 0 ? void 0 : decoded.role)
     ) {
-      console.log('AUTH REJECTED: invalid token payload', decoded);
+      logging_1.default.error('AUTH REJECTED: invalid token payload', decoded);
       return res.status(401).json({ message: 'Invalid token payload' });
     }
     decoded.role = normalizeRole(decoded.role);
     req.user = decoded;
     next();
-  } catch (_b) {
-    console.log('AUTH VERIFY FAILED');
+  } catch (error) {
+    logging_1.default.error('AUTH VERIFY FAILED', error);
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
@@ -165,7 +166,7 @@ const requireCustomerAccess = (paramName = 'customer_id') => {
             return next();
           }
         } catch (error) {
-          console.error('Error in requireCustomerAccess:', error);
+          logging_1.default.error('Error in requireCustomerAccess:', error);
           return res.status(500).json({ message: 'Internal server error during authorization' });
         }
       }
@@ -229,7 +230,7 @@ const requireEmployeeOwnerOrSelfOrAdmin = (paramName = 'employee_id') => {
         // Staff / customer / others (not allowed)
         return res.status(403).json({ message: 'Access denied' });
       } catch (err) {
-        console.error('requireEmployeeOwnerOrSelfOrAdmin error:', err);
+        logging_1.default.error('requireEmployeeOwnerOrSelfOrAdmin error:', err);
         return res.status(500).json({ message: 'Server error while checking access' });
       }
     });

@@ -4,6 +4,7 @@ import { EmployeeModel } from '../models/employee';
 import mongoose from 'mongoose';
 import { IJwtPayload } from '../models/JWTPayload';
 import { CustomerModel } from '../models/customer';
+import Logging from '../library/logging';
 
 export interface AuthRequest extends Request {
   user?: IJwtPayload;
@@ -28,12 +29,12 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     const decoded = verifyAccessToken(token);
 
     if (decoded.type !== 'access') {
-      console.log('AUTH REJECTED: invalid token type', decoded.type);
+      Logging.error('AUTH REJECTED: invalid token type', decoded.type);
       return res.status(401).json({ message: 'Invalid token type' });
     }
 
     if (!decoded?.id || !decoded?.email || !decoded?.role) {
-      console.log('AUTH REJECTED: invalid token payload', decoded);
+      Logging.error('AUTH REJECTED: invalid token payload', decoded);
       return res.status(401).json({ message: 'Invalid token payload' });
     }
 
@@ -41,8 +42,8 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 
     req.user = decoded;
     next();
-  } catch {
-    console.log('AUTH VERIFY FAILED');
+  } catch (error) {
+    Logging.error('AUTH VERIFY FAILED', error);
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
@@ -140,7 +141,7 @@ export const requireCustomerAccess = (paramName: string = 'customer_id') => {
           return next();
         }
       } catch (error) {
-        console.error('Error in requireCustomerAccess:', error);
+        Logging.error('Error in requireCustomerAccess:', error);
         return res.status(500).json({ message: 'Internal server error during authorization' });
       }
     }
@@ -215,7 +216,7 @@ export const requireEmployeeOwnerOrSelfOrAdmin = (paramName: string = 'employee_
       // Staff / customer / others (not allowed)
       return res.status(403).json({ message: 'Access denied' });
     } catch (err) {
-      console.error('requireEmployeeOwnerOrSelfOrAdmin error:', err);
+      Logging.error('requireEmployeeOwnerOrSelfOrAdmin error:', err);
       return res.status(500).json({ message: 'Server error while checking access' });
     }
   };

@@ -39,15 +39,53 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const mongoose_1 = __importDefault(require('mongoose'));
 const reward_1 = require('../models/reward');
 const restaurant_1 = require('../models/restaurant');
+const customer_1 = require('../models/customer');
+const pointsWallet_1 = require('../models/pointsWallet');
+const notification_1 = __importDefault(require('./notification'));
+const logging_1 = __importDefault(require('../library/logging'));
 const createReward = (data) =>
   __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const reward = new reward_1.RewardModel(Object.assign({ _id: new mongoose_1.default.Types.ObjectId() }, data));
     const savedReward = yield reward.save();
     // Automatically add the new reward ID to the restaurant's rewards array
     if (data.restaurant_id) {
-      yield restaurant_1.RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
+      const restaurant = yield restaurant_1.RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
         $push: { rewards: savedReward._id }
       });
+      // Send notifications to eligible customers
+      try {
+        const restaurantName = ((_a = restaurant === null || restaurant === void 0 ? void 0 : restaurant.profile) === null || _a === void 0 ? void 0 : _a.name) || 'Restaurant';
+        // Get all customer IDs that have points from this restaurant
+        const walletCustomerIds = yield pointsWallet_1.PointsWalletModel.find({
+          restaurant_id: data.restaurant_id,
+          points: { $gt: 0 }
+        }).distinct('customer_id');
+        // Find active customers who either have this restaurant as a favorite OR have points
+        const targetCustomerIds = yield customer_1.CustomerModel.find({
+          $or: [{ favoriteRestaurants: data.restaurant_id }, { _id: { $in: walletCustomerIds } }],
+          deletedAt: null
+        }).distinct('_id');
+        // Send a notification to each target customer
+        for (const customerId of targetCustomerIds) {
+          try {
+            yield notification_1.default.createAndSendNotification({
+              customer_id: customerId,
+              restaurant_id: data.restaurant_id,
+              type: 'new_reward',
+              title: `Nova recompensa a ${restaurantName}!`,
+              message: `S'ha afegit una nova recompensa: "${savedReward.name}". Aprofita els teus punts!`,
+              data: {
+                reward_id: savedReward._id
+              }
+            });
+          } catch (innerErr) {
+            logging_1.default.error(`Failed to send notification to customer ${customerId}:`, (innerErr === null || innerErr === void 0 ? void 0 : innerErr.message) || innerErr);
+          }
+        }
+      } catch (err) {
+        logging_1.default.error('Error sending reward creation notifications:', (err === null || err === void 0 ? void 0 : err.message) || err);
+      }
     }
     return savedReward;
   });

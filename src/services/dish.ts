@@ -4,6 +4,7 @@ import { RestaurantModel } from '../models/restaurant';
 import { CustomerModel } from '../models/customer';
 import { PointsWalletModel } from '../models/pointsWallet';
 import NotificationService from './notification';
+import Logging from '../library/logging';
 
 const createDish = async (data: Partial<IDish>): Promise<IDish> => {
   const dish = new DishModel({
@@ -48,11 +49,11 @@ const createDish = async (data: Partial<IDish>): Promise<IDish> => {
             }
           });
         } catch (innerErr: any) {
-          console.warn(`Failed to send new dish notification to customer ${customerId}:`, innerErr?.message || innerErr);
+          Logging.error(`Failed to send new dish notification to customer ${customerId}:`, innerErr?.message || innerErr);
         }
       }
     } catch (err: any) {
-      console.error('Error sending new dish notifications:', err?.message || err);
+      Logging.error('Error sending new dish notifications:', err?.message || err);
     }
   }
 

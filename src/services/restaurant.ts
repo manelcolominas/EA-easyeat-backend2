@@ -11,6 +11,7 @@ import { StatisticsModel, IStatistics } from '../models/statistics';
 import { VisitModel, IVisit } from '../models/visit';
 import { insertRestaurantVector, updateRestaurantVector, deleteRestaurantVector } from './weaviate.service';
 import { restaurantToWeaviate } from '../utils/dataToWeaviateData';
+import Logging from '../library/logging';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
@@ -38,7 +39,7 @@ const createRestaurant = async (data: Partial<IRestaurant>): Promise<IRestaurant
 };
 
 const getRestaurantGlobalRating = async (restaurantId: string): Promise<number> => {
-  console.log('restaurantId:', restaurantId);
+  Logging.info('restaurantId:', restaurantId);
 
   const restaurantIdCandidates: Array<string | mongoose.Types.ObjectId> = [restaurantId];
   if (mongoose.Types.ObjectId.isValid(restaurantId)) {
@@ -62,7 +63,7 @@ const getRestaurantGlobalRating = async (restaurantId: string): Promise<number> 
       }
     ]);
 
-    console.log('Aggregation result:', ratingAgg);
+    Logging.info('Aggregation result:', ratingAgg);
 
     if (ratingAgg.length > 0 && ratingAgg[0].averageRating !== null && ratingAgg[0].averageRating !== undefined) {
       return Number(ratingAgg[0].averageRating.toFixed(1));

@@ -38,6 +38,8 @@ var __importDefault =
 Object.defineProperty(exports, '__esModule', { value: true });
 const rewardRedemption_1 = __importDefault(require('../services/rewardRedemption'));
 const pagination_1 = require('../utils/pagination');
+const express_idempotency_1 = require('express-idempotency');
+const logging_1 = __importDefault(require('../library/logging'));
 const createRewardRedemption = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -49,10 +51,16 @@ const createRewardRedemption = (req, res, next) =>
   });
 const redeemReward = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
+    const idempotencyService = (0, express_idempotency_1.getSharedIdempotencyService)();
+    logging_1.default.info(`Idempotency key: ${idempotencyService.extractIdempotencyKeyFromReq(req)}`);
+    if (idempotencyService.isHit(req)) {
+      return;
+    }
     try {
       const result = yield rewardRedemption_1.default.redeemReward(req.body);
       return res.status(201).json(result);
     } catch (error) {
+      yield idempotencyService.reportError(req);
       return res.status((error === null || error === void 0 ? void 0 : error.status) || 500).json({
         message: (error === null || error === void 0 ? void 0 : error.message) || 'Error redeeming reward'
       });

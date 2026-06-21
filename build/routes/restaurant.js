@@ -315,6 +315,12 @@ router.get('/near-by', restaurant_1.default.getRestaurantsNearby);
  *         schema:
  *           type: integer
  *           default: 10
+ *       - in: query
+ *         name: owner_id
+ *         schema:
+ *           type: string
+ *         description: Filter restaurants by owner ID
+ *         example: "65f1c2a1b2c3d4e5f6783001"
  *     responses:
  *       200:
  *         description: OK
@@ -430,6 +436,34 @@ router.get('/deleted', auth_1.authenticate, (0, auth_1.requireRole)('admin'), re
  *         description: Internal server error
  */
 router.get('/filter', restaurant_1.default.getFiltered);
+/**
+ * @openapi
+ * /restaurants/search:
+ *   get:
+ *     summary: Searches restaurants by term and rating
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: query
+ *         name: term
+ *         schema:
+ *           type: string
+ *         description: Search query term
+ *       - in: query
+ *         name: minRating
+ *         schema:
+ *           type: number
+ *         description: Minimum globalRating filter
+ *     responses:
+ *       200:
+ *         description: List of matching restaurants
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Restaurant'
+ */
+router.get('/search', restaurant_1.default.searchRestaurants);
 /**
  * @openapi
  * /restaurants/{restaurantId}:

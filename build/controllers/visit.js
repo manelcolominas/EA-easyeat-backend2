@@ -38,8 +38,15 @@ var __importDefault =
 Object.defineProperty(exports, '__esModule', { value: true });
 const visit_1 = __importDefault(require('../services/visit'));
 const pagination_1 = require('../utils/pagination');
+const express_idempotency_1 = require('express-idempotency');
+const logging_1 = __importDefault(require('../library/logging'));
 const createVisit = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
+    const idempotencyService = (0, express_idempotency_1.getSharedIdempotencyService)();
+    logging_1.default.info(`Idempotency key: ${idempotencyService.extractIdempotencyKeyFromReq(req)}`);
+    if (idempotencyService.isHit(req)) {
+      return;
+    }
     try {
       const savedVisit = yield visit_1.default.createVisit(req.body);
       const response = {
@@ -53,6 +60,7 @@ const createVisit = (req, res, next) =>
       };
       return res.status(201).json(response);
     } catch (error) {
+      yield idempotencyService.reportError(req);
       return res.status(500).json({
         message: error.message || 'Internal Server Error',
         error: process.env.NODE_ENV === 'development' ? error : {}

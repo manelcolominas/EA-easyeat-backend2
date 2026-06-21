@@ -196,8 +196,13 @@ const readDeletedByCustomer = (req, res, next) =>
   });
 const likeReview = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-      const review = yield review_1.default.likeReview(req.params.review_id);
+      const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+      const review = yield review_1.default.likeReview(req.params.review_id, userId);
       return res.status(200).json(review);
     } catch (error) {
       return next(error);

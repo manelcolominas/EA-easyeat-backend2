@@ -6,17 +6,18 @@ import { PointsWalletModel } from '../models/pointsWallet';
 import { NotificationModel } from '../models/notification';
 import { RewardModel } from '../models/reward';
 import RewardService from '../services/reward';
+import Logging from '../library/logging';
 
 async function runTest() {
   try {
-    console.log('Connecting to MongoDB...');
+    Logging.info('Connecting to MongoDB...');
     await mongoose.connect(config.mongo.url);
-    console.log('Connected.');
+    Logging.info('Connected.');
 
     const uniqueSuffix = Date.now();
 
     // 1. Create a test Restaurant
-    console.log('Creating test restaurant...');
+    Logging.info('Creating test restaurant...');
     const restaurant = new RestaurantModel({
       _id: new mongoose.Types.ObjectId(),
       profile: {
@@ -39,7 +40,7 @@ async function runTest() {
       }
     });
     await restaurant.save();
-    console.log(`Restaurant created: ${restaurant.profile.name} (${restaurant._id})`);
+    Logging.info(`Restaurant created: ${restaurant.profile.name} (${restaurant._id})`);
 
     // 2. Create another restaurant for testing isolation
     const otherRestaurant = new RestaurantModel({
@@ -65,7 +66,7 @@ async function runTest() {
     await otherRestaurant.save();
 
     // 3. Create test customers
-    console.log('Creating test customers...');
+    Logging.info('Creating test customers...');
 
     // Customer A: active, has restaurant as favorite
     const customerA = new CustomerModel({
@@ -145,10 +146,10 @@ async function runTest() {
     customerE.pointsWallet = [walletE._id as any];
     await customerE.save();
 
-    console.log('Customers created.');
+    Logging.info('Customers created.');
 
     // 4. Create new reward
-    console.log('Creating new reward to trigger notifications...');
+    Logging.info('Creating new reward to trigger notifications...');
     const rewardName = `Free Tapa ${uniqueSuffix}`;
     const savedReward = await RewardService.createReward({
       restaurant_id: restaurant._id as any,
@@ -157,16 +158,16 @@ async function runTest() {
       pointsRequired: 50,
       active: true
     });
-    console.log(`Reward created: ${savedReward.name} (${savedReward._id})`);
+    Logging.info(`Reward created: ${savedReward.name} (${savedReward._id})`);
 
     // 5. Verify Notifications
-    console.log('Fetching notifications generated for this restaurant...');
+    Logging.info('Fetching notifications generated for this restaurant...');
     const notifications = await NotificationModel.find({
       restaurant_id: restaurant._id,
       type: 'new_reward'
     }).lean();
 
-    console.log(`Found ${notifications.length} notifications.`);
+    Logging.info(`Found ${notifications.length} notifications.`);
 
     const notifiedCustomerIds = notifications.map((n) => n.customer_id.toString());
 
@@ -176,34 +177,34 @@ async function runTest() {
     const hasD = notifiedCustomerIds.includes(customerD._id.toString());
     const hasE = notifiedCustomerIds.includes(customerE._id.toString());
 
-    console.log('\n--- VERIFICATION RESULTS ---');
-    console.log(`Customer A (Favorite) notified: ${hasA} (Expected: true)`);
-    console.log(`Customer B (Points > 0) notified: ${hasB} (Expected: true)`);
-    console.log(`Customer C (Points = 0) notified: ${hasC} (Expected: false)`);
-    console.log(`Customer D (Soft-deleted) notified: ${hasD} (Expected: false)`);
-    console.log(`Customer E (Points on other rest) notified: ${hasE} (Expected: false)`);
+    Logging.info('\n--- VERIFICATION RESULTS ---');
+    Logging.info(`Customer A (Favorite) notified: ${hasA} (Expected: true)`);
+    Logging.info(`Customer B (Points > 0) notified: ${hasB} (Expected: true)`);
+    Logging.info(`Customer C (Points = 0) notified: ${hasC} (Expected: false)`);
+    Logging.info(`Customer D (Soft-deleted) notified: ${hasD} (Expected: false)`);
+    Logging.info(`Customer E (Points on other rest) notified: ${hasE} (Expected: false)`);
 
     let success = true;
     if (!hasA || !hasB || hasC || hasD || hasE) {
-      console.error('❌ TEST FAILED: Notification logic does not match specification!');
+      Logging.error('❌ TEST FAILED: Notification logic does not match specification!');
       success = false;
     } else {
-      console.log('✅ TEST PASSED: Notification logic is fully correct!');
+      Logging.info('✅ TEST PASSED: Notification logic is fully correct!');
     }
 
     // 6. Cleanup
-    console.log('\nCleaning up test data...');
+    Logging.info('\nCleaning up test data...');
     await RewardModel.deleteMany({ restaurant_id: { $in: [restaurant._id, otherRestaurant._id] } });
     await PointsWalletModel.deleteMany({ _id: { $in: [walletB._id, walletC._id, walletD._id, walletE._id] } });
     await CustomerModel.deleteMany({ _id: { $in: [customerA._id, customerB._id, customerC._id, customerD._id, customerE._id] } });
     await NotificationModel.deleteMany({ restaurant_id: { $in: [restaurant._id, otherRestaurant._id] } });
     await RestaurantModel.deleteMany({ _id: { $in: [restaurant._id, otherRestaurant._id] } });
-    console.log('Cleanup complete.');
+    Logging.info('Cleanup complete.');
 
     await mongoose.disconnect();
     process.exit(success ? 0 : 1);
   } catch (error) {
-    console.error('Error running test:', error);
+    Logging.error('Error running test:', error);
     process.exit(1);
   }
 }

@@ -282,7 +282,7 @@ export class ChatService {
     });
 
     this.io.on('connection', (socket: Socket) => {
-      console.log(`Socket connected: ${socket.id}`);
+      Logging.info(`Socket connected: ${socket.id}`);
 
       socket.on('chat:joinConversation', ({ conversationId }: JoinConversationPayload) => {
         if (!conversationId) {
@@ -377,7 +377,7 @@ export class ChatService {
       });
 
       socket.on('disconnect', () => {
-        console.log(`Socket disconnected: ${socket.id}`);
+        Logging.info(`Socket disconnected: ${socket.id}`);
       });
     });
   }

@@ -20,6 +20,12 @@ const options = {
     servers: [
       {
         url: `http://localhost:${config_1.config.server.port}`
+      },
+      {
+        url: 'https://ea-easyeat-backend2.onrender.com'
+      },
+      {
+        url: 'https://ea2-api.upc.edu'
       }
     ],
     components: {
@@ -38,7 +44,7 @@ const options = {
       }
     ]
   },
-  apis: [path_1.default.join(__dirname, 'routes', '*.js')]
+  apis: [path_1.default.join(__dirname, 'routes', '*.{ts,js}').replace(/\\/g, '/')]
 };
 exports.swaggerSpec = (0, swagger_jsdoc_1.default)(options);
 //# sourceMappingURL=swagger.js.map

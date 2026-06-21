@@ -47,17 +47,22 @@ const reward_1 = require('../models/reward');
 const review_1 = require('../models/review');
 const statistics_1 = require('../models/statistics');
 const visit_1 = require('../models/visit');
+const weaviate_service_1 = require('./weaviate.service');
+const dataToWeaviateData_1 = require('../utils/dataToWeaviateData');
+const logging_1 = __importDefault(require('../library/logging'));
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
 // ─────────────────────────────────────────────────────────────────────────────
 const createRestaurant = (data) =>
   __awaiter(void 0, void 0, void 0, function* () {
     const restaurant = new restaurant_1.RestaurantModel(data);
-    return restaurant.save();
+    const result = yield restaurant.save();
+    yield (0, weaviate_service_1.insertRestaurantVector)((0, dataToWeaviateData_1.restaurantToWeaviate)(result));
+    return result;
   });
 const getRestaurantGlobalRating = (restaurantId) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    console.log('restaurantId:', restaurantId);
+    logging_1.default.info('restaurantId:', restaurantId);
     const restaurantIdCandidates = [restaurantId];
     if (mongoose_1.default.Types.ObjectId.isValid(restaurantId)) {
       restaurantIdCandidates.unshift(new mongoose_1.default.Types.ObjectId(restaurantId));
@@ -78,7 +83,7 @@ const getRestaurantGlobalRating = (restaurantId) =>
           }
         }
       ]);
-      console.log('Aggregation result:', ratingAgg);
+      logging_1.default.info('Aggregation result:', ratingAgg);
       if (ratingAgg.length > 0 && ratingAgg[0].averageRating !== null && ratingAgg[0].averageRating !== undefined) {
         return Number(ratingAgg[0].averageRating.toFixed(1));
       }
@@ -104,18 +109,24 @@ const getDeletedRestaurant = (restaurantId) =>
   __awaiter(void 0, void 0, void 0, function* () {
     return restaurant_1.RestaurantModel.findOne({ _id: restaurantId, deletedAt: { $ne: null } }).lean();
   });
-const getAllRestaurants = (skip, limit) =>
+const getAllRestaurants = (skip, limit, ownerId) =>
   __awaiter(void 0, void 0, void 0, function* () {
+    const filter = { deletedAt: null };
+    if (ownerId !== undefined) {
+      if (!mongoose_1.default.Types.ObjectId.isValid(ownerId)) {
+        return { restaurants: [], total: 0 };
+      }
+      filter.owner_id = new mongoose_1.default.Types.ObjectId(ownerId);
+    }
     const [restaurants, total] = yield Promise.all([
-      restaurant_1.RestaurantModel.find()
-        .active()
+      restaurant_1.RestaurantModel.find(filter)
         .select(
           'profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable profile.location.coordinates'
         )
         .skip(skip)
         .limit(limit)
         .lean(),
-      restaurant_1.RestaurantModel.countDocuments({ deletedAt: null })
+      restaurant_1.RestaurantModel.countDocuments(filter)
     ]);
     const formattedRestaurants = restaurants.map((r) => {
       var _a;
@@ -147,7 +158,9 @@ const updateRestaurant = (restaurant_id, data) =>
     const restaurant = yield restaurant_1.RestaurantModel.findById(restaurant_id).active();
     if (!restaurant) return null;
     restaurant.set(data);
-    return restaurant.save();
+    const result = yield restaurant.save();
+    yield (0, weaviate_service_1.updateRestaurantVector)(restaurant_id, (0, dataToWeaviateData_1.restaurantToWeaviate)(data));
+    return result;
   });
 // ─────────────────────────────────────────────────────────────────────────────
 // Delete / restore
@@ -158,11 +171,13 @@ const updateRestaurant = (restaurant_id, data) =>
  */
 const softDeleteRestaurant = (restaurant_id) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    return restaurant_1.RestaurantModel.findOneAndUpdate(
+    const result = restaurant_1.RestaurantModel.findOneAndUpdate(
       { _id: restaurant_id, deletedAt: null }, // guard: only active docs
       { deletedAt: new Date() },
       { new: true }
     ).lean();
+    yield (0, weaviate_service_1.deleteRestaurantVector)(restaurant_id);
+    return result;
   });
 /**
  * Restore: clears deletedAt, making the restaurant active again.
@@ -170,11 +185,13 @@ const softDeleteRestaurant = (restaurant_id) =>
  */
 const restoreRestaurant = (restaurant_id) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    return restaurant_1.RestaurantModel.findOneAndUpdate(
+    const result = restaurant_1.RestaurantModel.findOneAndUpdate(
       { _id: restaurant_id, deletedAt: { $ne: null } }, // guard: only deleted docs
       { deletedAt: null },
       { new: true }
     ).lean();
+    if (result != null) yield (0, weaviate_service_1.insertRestaurantVector)((0, dataToWeaviateData_1.restaurantToWeaviate)(result));
+    return result;
   });
 /**
  * Hard-delete: permanently removes the document.
@@ -182,7 +199,9 @@ const restoreRestaurant = (restaurant_id) =>
  */
 const hardDeleteRestaurant = (restaurant_id) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    return restaurant_1.RestaurantModel.findByIdAndDelete(restaurant_id).lean();
+    const result = restaurant_1.RestaurantModel.findByIdAndDelete(restaurant_id).lean();
+    yield (0, weaviate_service_1.deleteRestaurantVector)(restaurant_id);
+    return result;
   });
 // ─────────────────────────────────────────────────────────────────────────────
 // Read variants
@@ -476,6 +495,22 @@ const getFilteredRestaurants = (params) =>
     }
     return restaurant_1.RestaurantModel.aggregate(pipeline).exec();
   });
+const searchRestaurants = (term, minRating) =>
+  __awaiter(void 0, void 0, void 0, function* () {
+    const filter = { deletedAt: null };
+    if (minRating !== undefined && !isNaN(minRating)) {
+      filter['profile.globalRating'] = { $gte: minRating };
+    }
+    if (term && term.trim().length > 0) {
+      const cleanTerm = term.trim();
+      const searchRegex = new RegExp(cleanTerm, 'i');
+      filter.$or = [{ 'profile.name': searchRegex }, { 'profile.category': searchRegex }, { 'profile.location.city': searchRegex }, { 'profile.location.address': searchRegex }];
+    }
+    return restaurant_1.RestaurantModel.find(filter)
+      .select('profile.name profile.globalRating profile.category profile.image profile.location.city profile.location.address profile.contact profile.description profile.timetable')
+      .limit(30)
+      .lean();
+  });
 // ─────────────────────────────────────────────────────────────────────────────
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
@@ -511,6 +546,7 @@ exports.default = {
   getReviews,
   getDeletedRestaurantReviews,
   updateGlobalRating,
-  getFilteredRestaurants
+  getFilteredRestaurants,
+  searchRestaurants
 };
 //# sourceMappingURL=restaurant.js.map

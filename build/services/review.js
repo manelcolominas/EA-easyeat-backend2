@@ -49,6 +49,8 @@ var __importDefault =
 Object.defineProperty(exports, '__esModule', { value: true });
 const mongoose_1 = __importDefault(require('mongoose'));
 const review_1 = require('../models/review');
+const notification_1 = __importDefault(require('../services/notification'));
+const logging_1 = __importDefault(require('../library/logging'));
 // ─── Filter Constants ─────────────────────────────────────────────────────────
 const ACTIVE_REVIEW_FILTER = { deleted: false };
 const DELETED_REVIEW_FILTER = { deleted: true };
@@ -92,8 +94,8 @@ const getAllDeletedReviews = (skip, limit) =>
   });
 const updateReview = (reviewId, data) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    const { _id, customer_id, restaurant_id } = data,
-      safeData = __rest(data, ['_id', 'customer_id', 'restaurant_id']);
+    const { _id, customer_id, restaurant_id, likes, likedBy } = data,
+      safeData = __rest(data, ['_id', 'customer_id', 'restaurant_id', 'likes', 'likedBy']);
     return review_1.ReviewModel.findOneAndUpdate(Object.assign({ _id: reviewId }, ACTIVE_REVIEW_FILTER), safeData, { new: true, runValidators: true }).lean();
   });
 // ─── Delete / Restore ─────────────────────────────────────────────────────────
@@ -156,9 +158,34 @@ const getDeletedReviewsByCustomer = (customerId_1, skip_1, limit_1, ...args_1) =
     return { reviews, total };
   });
 // ─── Like ─────────────────────────────────────────────────────────────────────
-const likeReview = (reviewId) =>
+const likeReview = (reviewId, userId) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    return review_1.ReviewModel.findOneAndUpdate(Object.assign({ _id: reviewId }, ACTIVE_REVIEW_FILTER), { $inc: { likes: 1 } }, { new: true }).lean();
+    const userObjectId = new mongoose_1.default.Types.ObjectId(userId);
+    // Check if user has already liked this review
+    const exists = yield review_1.ReviewModel.findOne(Object.assign({ _id: reviewId, likedBy: userObjectId }, ACTIVE_REVIEW_FILTER));
+    const updateQuery = exists ? { $inc: { likes: -1 }, $pull: { likedBy: userObjectId } } : { $inc: { likes: 1 }, $addToSet: { likedBy: userObjectId } };
+    // Update likes and likedBy array
+    const updated = yield review_1.ReviewModel.findOneAndUpdate(Object.assign({ _id: reviewId }, ACTIVE_REVIEW_FILTER), updateQuery, { new: true }).lean();
+    // If update succeeded, send a notification (best-effort)
+    if (updated && !exists) {
+      try {
+        yield notification_1.default.createAndSendNotification({
+          // Cast ids to any so typing differences (ObjectId vs string) don't fail here
+          customer_id: updated.customer_id,
+          restaurant_id: updated.restaurant_id,
+          type: 'review_liked',
+          title: 'La teva review ha rebut un like',
+          message: 'Algú ha valorat positivament la teva opinió.',
+          data: {
+            review_id: updated._id
+          }
+        });
+      } catch (err) {
+        // swallow notification errors to avoid breaking the like API
+        logging_1.default.error('Failed to send review liked notification', (err === null || err === void 0 ? void 0 : err.message) || err);
+      }
+    }
+    return updated;
   });
 // ─── Exports ──────────────────────────────────────────────────────────────────
 exports.default = {
