@@ -17,7 +17,7 @@ export class WalletController {
 
       // Find the user to get their data
       const user = await CustomerModel.findById(userId).active();
-      
+
       if (!user) {
         return res.status(404).json({ message: 'User not found or deleted' });
       }

@@ -1,12 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const dish_1 = __importDefault(require("../controllers/dish"));
-const joi_1 = require("../middleware/joi");
-const auth_1 = require("../middleware/auth");
+'use strict';
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
+const express_1 = __importDefault(require('express'));
+const dish_1 = __importDefault(require('../controllers/dish'));
+const joi_1 = require('../middleware/joi');
+const auth_1 = require('../middleware/auth');
 const router = express_1.default.Router();
 /**
  * @openapi
@@ -191,7 +193,14 @@ const router = express_1.default.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), (0, joi_1.ValidateJoi)(joi_1.Schemas.dish.create), dish_1.default.createDish);
+router.post(
+  '/',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.dish.create),
+  dish_1.default.createDish
+);
 // ─── Read all ─────────────────────────────────────────────────────────────────
 /**
  * @openapi
@@ -446,7 +455,14 @@ router.get('/:dish_id/deleted', auth_1.authenticate, (0, auth_1.requireRole)('ad
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:dish_id', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), (0, joi_1.ValidateJoi)(joi_1.Schemas.dish.update), dish_1.default.updateDish);
+router.put(
+  '/:dish_id',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.dish.update),
+  dish_1.default.updateDish
+);
 // ─── Delete ───────────────────────────────────────────────────────────────────
 /**
  * @openapi

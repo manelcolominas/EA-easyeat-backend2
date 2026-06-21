@@ -1,13 +1,15 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const customer_1 = __importDefault(require("../controllers/customer"));
-const customerStats_1 = __importDefault(require("../controllers/customerStats"));
-const joi_1 = require("../middleware/joi");
-const auth_1 = require("../middleware/auth");
+'use strict';
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
+const express_1 = __importDefault(require('express'));
+const customer_1 = __importDefault(require('../controllers/customer'));
+const customerStats_1 = __importDefault(require('../controllers/customerStats'));
+const joi_1 = require('../middleware/joi');
+const auth_1 = require('../middleware/auth');
 const router = express_1.default.Router();
 /**
  * Middleware personalizado para clientes.
@@ -24,21 +26,24 @@ const router = express_1.default.Router();
  * necesita poder ver la ficha completa de los clientes.
  */
 const requireCustomerSelfOrDashboardUser = (paramName) => {
-    return (req, res, next) => {
-        var _a, _b, _c, _d, _e, _f;
-        const customerId = req.params[paramName];
-        const user = req.user;
-        const userId = ((_b = (_a = user === null || user === void 0 ? void 0 : user._id) === null || _a === void 0 ? void 0 : _a.toString) === null || _b === void 0 ? void 0 : _b.call(_a)) || ((_d = (_c = user === null || user === void 0 ? void 0 : user.id) === null || _c === void 0 ? void 0 : _c.toString) === null || _d === void 0 ? void 0 : _d.call(_c)) || ((_f = (_e = user === null || user === void 0 ? void 0 : user.userId) === null || _e === void 0 ? void 0 : _e.toString) === null || _f === void 0 ? void 0 : _f.call(_e));
-        const userRole = user === null || user === void 0 ? void 0 : user.role;
-        const isSameCustomer = userId === customerId;
-        const isDashboardUser = ['admin', 'owner', 'employee', 'staff'].includes(userRole);
-        if (isSameCustomer || isDashboardUser) {
-            return next();
-        }
-        return res.status(403).json({
-            message: 'Access denied: You can only access your own data'
-        });
-    };
+  return (req, res, next) => {
+    var _a, _b, _c, _d, _e, _f;
+    const customerId = req.params[paramName];
+    const user = req.user;
+    const userId =
+      ((_b = (_a = user === null || user === void 0 ? void 0 : user._id) === null || _a === void 0 ? void 0 : _a.toString) === null || _b === void 0 ? void 0 : _b.call(_a)) ||
+      ((_d = (_c = user === null || user === void 0 ? void 0 : user.id) === null || _c === void 0 ? void 0 : _c.toString) === null || _d === void 0 ? void 0 : _d.call(_c)) ||
+      ((_f = (_e = user === null || user === void 0 ? void 0 : user.userId) === null || _e === void 0 ? void 0 : _e.toString) === null || _f === void 0 ? void 0 : _f.call(_e));
+    const userRole = user === null || user === void 0 ? void 0 : user.role;
+    const isSameCustomer = userId === customerId;
+    const isDashboardUser = ['admin', 'owner', 'employee', 'staff'].includes(userRole);
+    if (isSameCustomer || isDashboardUser) {
+      return next();
+    }
+    return res.status(403).json({
+      message: 'Access denied: You can only access your own data'
+    });
+  };
 };
 /**
  * @openapi

@@ -1,13 +1,15 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const employee_1 = __importDefault(require("../controllers/employee"));
-const employeeStats_1 = __importDefault(require("../controllers/employeeStats"));
-const joi_1 = require("../middleware/joi");
-const auth_1 = require("../middleware/auth");
+'use strict';
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
+const express_1 = __importDefault(require('express'));
+const employee_1 = __importDefault(require('../controllers/employee'));
+const employeeStats_1 = __importDefault(require('../controllers/employeeStats'));
+const joi_1 = require('../middleware/joi');
+const auth_1 = require('../middleware/auth');
 const router = express_1.default.Router();
 /**
  * @openapi
@@ -153,7 +155,13 @@ router.get('/deleted', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'ow
  *       200:
  *         description: OK
  */
-router.get('/restaurant/:restaurant_id', auth_1.authenticate, (0, auth_1.requireRole)('owner', 'admin', 'staff'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), employee_1.default.readByRestaurant);
+router.get(
+  '/restaurant/:restaurant_id',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('owner', 'admin', 'staff'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  employee_1.default.readByRestaurant
+);
 /**
  * @openapi
  * /employees/restaurant/{restaurant_id}/stats:
@@ -171,7 +179,13 @@ router.get('/restaurant/:restaurant_id', auth_1.authenticate, (0, auth_1.require
  *       200:
  *         description: OK
  */
-router.get('/restaurant/:restaurant_id/stats', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner', 'employee', 'staff'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), employee_1.default.getEmployeesByRestaurantStats);
+router.get(
+  '/restaurant/:restaurant_id/stats',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner', 'employee', 'staff'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  employee_1.default.getEmployeesByRestaurantStats
+);
 /**
  * @openapi
  * /employees/restaurant/{restaurant_id}/statistics:
@@ -190,7 +204,14 @@ router.get('/restaurant/:restaurant_id/stats', auth_1.authenticate, (0, auth_1.r
  *       200:
  *         description: OK
  */
-router.get('/restaurant/:restaurant_id/statistics', auth_1.authenticate, (0, auth_1.requireRole)('owner', 'admin', 'staff'), (0, auth_1.requireSelfOrAdmin)('employee_id'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), employeeStats_1.default.getEmployeeStatistics);
+router.get(
+  '/restaurant/:restaurant_id/statistics',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('owner', 'admin', 'staff'),
+  (0, auth_1.requireSelfOrAdmin)('employee_id'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  employeeStats_1.default.getEmployeeStatistics
+);
 /**
  * @openapi
  * /employees/{employee_id}/statistics:
@@ -209,7 +230,13 @@ router.get('/restaurant/:restaurant_id/statistics', auth_1.authenticate, (0, aut
  *       200:
  *         description: OK
  */
-router.get('/:employee_id/statistics', auth_1.authenticate, (0, auth_1.requireRole)('owner', 'admin', 'staff'), (0, auth_1.requireSelfOrAdmin)('employee_id'), employeeStats_1.default.getEmployeeStatistics);
+router.get(
+  '/:employee_id/statistics',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('owner', 'admin', 'staff'),
+  (0, auth_1.requireSelfOrAdmin)('employee_id'),
+  employeeStats_1.default.getEmployeeStatistics
+);
 /**
  * @openapi
  * /employees/restaurant/{restaurant_id}/deleted:
@@ -220,7 +247,13 @@ router.get('/:employee_id/statistics', auth_1.authenticate, (0, auth_1.requireRo
  *       200:
  *         description: OK
  */
-router.get('/restaurant/:restaurant_id/deleted', auth_1.authenticate, (0, auth_1.requireRole)('owner', 'admin', 'staff'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), employee_1.default.readDeletedByRestaurant);
+router.get(
+  '/restaurant/:restaurant_id/deleted',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('owner', 'admin', 'staff'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  employee_1.default.readDeletedByRestaurant
+);
 /**
  * @openapi
  * /employees/{employee_id}:

@@ -48,4 +48,5 @@ const startServer = async () => {
     Logging.error(error);
   }
 
-startServer();
+  startServer();
+};

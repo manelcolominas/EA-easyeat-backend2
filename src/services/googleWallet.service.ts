@@ -80,9 +80,7 @@ export class GoogleWalletService {
 
       Logging.info(`Successfully created Google Wallet LoyaltyClass ${this.classId}.`);
     } catch (error: any) {
-      const responseInfo = error.response
-        ? `status=${error.response.status} statusText=${error.response.statusText} data=${JSON.stringify(error.response.data)}`
-        : 'no response data';
+      const responseInfo = error.response ? `status=${error.response.status} statusText=${error.response.statusText} data=${JSON.stringify(error.response.data)}` : 'no response data';
       Logging.error(`Error creating LoyaltyClass: ${error} ${responseInfo}`);
     }
   }
@@ -92,7 +90,7 @@ export class GoogleWalletService {
    */
   public async createOrUpdateLoyaltyObject(user: ICustomer): Promise<string> {
     const objectId = `${config.google.wallet.issuerId}.${user._id}`;
-    
+
     try {
       const client = await this.auth.getClient();
       const url = `https://walletobjects.googleapis.com/walletobjects/v1/loyaltyObject`;
@@ -135,9 +133,7 @@ export class GoogleWalletService {
       Logging.info(`Successfully created Google Wallet LoyaltyObject ${objectId}.`);
       return objectId;
     } catch (error: any) {
-      const responseInfo = error.response
-        ? `status=${error.response.status} statusText=${error.response.statusText} data=${JSON.stringify(error.response.data)}`
-        : 'no response data';
+      const responseInfo = error.response ? `status=${error.response.status} statusText=${error.response.statusText} data=${JSON.stringify(error.response.data)}` : 'no response data';
       Logging.error(`Error creating LoyaltyObject: ${error} ${responseInfo}`);
       throw error;
     }
@@ -180,7 +176,7 @@ export class GoogleWalletService {
     };
 
     const token = jwt.sign(claims, credentials.private_key, { algorithm: 'RS256' });
-    
+
     return `https://pay.google.com/gp/v/save/${token}`;
   }
 }

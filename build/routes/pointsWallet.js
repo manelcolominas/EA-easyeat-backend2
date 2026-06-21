@@ -1,12 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const pointsWallet_1 = __importDefault(require("../controllers/pointsWallet"));
-const joi_1 = require("../middleware/joi");
-const auth_1 = require("../middleware/auth");
+'use strict';
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
+const express_1 = __importDefault(require('express'));
+const pointsWallet_1 = __importDefault(require('../controllers/pointsWallet'));
+const joi_1 = require('../middleware/joi');
+const auth_1 = require('../middleware/auth');
 const router = express_1.default.Router();
 /**
  * @openapi
@@ -91,7 +93,14 @@ const router = express_1.default.Router();
  *       422:
  *         description: Validation failed (Joi)
  */
-router.post('/', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner', 'staff'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), (0, joi_1.ValidateJoi)(joi_1.Schemas.pointsWallet.create), pointsWallet_1.default.createPointsWallet);
+router.post(
+  '/',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner', 'staff'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.pointsWallet.create),
+  pointsWallet_1.default.createPointsWallet
+);
 /**
  * @openapi
  * /pointsWallets:
@@ -167,7 +176,14 @@ router.get('/:walletId', auth_1.authenticate, (0, auth_1.requireRole)('admin', '
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:walletId', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner', 'staff'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), (0, joi_1.ValidateJoi)(joi_1.Schemas.pointsWallet.update), pointsWallet_1.default.updatePointsWallet);
+router.put(
+  '/:walletId',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner', 'staff'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.pointsWallet.update),
+  pointsWallet_1.default.updatePointsWallet
+);
 /**
  * @openapi
  * /pointsWallets/{walletId}:

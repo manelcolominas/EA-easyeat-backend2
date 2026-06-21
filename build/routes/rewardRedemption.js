@@ -1,12 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const rewardRedemption_1 = __importDefault(require("../controllers/rewardRedemption"));
-const joi_1 = require("../middleware/joi");
-const auth_1 = require("../middleware/auth");
+'use strict';
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
+const express_1 = __importDefault(require('express'));
+const rewardRedemption_1 = __importDefault(require('../controllers/rewardRedemption'));
+const joi_1 = require('../middleware/joi');
+const auth_1 = require('../middleware/auth');
 const router = express_1.default.Router();
 /**
  * @openapi
@@ -330,7 +332,13 @@ router.get('/reward/:reward_id', auth_1.authenticate, (0, auth_1.requireRole)('a
  *       422:
  *         description: Validation failed (Joi)
  */
-router.patch('/:redemptionId/status', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner', 'staff'), (0, joi_1.ValidateJoi)(joi_1.Schemas.rewardRedemption.updateStatus), rewardRedemption_1.default.updateStatus);
+router.patch(
+  '/:redemptionId/status',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner', 'staff'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.rewardRedemption.updateStatus),
+  rewardRedemption_1.default.updateStatus
+);
 /**
  * @openapi
  * /rewardRedemptions/{redemptionId}:
@@ -358,7 +366,14 @@ router.patch('/:redemptionId/status', auth_1.authenticate, (0, auth_1.requireRol
  *       422:
  *         description: Validation failed (Joi)
  */
-router.put('/:redemptionId', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner', 'staff'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), (0, joi_1.ValidateJoi)(joi_1.Schemas.rewardRedemption.update), rewardRedemption_1.default.updateRewardRedemption);
+router.put(
+  '/:redemptionId',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner', 'staff'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.rewardRedemption.update),
+  rewardRedemption_1.default.updateRewardRedemption
+);
 /**
  * @openapi
  * /rewardRedemptions/{redemptionId}:

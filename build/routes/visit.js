@@ -1,12 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const visit_1 = __importDefault(require("../controllers/visit"));
-const joi_1 = require("../middleware/joi");
-const auth_1 = require("../middleware/auth");
+'use strict';
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
+const express_1 = __importDefault(require('express'));
+const visit_1 = __importDefault(require('../controllers/visit'));
+const joi_1 = require('../middleware/joi');
+const auth_1 = require('../middleware/auth');
 const router = express_1.default.Router();
 /**
  * @openapi
@@ -93,7 +95,14 @@ const router = express_1.default.Router();
  *       201:
  *         description: Created
  */
-router.post('/', auth_1.authenticate, (0, auth_1.requireRole)('admin', 'owner', 'staff'), (0, auth_1.requireRestaurantAccess)('restaurant_id'), (0, joi_1.ValidateJoi)(joi_1.Schemas.visit.create), visit_1.default.createVisit);
+router.post(
+  '/',
+  auth_1.authenticate,
+  (0, auth_1.requireRole)('admin', 'owner', 'staff'),
+  (0, auth_1.requireRestaurantAccess)('restaurant_id'),
+  (0, joi_1.ValidateJoi)(joi_1.Schemas.visit.create),
+  visit_1.default.createVisit
+);
 /**
  * @openapi
  * /visits:
