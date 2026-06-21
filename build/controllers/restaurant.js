@@ -84,7 +84,9 @@ const readAll = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
     try {
       const { page, limit, skip } = (0, pagination_1.getPaginationOptions)(req.query);
-      const { restaurants, total } = yield restaurant_js_1.default.getAllRestaurants(skip, limit);
+      // TODO: future security improvement may validate owner_id against the authenticated owner in req.user.
+      const ownerId = typeof req.query.owner_id === 'string' ? req.query.owner_id : undefined;
+      const { restaurants, total } = yield restaurant_js_1.default.getAllRestaurants(skip, limit, ownerId);
       return res.status(200).json({
         data: restaurants,
         meta: { total, page, limit, totalPages: Math.ceil(total / limit) }
@@ -449,6 +451,17 @@ const getDeletedRestaurantReviews = (req, res, next) =>
       return res.status(500).json({ error });
     }
   });
+const searchRestaurants = (req, res, next) =>
+  __awaiter(void 0, void 0, void 0, function* () {
+    try {
+      const { term, minRating } = req.query;
+      const ratingNum = minRating ? parseFloat(minRating) : undefined;
+      const restaurants = yield restaurant_js_1.default.searchRestaurants(typeof term === 'string' ? term : undefined, ratingNum);
+      return res.status(200).json(restaurants);
+    } catch (error) {
+      return res.status(500).json({ error });
+    }
+  });
 // ─────────────────────────────────────────────────────────────────────────────
 // Exports
 // ─────────────────────────────────────────────────────────────────────────────
@@ -483,6 +496,7 @@ exports.default = {
   getVisits,
   getDeletedRestaurantVisits,
   getReviews,
-  getDeletedRestaurantReviews
+  getDeletedRestaurantReviews,
+  searchRestaurants
 };
 //# sourceMappingURL=restaurant.js.map

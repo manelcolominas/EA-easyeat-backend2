@@ -31,6 +31,7 @@ const report_1 = __importDefault(require('./routes/report'));
 const notification_1 = __importDefault(require('./routes/notification'));
 const customerDeviceToken_1 = __importDefault(require('./routes/customerDeviceToken'));
 const generate_1 = __importDefault(require('./routes/generate'));
+const wallet_1 = __importDefault(require('./routes/wallet'));
 const app = (0, express_1.default)();
 const corsOptions = {
   origin: config_1.config.cors.origins,
@@ -84,6 +85,7 @@ app.use('/', report_1.default);
 app.use('/notifications', notification_1.default);
 app.use('/customerDeviceTokens', customerDeviceToken_1.default);
 app.use('/llm', generate_1.default);
+app.use('/wallet', wallet_1.default);
 app.use((req, res) => {
   logging_1.default.error(new Error(`Not found: ${req.url}`));
   res.status(404).json({ message: 'Not found' });

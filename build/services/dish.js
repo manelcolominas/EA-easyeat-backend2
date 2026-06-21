@@ -39,14 +39,51 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const mongoose_1 = __importDefault(require('mongoose'));
 const dish_1 = require('../models/dish');
 const restaurant_1 = require('../models/restaurant');
+const customer_1 = require('../models/customer');
+const pointsWallet_1 = require('../models/pointsWallet');
+const notification_1 = __importDefault(require('./notification'));
 const createDish = (data) =>
   __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const dish = new dish_1.DishModel(Object.assign({ _id: new mongoose_1.default.Types.ObjectId() }, data));
     const savedDish = yield dish.save();
     if (data.restaurant_id) {
-      yield restaurant_1.RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
+      const restaurant = yield restaurant_1.RestaurantModel.findByIdAndUpdate(data.restaurant_id, {
         $push: { dishes: savedDish._id }
       });
+      // Send notifications to eligible customers
+      try {
+        const restaurantName = ((_a = restaurant === null || restaurant === void 0 ? void 0 : restaurant.profile) === null || _a === void 0 ? void 0 : _a.name) || 'Restaurant';
+        // Get all customer IDs that have points from this restaurant
+        const walletCustomerIds = yield pointsWallet_1.PointsWalletModel.find({
+          restaurant_id: data.restaurant_id,
+          points: { $gt: 0 }
+        }).distinct('customer_id');
+        // Find active customers who either have this restaurant as a favorite OR have points
+        const targetCustomerIds = yield customer_1.CustomerModel.find({
+          $or: [{ favoriteRestaurants: data.restaurant_id }, { _id: { $in: walletCustomerIds } }],
+          deletedAt: null
+        }).distinct('_id');
+        // Send a notification to each target customer
+        for (const customerId of targetCustomerIds) {
+          try {
+            yield notification_1.default.createAndSendNotification({
+              customer_id: customerId,
+              restaurant_id: data.restaurant_id,
+              type: 'new_dish',
+              title: `Nou plat a ${restaurantName}!`,
+              message: `S'ha afegit un nou plat: "${savedDish.name}". Vine a provar-lo!`,
+              data: {
+                dish_id: savedDish._id
+              }
+            });
+          } catch (innerErr) {
+            console.warn(`Failed to send new dish notification to customer ${customerId}:`, (innerErr === null || innerErr === void 0 ? void 0 : innerErr.message) || innerErr);
+          }
+        }
+      } catch (err) {
+        console.error('Error sending new dish notifications:', (err === null || err === void 0 ? void 0 : err.message) || err);
+      }
     }
     return savedDish;
   });

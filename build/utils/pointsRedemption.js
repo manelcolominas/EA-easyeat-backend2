@@ -164,7 +164,7 @@ const pointsRedemption = (data) =>
       pointsPerEuro: 10,
       maxPointsVisit: restaurant.profile.maxPointsVisit || 500
     };
-    let pointsToAssign = 0;
+    let pointsToAssign;
     if (pointsSystem.method === 'simple') {
       pointsToAssign = Math.floor((billAmount !== null && billAmount !== void 0 ? billAmount : 0) * (pointsSystem.pointsPerEuro || 10));
     } else {

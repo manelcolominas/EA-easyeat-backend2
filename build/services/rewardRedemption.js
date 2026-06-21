@@ -41,6 +41,8 @@ const rewardRedemption_1 = require('../models/rewardRedemption');
 const customer_1 = require('../models/customer');
 const reward_1 = require('../models/reward');
 const pointsWallet_1 = require('../models/pointsWallet');
+const restaurant_1 = require('../models/restaurant');
+const notification_1 = __importDefault(require('./notification'));
 const buildError = (status, message) => {
   const error = new Error(message);
   error.status = status;
@@ -69,7 +71,7 @@ const redeemReward = (data) =>
   __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
     try {
-      let response = null;
+      let response;
       try {
         yield session.withTransaction(() =>
           __awaiter(void 0, void 0, void 0, function* () {
@@ -146,6 +148,11 @@ const redeemReward = (data) =>
             };
           })
         );
+        if (response && response.redemption) {
+          triggerRedemptionNotification(response.redemption, response.pointsBefore - response.pointsAfter).catch((err) => {
+            console.error('Error sending redemption notification:', err);
+          });
+        }
         return response;
       } catch (error) {
         if (isTransactionUnsupportedError(error)) {
@@ -155,6 +162,31 @@ const redeemReward = (data) =>
       }
     } finally {
       yield session.endSession();
+    }
+  });
+const triggerRedemptionNotification = (redemption, pointsUsed) =>
+  __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+      const customer = yield customer_1.CustomerModel.findById(redemption.customer_id);
+      if (!customer) return;
+      const reward = yield reward_1.RewardModel.findById(redemption.reward_id);
+      if (!reward) return;
+      const restaurant = yield restaurant_1.RestaurantModel.findById(redemption.restaurant_id);
+      const restaurantName = ((_a = restaurant === null || restaurant === void 0 ? void 0 : restaurant.profile) === null || _a === void 0 ? void 0 : _a.name) || 'Restaurant';
+      yield notification_1.default.createAndSendNotification({
+        customer_id: customer._id,
+        restaurant_id: redemption.restaurant_id,
+        type: 'points_awarded',
+        title: 'Recompensa bescanviada!',
+        message: `Has bescanviat ${pointsUsed} punts per la recompensa "${reward.name}" a ${restaurantName}.`,
+        data: {
+          reward_id: reward._id,
+          points_amount: pointsUsed
+        }
+      });
+    } catch (err) {
+      console.error('Error sending redemption notification:', (err === null || err === void 0 ? void 0 : err.message) || err);
     }
   });
 const getRewardRedemption = (redemptionId) =>
@@ -341,6 +373,9 @@ const redeemRewardWithoutTransaction = (data) =>
       redemption.status = 'redeemed';
       redemption.redeemedAt = new Date();
       yield redemption.save();
+      triggerRedemptionNotification(redemption, pointsUsed).catch((err) => {
+        console.error('Error sending redemption notification (no trans):', err);
+      });
       return {
         message: 'Reward redeemed successfully (without transaction)',
         redemption,
@@ -352,14 +387,20 @@ const redeemRewardWithoutTransaction = (data) =>
       try {
         wallet.points = pointsBefore;
         yield wallet.save();
-      } catch (_c) {}
+      } catch (_error) {
+        void _error;
+      }
       try {
         reward.timesRedeemed = Math.max(0, Number((_b = reward.timesRedeemed) !== null && _b !== void 0 ? _b : 1) - 1);
         yield reward.save();
-      } catch (_d) {}
+      } catch (_error) {
+        void _error;
+      }
       try {
         yield rewardRedemption_1.RewardRedemptionModel.findByIdAndDelete(redemption._id);
-      } catch (_e) {}
+      } catch (_error) {
+        void _error;
+      }
       throw error;
     }
   });

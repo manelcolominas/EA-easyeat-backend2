@@ -42,6 +42,11 @@ const fs_1 = __importDefault(require('fs'));
 const path_1 = __importDefault(require('path'));
 const bcrypt_1 = __importDefault(require('bcrypt'));
 const logging_1 = __importDefault(require('../library/logging'));
+// Weaviate imports
+const weaviate_service_1 = require('../services/weaviate.service');
+const dataToWeaviateData_1 = require('./dataToWeaviateData');
+const weaviate_init_service_1 = require('../services/weaviate-init.service');
+const weaviate_1 = require('../config/weaviate');
 // Import all models
 const restaurant_1 = require('../models/restaurant');
 const review_1 = require('../models/review');
@@ -95,6 +100,24 @@ const insertData = () =>
       logging_1.default.info('Dropping existing database...');
       yield mongoose_1.default.connection.dropDatabase();
       logging_1.default.info('Database dropped successfully. Recreating and seeding...');
+      try {
+        logging_1.default.info('Cleaning Weaviate collections...');
+        const weaviateClient = yield (0, weaviate_1.getWeaviateClient)();
+        const collectionsToClean = ['Restaurant', 'Dish', 'Review', 'Reward'];
+        for (const col of collectionsToClean) {
+          try {
+            yield weaviateClient.collections.delete(col);
+            logging_1.default.info(`Deleted Weaviate collection: ${col}`);
+          } catch (colError) {
+            logging_1.default.warning(`Could not delete Weaviate collection ${col}: ${colError}`);
+          }
+        }
+      } catch (weaviateError) {
+        logging_1.default.error('Error connecting to Weaviate or deleting collections:');
+        logging_1.default.error(weaviateError);
+      }
+      yield (0, weaviate_init_service_1.initWeaviate)();
+      logging_1.default.info('Weaviate collections initialized successfully...');
       // Try multiple locations for the data directory
       const possiblePaths = [
         path_1.default.join(__dirname, '../data'), // build/data
@@ -158,6 +181,61 @@ const insertData = () =>
       // Note: We use Promise.all to run these in parallel for speed
       yield Promise.all(ratedDishes.map((dishId) => dishRating_1.DishRatingModel.calculateAvgRating(dishId)));
       logging_1.default.info('Dish avgRatings updated successfully.');
+      // --- Weaviate Seeding Phase ---
+      logging_1.default.info('Starting Weaviate seeding phase...');
+      // 1. Restaurants
+      const restaurants = yield restaurant_1.RestaurantModel.find({
+        $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }]
+      });
+      logging_1.default.info(`Found ${restaurants.length} active restaurants in MongoDB. Seeding to Weaviate...`);
+      for (const r of restaurants) {
+        try {
+          const weaviateData = (0, dataToWeaviateData_1.restaurantToWeaviate)(r);
+          yield (0, weaviate_service_1.insertRestaurantVector)(weaviateData);
+        } catch (err) {
+          logging_1.default.error(`Failed to insert restaurant ${r._id} to Weaviate: ${err}`);
+        }
+      }
+      // 2. Dishes
+      const dishes = yield dish_1.DishModel.find({
+        $and: [{ $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] }, { $or: [{ deleted: { $ne: true } }] }]
+      });
+      logging_1.default.info(`Found ${dishes.length} active dishes in MongoDB. Seeding to Weaviate...`);
+      for (const d of dishes) {
+        try {
+          const weaviateData = (0, dataToWeaviateData_1.dishToWeaviate)(d);
+          yield (0, weaviate_service_1.insertDishVector)(weaviateData);
+        } catch (err) {
+          logging_1.default.error(`Failed to insert dish ${d._id} to Weaviate: ${err}`);
+        }
+      }
+      // 3. Reviews
+      const reviews = yield review_1.ReviewModel.find({
+        $and: [{ deleted: { $ne: true } }, { $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] }]
+      });
+      logging_1.default.info(`Found ${reviews.length} active reviews in MongoDB. Seeding to Weaviate...`);
+      for (const rev of reviews) {
+        try {
+          const weaviateData = (0, dataToWeaviateData_1.reviewToWeaviate)(rev);
+          yield (0, weaviate_service_1.insertReviewVector)(weaviateData);
+        } catch (err) {
+          logging_1.default.error(`Failed to insert review ${rev._id} to Weaviate: ${err}`);
+        }
+      }
+      // 4. Rewards
+      const rewards = yield reward_1.RewardModel.find({
+        $and: [{ $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] }, { $or: [{ deleted: { $ne: true } }] }]
+      });
+      logging_1.default.info(`Found ${rewards.length} active rewards in MongoDB. Seeding to Weaviate...`);
+      for (const rew of rewards) {
+        try {
+          const weaviateData = (0, dataToWeaviateData_1.rewardToWeaviate)(rew);
+          yield (0, weaviate_service_1.insertRewardVector)(weaviateData);
+        } catch (err) {
+          logging_1.default.error(`Failed to insert reward ${rew._id} to Weaviate: ${err}`);
+        }
+      }
+      logging_1.default.info('Weaviate seeding completed successfully.');
     } catch (error) {
       logging_1.default.error('Error inserting data:');
       logging_1.default.error(error);

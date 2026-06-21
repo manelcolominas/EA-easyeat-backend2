@@ -402,5 +402,6 @@ router.patch('/:review_id/restore', auth_1.authenticate, (0, auth_1.requireRole)
  *         description: Not found
  */
 router.delete('/:review_id/hard', auth_1.authenticate, (0, auth_1.requireRole)('admin'), review_1.default.hardDeleteReview);
+router.post('/:review_id/like', auth_1.authenticate, review_1.default.likeReview);
 exports.default = router;
 //# sourceMappingURL=review.js.map

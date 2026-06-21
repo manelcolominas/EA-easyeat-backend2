@@ -19,6 +19,7 @@ const reviewSchema = new mongoose_1.Schema(
     },
     comment: { type: String, trim: true },
     likes: { type: Number, default: 0 },
+    likedBy: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Customer', default: [] }],
     // 🔥 SOFT DELETE
     deleted: { type: Boolean, default: false }
   },

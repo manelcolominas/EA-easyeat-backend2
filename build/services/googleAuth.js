@@ -58,7 +58,9 @@ const verifyGoogleToken = (idToken) =>
         picture: payload.picture || ''
       };
     } catch (error) {
-      throw new Error(`Failed to verify Google token: ${error}`);
+      const wrappedError = new Error('Failed to verify Google token');
+      wrappedError.cause = error;
+      throw wrappedError;
     }
   });
 exports.verifyGoogleToken = verifyGoogleToken;
@@ -88,7 +90,9 @@ const findOrCreateCustomerFromGoogle = (googleData) =>
       yield customer.save();
       return customer;
     } catch (error) {
-      throw new Error(`Failed to find or create customer: ${error}`);
+      const wrappedError = new Error('Failed to find or create customer');
+      wrappedError.cause = error;
+      throw wrappedError;
     }
   });
 exports.findOrCreateCustomerFromGoogle = findOrCreateCustomerFromGoogle;

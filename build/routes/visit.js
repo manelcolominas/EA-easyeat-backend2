@@ -9,6 +9,7 @@ const express_1 = __importDefault(require('express'));
 const visit_1 = __importDefault(require('../controllers/visit'));
 const joi_1 = require('../middleware/joi');
 const auth_1 = require('../middleware/auth');
+const express_idempotency_1 = require('express-idempotency');
 const router = express_1.default.Router();
 /**
  * @openapi
@@ -97,6 +98,7 @@ const router = express_1.default.Router();
  */
 router.post(
   '/',
+  (0, express_idempotency_1.idempotency)(),
   auth_1.authenticate,
   (0, auth_1.requireRole)('admin', 'owner', 'staff'),
   (0, auth_1.requireRestaurantAccess)('restaurant_id'),
