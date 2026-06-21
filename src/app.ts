@@ -26,6 +26,7 @@ import reportRoutes from './routes/report';
 import notificationRoutes from './routes/notification';
 import customerDeviceTokenRoutes from './routes/customerDeviceToken';
 import llmRoutes from './routes/generate';
+import walletRoutes from './routes/wallet';
 
 const app = express();
 
@@ -90,6 +91,7 @@ app.use('/', reportRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/customerDeviceTokens', customerDeviceTokenRoutes);
 app.use('/llm', llmRoutes);
+app.use('/wallet', walletRoutes);
 
 app.use((req, res) => {
   Logging.error(new Error(`Not found: ${req.url}`));

@@ -8,6 +8,7 @@ import Logging from './library/logging';
 import { insertData } from './utils/dataSeeder';
 import { initWeaviate } from './services/weaviate-init.service';
 import { ChatService } from './services/chat';
+import { googleWalletService } from './services/googleWallet.service';
 
 const startServer = async () => {
   try {
@@ -22,6 +23,11 @@ const startServer = async () => {
       Logging.error(weaviateError);
     }
 
+    // Initialize Google Wallet LoyaltyClass (fire and forget)
+    googleWalletService.createOrUpdateLoyaltyClass().catch((err) => {
+      Logging.error(`Google Wallet Init Error: ${err}`);
+    });
+
     const httpServer = http.createServer(app);
 
     const io = new SocketIOServer(httpServer, {
@@ -34,19 +40,12 @@ const startServer = async () => {
     const chatService = new ChatService(io);
     chatService.inicializarSockets();
 
-    httpServer.listen(config.server.port, () => {
-      Logging.info(`Server is running on port ${config.server.port}`);
+    // Escuchar en '0.0.0.0' para permitir conexiones desde dispositivos de la misma red (como el móvil)
+    httpServer.listen(config.server.port, '0.0.0.0', () => {
+      Logging.info(`Server is running on port ${config.server.port} (0.0.0.0)`);
     });
-
-    /*
-      // Per provar amb mòbil real a la mateixa xarxa:
-      httpServer.listen(config.server.port, '0.0.0.0', () => {
-        Logging.info(`Server is running on port ${config.server.port}`);
-      });
-    */
   } catch (error) {
     Logging.error(error);
   }
-};
 
 startServer();

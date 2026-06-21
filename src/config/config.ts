@@ -44,7 +44,11 @@ export const config = {
     model: process.env.MODEL || 'qwen2.5:14b'
   },
   google: {
-    clientId: process.env.GOOGLE_CLIENT_ID || ''
+    clientId: process.env.GOOGLE_CLIENT_ID || '',
+    wallet: {
+      issuerId: process.env.GOOGLE_WALLET_ISSUER_ID || '',
+      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || ''
+    }
   },
   // Firebase service account credentials (optional)
   firebase: {
