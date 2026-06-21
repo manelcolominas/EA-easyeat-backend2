@@ -1,0 +1,128 @@
+classDiagram
+
+    class Customer {
+        +String name
+        +String email
+        +String password
+    }
+
+    class Employee {
+        +String name
+        +String email
+        +String role
+    }
+
+    class Admin {
+        +String name
+        +String email
+        +String role
+    }
+
+    class Restaurant {
+        +String name
+        +String description
+        +Number globalRating
+    }
+
+    class Dish {
+        +String name
+        +Number price
+        +String section
+    }
+
+    class DishRating {
+        +Number rating
+    }
+
+    class Review {
+        +Number globalRating
+        +String comment
+    }
+
+    class Reward {
+        +String name
+        +Number pointsRequired
+    }
+
+    class RewardRedemption {
+        +Number pointsUsed
+        +String status
+    }
+
+    class Visit {
+        +Date date
+        +Number pointsEarned
+        +Number billAmount
+    }
+
+    class PointsWallet {
+        +Number points
+    }
+
+    class Badge {
+        +String title
+        +String type
+    }
+
+    class Notification {
+        +String type
+        +String title
+        +String message
+    }
+
+    class CustomerStats {
+        +Number totalVisits
+        +Number totalPointsEarned
+    }
+
+    class EmployeeStats {
+        +Number totalVisitsHandled
+    }
+
+    class Statistics {
+        +Number totalPointsGiven
+        +Number loyalCustomers
+    }
+
+    class Report {
+        +String reason
+    }
+
+    class Chat {
+        +String contenido
+        +String senderRole
+    }
+
+    %% ── Relaciones ──────────────────────────────
+
+    Restaurant "1" --> "*" Employee
+    Restaurant "1" --> "*" Dish
+    Restaurant "1" --> "*" Reward
+    Restaurant "1" --> "1" Statistics
+    Restaurant "1" --> "*" Visit
+    Restaurant "1" --> "*" Review
+    Restaurant "1" --> "*" RewardRedemption
+    Restaurant "1" --> "*" Report
+    Restaurant "1" --> "*" DishRating
+    Restaurant "1" --> "*" PointsWallet
+    Restaurant "1" --> "*" Notification
+    Restaurant "1" --> "*" Chat
+    Restaurant "*" --> "*" Badge
+
+    Customer "1" --> "*" Visit
+    Customer "1" --> "*" PointsWallet
+    Customer "1" --> "*" Review
+    Customer "1" --> "*" DishRating
+    Customer "1" --> "*" RewardRedemption
+    Customer "1" --> "*" Notification
+    Customer "1" --> "*" Chat
+    Customer "1" --> "1" CustomerStats
+    Customer "*" --> "*" Badge
+
+    Employee "1" --> "*" Visit
+    Employee "1" --> "*" RewardRedemption
+    Employee "1" --> "1" EmployeeStats
+    Employee "1" --> "*" Review
+
+    Dish "1" --> "*" DishRating
+    Reward "1" --> "*" RewardRedemption
