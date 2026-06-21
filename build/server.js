@@ -78,6 +78,6 @@ const startServer = () =>
     } catch (error) {
       logging_1.default.error(error);
     }
-    startServer();
   });
+startServer();
 //# sourceMappingURL=server.js.map

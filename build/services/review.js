@@ -50,6 +50,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const mongoose_1 = __importDefault(require('mongoose'));
 const review_1 = require('../models/review');
 const notification_1 = __importDefault(require('../services/notification'));
+const logging_1 = __importDefault(require('../library/logging'));
 // ─── Filter Constants ─────────────────────────────────────────────────────────
 const ACTIVE_REVIEW_FILTER = { deleted: false };
 const DELETED_REVIEW_FILTER = { deleted: true };
@@ -181,7 +182,7 @@ const likeReview = (reviewId, userId) =>
         });
       } catch (err) {
         // swallow notification errors to avoid breaking the like API
-        console.warn('Failed to send review liked notification', (err === null || err === void 0 ? void 0 : err.message) || err);
+        logging_1.default.error('Failed to send review liked notification', (err === null || err === void 0 ? void 0 : err.message) || err);
       }
     }
     return updated;

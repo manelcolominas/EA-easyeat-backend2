@@ -49,6 +49,7 @@ const statistics_1 = require('../models/statistics');
 const visit_1 = require('../models/visit');
 const weaviate_service_1 = require('./weaviate.service');
 const dataToWeaviateData_1 = require('../utils/dataToWeaviateData');
+const logging_1 = __importDefault(require('../library/logging'));
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD
 // ─────────────────────────────────────────────────────────────────────────────
@@ -61,7 +62,7 @@ const createRestaurant = (data) =>
   });
 const getRestaurantGlobalRating = (restaurantId) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    console.log('restaurantId:', restaurantId);
+    logging_1.default.info('restaurantId:', restaurantId);
     const restaurantIdCandidates = [restaurantId];
     if (mongoose_1.default.Types.ObjectId.isValid(restaurantId)) {
       restaurantIdCandidates.unshift(new mongoose_1.default.Types.ObjectId(restaurantId));
@@ -82,7 +83,7 @@ const getRestaurantGlobalRating = (restaurantId) =>
           }
         }
       ]);
-      console.log('Aggregation result:', ratingAgg);
+      logging_1.default.info('Aggregation result:', ratingAgg);
       if (ratingAgg.length > 0 && ratingAgg[0].averageRating !== null && ratingAgg[0].averageRating !== undefined) {
         return Number(ratingAgg[0].averageRating.toFixed(1));
       }

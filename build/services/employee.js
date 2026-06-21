@@ -41,6 +41,7 @@ const employee_1 = require('../models/employee');
 const restaurant_1 = require('../models/restaurant');
 const review_1 = require('../models/review');
 const visit_1 = require('../models/visit');
+const logging_1 = __importDefault(require('../library/logging'));
 const createEmployee = (data) =>
   __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -157,7 +158,7 @@ const getByRestaurantWithStats = (restaurant_id) =>
         }
       ])
     ]);
-    console.log('Stats calculated:', { visitsStats, reviewsStats });
+    logging_1.default.info('Stats calculated:', { visitsStats, reviewsStats });
     const visitsMap = new Map(visitsStats.map((item) => [String(item._id), { totalVisits: item.totalVisits, revenue: item.revenue }]));
     const reviewsMap = new Map(reviewsStats.map((item) => [String(item._id), { averageRating: item.averageRating }]));
     return employees.map((employee) => {

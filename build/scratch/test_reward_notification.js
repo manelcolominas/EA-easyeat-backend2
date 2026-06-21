@@ -44,15 +44,16 @@ const pointsWallet_1 = require('../models/pointsWallet');
 const notification_1 = require('../models/notification');
 const reward_1 = require('../models/reward');
 const reward_2 = __importDefault(require('../services/reward'));
+const logging_1 = __importDefault(require('../library/logging'));
 function runTest() {
   return __awaiter(this, void 0, void 0, function* () {
     try {
-      console.log('Connecting to MongoDB...');
+      logging_1.default.info('Connecting to MongoDB...');
       yield mongoose_1.default.connect(config_1.config.mongo.url);
-      console.log('Connected.');
+      logging_1.default.info('Connected.');
       const uniqueSuffix = Date.now();
       // 1. Create a test Restaurant
-      console.log('Creating test restaurant...');
+      logging_1.default.info('Creating test restaurant...');
       const restaurant = new restaurant_1.RestaurantModel({
         _id: new mongoose_1.default.Types.ObjectId(),
         profile: {
@@ -75,7 +76,7 @@ function runTest() {
         }
       });
       yield restaurant.save();
-      console.log(`Restaurant created: ${restaurant.profile.name} (${restaurant._id})`);
+      logging_1.default.info(`Restaurant created: ${restaurant.profile.name} (${restaurant._id})`);
       // 2. Create another restaurant for testing isolation
       const otherRestaurant = new restaurant_1.RestaurantModel({
         _id: new mongoose_1.default.Types.ObjectId(),
@@ -99,7 +100,7 @@ function runTest() {
       });
       yield otherRestaurant.save();
       // 3. Create test customers
-      console.log('Creating test customers...');
+      logging_1.default.info('Creating test customers...');
       // Customer A: active, has restaurant as favorite
       const customerA = new customer_1.CustomerModel({
         name: `Customer A ${uniqueSuffix}`,
@@ -169,9 +170,9 @@ function runTest() {
       yield walletE.save();
       customerE.pointsWallet = [walletE._id];
       yield customerE.save();
-      console.log('Customers created.');
+      logging_1.default.info('Customers created.');
       // 4. Create new reward
-      console.log('Creating new reward to trigger notifications...');
+      logging_1.default.info('Creating new reward to trigger notifications...');
       const rewardName = `Free Tapa ${uniqueSuffix}`;
       const savedReward = yield reward_2.default.createReward({
         restaurant_id: restaurant._id,
@@ -180,45 +181,45 @@ function runTest() {
         pointsRequired: 50,
         active: true
       });
-      console.log(`Reward created: ${savedReward.name} (${savedReward._id})`);
+      logging_1.default.info(`Reward created: ${savedReward.name} (${savedReward._id})`);
       // 5. Verify Notifications
-      console.log('Fetching notifications generated for this restaurant...');
+      logging_1.default.info('Fetching notifications generated for this restaurant...');
       const notifications = yield notification_1.NotificationModel.find({
         restaurant_id: restaurant._id,
         type: 'new_reward'
       }).lean();
-      console.log(`Found ${notifications.length} notifications.`);
+      logging_1.default.info(`Found ${notifications.length} notifications.`);
       const notifiedCustomerIds = notifications.map((n) => n.customer_id.toString());
       const hasA = notifiedCustomerIds.includes(customerA._id.toString());
       const hasB = notifiedCustomerIds.includes(customerB._id.toString());
       const hasC = notifiedCustomerIds.includes(customerC._id.toString());
       const hasD = notifiedCustomerIds.includes(customerD._id.toString());
       const hasE = notifiedCustomerIds.includes(customerE._id.toString());
-      console.log('\n--- VERIFICATION RESULTS ---');
-      console.log(`Customer A (Favorite) notified: ${hasA} (Expected: true)`);
-      console.log(`Customer B (Points > 0) notified: ${hasB} (Expected: true)`);
-      console.log(`Customer C (Points = 0) notified: ${hasC} (Expected: false)`);
-      console.log(`Customer D (Soft-deleted) notified: ${hasD} (Expected: false)`);
-      console.log(`Customer E (Points on other rest) notified: ${hasE} (Expected: false)`);
+      logging_1.default.info('\n--- VERIFICATION RESULTS ---');
+      logging_1.default.info(`Customer A (Favorite) notified: ${hasA} (Expected: true)`);
+      logging_1.default.info(`Customer B (Points > 0) notified: ${hasB} (Expected: true)`);
+      logging_1.default.info(`Customer C (Points = 0) notified: ${hasC} (Expected: false)`);
+      logging_1.default.info(`Customer D (Soft-deleted) notified: ${hasD} (Expected: false)`);
+      logging_1.default.info(`Customer E (Points on other rest) notified: ${hasE} (Expected: false)`);
       let success = true;
       if (!hasA || !hasB || hasC || hasD || hasE) {
-        console.error('❌ TEST FAILED: Notification logic does not match specification!');
+        logging_1.default.error('❌ TEST FAILED: Notification logic does not match specification!');
         success = false;
       } else {
-        console.log('✅ TEST PASSED: Notification logic is fully correct!');
+        logging_1.default.info('✅ TEST PASSED: Notification logic is fully correct!');
       }
       // 6. Cleanup
-      console.log('\nCleaning up test data...');
+      logging_1.default.info('\nCleaning up test data...');
       yield reward_1.RewardModel.deleteMany({ restaurant_id: { $in: [restaurant._id, otherRestaurant._id] } });
       yield pointsWallet_1.PointsWalletModel.deleteMany({ _id: { $in: [walletB._id, walletC._id, walletD._id, walletE._id] } });
       yield customer_1.CustomerModel.deleteMany({ _id: { $in: [customerA._id, customerB._id, customerC._id, customerD._id, customerE._id] } });
       yield notification_1.NotificationModel.deleteMany({ restaurant_id: { $in: [restaurant._id, otherRestaurant._id] } });
       yield restaurant_1.RestaurantModel.deleteMany({ _id: { $in: [restaurant._id, otherRestaurant._id] } });
-      console.log('Cleanup complete.');
+      logging_1.default.info('Cleanup complete.');
       yield mongoose_1.default.disconnect();
       process.exit(success ? 0 : 1);
     } catch (error) {
-      console.error('Error running test:', error);
+      logging_1.default.error('Error running test:', error);
       process.exit(1);
     }
   });

@@ -42,6 +42,7 @@ const restaurant_1 = require('../models/restaurant');
 const customer_1 = require('../models/customer');
 const pointsWallet_1 = require('../models/pointsWallet');
 const notification_1 = __importDefault(require('./notification'));
+const logging_1 = __importDefault(require('../library/logging'));
 const createDish = (data) =>
   __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -78,11 +79,11 @@ const createDish = (data) =>
               }
             });
           } catch (innerErr) {
-            console.warn(`Failed to send new dish notification to customer ${customerId}:`, (innerErr === null || innerErr === void 0 ? void 0 : innerErr.message) || innerErr);
+            logging_1.default.error(`Failed to send new dish notification to customer ${customerId}:`, (innerErr === null || innerErr === void 0 ? void 0 : innerErr.message) || innerErr);
           }
         }
       } catch (err) {
-        console.error('Error sending new dish notifications:', (err === null || err === void 0 ? void 0 : err.message) || err);
+        logging_1.default.error('Error sending new dish notifications:', (err === null || err === void 0 ? void 0 : err.message) || err);
       }
     }
     return savedDish;

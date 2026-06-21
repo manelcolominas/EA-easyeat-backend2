@@ -43,6 +43,7 @@ const reward_1 = require('../models/reward');
 const pointsWallet_1 = require('../models/pointsWallet');
 const restaurant_1 = require('../models/restaurant');
 const notification_1 = __importDefault(require('./notification'));
+const logging_1 = __importDefault(require('../library/logging'));
 const buildError = (status, message) => {
   const error = new Error(message);
   error.status = status;
@@ -150,7 +151,7 @@ const redeemReward = (data) =>
         );
         if (response && response.redemption) {
           triggerRedemptionNotification(response.redemption, response.pointsBefore - response.pointsAfter).catch((err) => {
-            console.error('Error sending redemption notification:', err);
+            logging_1.default.error('Error sending redemption notification:', err);
           });
         }
         return response;
@@ -186,7 +187,7 @@ const triggerRedemptionNotification = (redemption, pointsUsed) =>
         }
       });
     } catch (err) {
-      console.error('Error sending redemption notification:', (err === null || err === void 0 ? void 0 : err.message) || err);
+      logging_1.default.error('Error sending redemption notification:', (err === null || err === void 0 ? void 0 : err.message) || err);
     }
   });
 const getRewardRedemption = (redemptionId) =>
@@ -374,7 +375,7 @@ const redeemRewardWithoutTransaction = (data) =>
       redemption.redeemedAt = new Date();
       yield redemption.save();
       triggerRedemptionNotification(redemption, pointsUsed).catch((err) => {
-        console.error('Error sending redemption notification (no trans):', err);
+        logging_1.default.error('Error sending redemption notification (no trans):', err);
       });
       return {
         message: 'Reward redeemed successfully (without transaction)',

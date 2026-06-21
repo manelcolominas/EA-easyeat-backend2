@@ -266,7 +266,7 @@ class ChatService {
       }
     });
     this.io.on('connection', (socket) => {
-      console.log(`Socket connected: ${socket.id}`);
+      logging_1.default.info(`Socket connected: ${socket.id}`);
       socket.on('chat:joinConversation', ({ conversationId }) => {
         if (!conversationId) {
           socket.emit('chat:error', {
@@ -345,7 +345,7 @@ class ChatService {
         });
       });
       socket.on('disconnect', () => {
-        console.log(`Socket disconnected: ${socket.id}`);
+        logging_1.default.info(`Socket disconnected: ${socket.id}`);
       });
     });
   }

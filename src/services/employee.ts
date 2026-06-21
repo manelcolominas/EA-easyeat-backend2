@@ -3,6 +3,7 @@ import { EmployeeModel, IEmployee } from '../models/employee';
 import { RestaurantModel } from '../models/restaurant';
 import { ReviewModel } from '../models/review';
 import { VisitModel } from '../models/visit';
+import Logging from '../library/logging';
 
 type EmployeeStatsResult = IEmployee & {
   active?: boolean;
@@ -147,7 +148,7 @@ const getByRestaurantWithStats = async (restaurant_id: string): Promise<Employee
     ])
   ]);
 
-  console.log('Stats calculated:', { visitsStats, reviewsStats });
+  Logging.info('Stats calculated:', { visitsStats, reviewsStats });
 
   const visitsMap = new Map<string, { totalVisits: number; revenue: number }>(visitsStats.map((item) => [String(item._id), { totalVisits: item.totalVisits, revenue: item.revenue }]));
 

@@ -86,7 +86,7 @@ class SupportService {
         if (error.response) {
           logging_1.default.error(`Gemini Response Error: ${JSON.stringify(error.response.data)}`);
         }
-        console.error(error); // This will show in the terminal
+        logging_1.default.error(error); // This will show in the terminal
         throw Object.assign(new Error('Lo siento, ha ocurrido un error al procesar tu consulta. Por favor, inténtalo de nuevo más tarde.'), { cause: error });
       }
     });
